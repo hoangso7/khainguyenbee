@@ -74,8 +74,37 @@ const QRBeehiveDetail = () => {
   if (loading) {
     return (
       <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-          <CircularProgress />
+        <Box 
+          display="flex" 
+          justifyContent="center" 
+          alignItems="center" 
+          minHeight="400px"
+          sx={{ 
+            flexDirection: 'column',
+            gap: 2,
+            py: 4
+          }}
+        >
+          <img 
+            src="/bee.gif" 
+            alt="Loading..." 
+            style={{ 
+              width: '80px', 
+              height: '80px',
+              borderRadius: '50%',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
+            }} 
+          />
+          <Typography 
+            variant="body1" 
+            color="primary" 
+            sx={{ 
+              fontWeight: 500,
+              opacity: 0.8
+            }}
+          >
+            Đang tải thông tin tổ ong...
+          </Typography>
         </Box>
       </Container>
     );

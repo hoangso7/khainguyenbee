@@ -306,8 +306,36 @@ const ExportQR = () => {
           </Box>
 
           {loading ? (
-            <Box display="flex" justifyContent="center" py={4}>
-              <CircularProgress />
+            <Box 
+              display="flex" 
+              justifyContent="center" 
+              alignItems="center"
+              sx={{ 
+                flexDirection: 'column',
+                gap: 2,
+                py: 4
+              }}
+            >
+              <img 
+                src="/bee.gif" 
+                alt="Loading..." 
+                style={{ 
+                  width: '60px', 
+                  height: '60px',
+                  borderRadius: '50%',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                }} 
+              />
+              <Typography 
+                variant="body2" 
+                color="primary" 
+                sx={{ 
+                  fontWeight: 500,
+                  opacity: 0.8
+                }}
+              >
+                Đang tải danh sách tổ ong...
+              </Typography>
             </Box>
           ) : (
             <TableContainer component={Paper} sx={{ maxHeight: 400 }}>

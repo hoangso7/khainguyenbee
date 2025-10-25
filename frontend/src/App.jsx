@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { Box, Typography } from '@mui/material';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
 import Layout from './components/Layout/Layout';
@@ -89,7 +90,41 @@ const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Box 
+        display="flex" 
+        justifyContent="center" 
+        alignItems="center" 
+        minHeight="100vh"
+        sx={{ 
+          background: 'linear-gradient(135deg, #FFF8DC 0%, #F4A460 100%)',
+          flexDirection: 'column',
+          gap: 2
+        }}
+      >
+        <img 
+          src="/bee.gif" 
+          alt="Loading..." 
+          style={{ 
+            width: '120px', 
+            height: '120px',
+            borderRadius: '50%',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+          }} 
+        />
+        <Typography 
+          variant="h6" 
+          color="primary" 
+          sx={{ 
+            fontWeight: 600,
+            textAlign: 'center',
+            opacity: 0.8
+          }}
+        >
+          KhaiNguyenBee đang khởi động...
+        </Typography>
+      </Box>
+    );
   }
   
   return user ? children : <Navigate to="/login" />;

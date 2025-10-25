@@ -122,9 +122,27 @@ const Setup = () => {
     return (
       <Container maxWidth="sm">
         <StyledPaper elevation={3}>
-          <Box textAlign="center" py={4}>
-            <CircularProgress size={40} />
-            <Typography variant="h6" sx={{ mt: 2 }}>
+          <Box 
+            textAlign="center" 
+            py={4}
+            sx={{ 
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 2
+            }}
+          >
+            <img 
+              src="/bee.gif" 
+              alt="Loading..." 
+              style={{ 
+                width: '80px', 
+                height: '80px',
+                borderRadius: '50%',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
+              }} 
+            />
+            <Typography variant="h6" color="primary" sx={{ fontWeight: 500 }}>
               Đang kiểm tra trạng thái setup...
             </Typography>
           </Box>
