@@ -218,9 +218,12 @@ def change_password():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    # Get sorting parameters
+    # Get query parameters
+    page = request.args.get('page', 1, type=int)
     sort_by = request.args.get('sort', 'created_at')
     sort_order = request.args.get('order', 'desc')
+    search_import_date = request.args.get('import_date', '')
+    search_split_date = request.args.get('split_date', '')
     
     # Validate sort parameters
     valid_sorts = ['created_at', 'import_date', 'split_date', 'health_status', 'status']
@@ -230,42 +233,144 @@ def dashboard():
     if sort_order not in ['asc', 'desc']:
         sort_order = 'desc'
     
+    # Build query for active beehives (not sold)
+    query = Beehive.query.filter_by(is_sold=False)
+    
+    # Apply date filters
+    if search_import_date:
+        try:
+            import_date = datetime.strptime(search_import_date, '%Y-%m-%d').date()
+            query = query.filter(Beehive.import_date == import_date)
+        except ValueError:
+            pass
+    
+    if search_split_date:
+        try:
+            split_date = datetime.strptime(search_split_date, '%Y-%m-%d').date()
+            query = query.filter(Beehive.split_date == split_date)
+        except ValueError:
+            pass
+    
     # Apply sorting
     if sort_by == 'created_at':
         if sort_order == 'asc':
-            beehives = Beehive.query.order_by(Beehive.created_at.asc()).all()
+            query = query.order_by(Beehive.created_at.asc())
         else:
-            beehives = Beehive.query.order_by(Beehive.created_at.desc()).all()
+            query = query.order_by(Beehive.created_at.desc())
     elif sort_by == 'import_date':
         if sort_order == 'asc':
-            beehives = Beehive.query.order_by(Beehive.import_date.asc()).all()
+            query = query.order_by(Beehive.import_date.asc())
         else:
-            beehives = Beehive.query.order_by(Beehive.import_date.desc()).all()
+            query = query.order_by(Beehive.import_date.desc())
     elif sort_by == 'split_date':
         if sort_order == 'asc':
-            beehives = Beehive.query.order_by(Beehive.split_date.asc()).all()
+            query = query.order_by(Beehive.split_date.asc())
         else:
-            beehives = Beehive.query.order_by(Beehive.split_date.desc()).all()
+            query = query.order_by(Beehive.split_date.desc())
     elif sort_by == 'health_status':
         if sort_order == 'asc':
-            beehives = Beehive.query.order_by(Beehive.health_status.asc()).all()
+            query = query.order_by(Beehive.health_status.asc())
         else:
-            beehives = Beehive.query.order_by(Beehive.health_status.desc()).all()
+            query = query.order_by(Beehive.health_status.desc())
     elif sort_by == 'status':
         if sort_order == 'asc':
-            beehives = Beehive.query.order_by(Beehive.is_sold.asc()).all()
+            query = query.order_by(Beehive.is_sold.asc())
         else:
-            beehives = Beehive.query.order_by(Beehive.is_sold.desc()).all()
+            query = query.order_by(Beehive.is_sold.desc())
     
-    # Get health statistics for pie chart
+    # Pagination
+    beehives_pagination = query.paginate(
+        page=page, per_page=20, error_out=False
+    )
+    beehives = beehives_pagination.items
+    
+    # Calculate health statistics for all active beehives
+    all_active_beehives = Beehive.query.filter_by(is_sold=False).all()
     health_stats = {}
-    for beehive in beehives:
+    for beehive in all_active_beehives:
         health = beehive.health_status or 'Unknown'
         health_stats[health] = health_stats.get(health, 0) + 1
     
-    return render_template('dashboard.html', beehives=beehives, 
-                         sort_by=sort_by, sort_order=sort_order, 
-                         health_stats=health_stats)
+    return render_template('dashboard.html', 
+                         beehives=beehives, 
+                         health_stats=health_stats, 
+                         sort_by=sort_by, 
+                         sort_order=sort_order,
+                         pagination=beehives_pagination,
+                         search_import_date=search_import_date,
+                         search_split_date=search_split_date)
+
+@app.route('/sold_beehives')
+@login_required
+def sold_beehives():
+    # Get query parameters
+    page = request.args.get('page', 1, type=int)
+    sort_by = request.args.get('sort', 'sold_date')
+    sort_order = request.args.get('order', 'desc')
+    search_import_date = request.args.get('import_date', '')
+    search_sold_date = request.args.get('sold_date', '')
+    
+    # Validate sort parameters
+    valid_sorts = ['created_at', 'import_date', 'sold_date', 'health_status']
+    if sort_by not in valid_sorts:
+        sort_by = 'sold_date'
+    
+    if sort_order not in ['asc', 'desc']:
+        sort_order = 'desc'
+    
+    # Build query for sold beehives
+    query = Beehive.query.filter_by(is_sold=True)
+    
+    # Apply date filters
+    if search_import_date:
+        try:
+            import_date = datetime.strptime(search_import_date, '%Y-%m-%d').date()
+            query = query.filter(Beehive.import_date == import_date)
+        except ValueError:
+            pass
+    
+    if search_sold_date:
+        try:
+            sold_date = datetime.strptime(search_sold_date, '%Y-%m-%d').date()
+            query = query.filter(Beehive.sold_date == sold_date)
+        except ValueError:
+            pass
+    
+    # Apply sorting
+    if sort_by == 'created_at':
+        if sort_order == 'asc':
+            query = query.order_by(Beehive.created_at.asc())
+        else:
+            query = query.order_by(Beehive.created_at.desc())
+    elif sort_by == 'import_date':
+        if sort_order == 'asc':
+            query = query.order_by(Beehive.import_date.asc())
+        else:
+            query = query.order_by(Beehive.import_date.desc())
+    elif sort_by == 'sold_date':
+        if sort_order == 'asc':
+            query = query.order_by(Beehive.sold_date.asc())
+        else:
+            query = query.order_by(Beehive.sold_date.desc())
+    elif sort_by == 'health_status':
+        if sort_order == 'asc':
+            query = query.order_by(Beehive.health_status.asc())
+        else:
+            query = query.order_by(Beehive.health_status.desc())
+    
+    # Pagination
+    beehives_pagination = query.paginate(
+        page=page, per_page=20, error_out=False
+    )
+    beehives = beehives_pagination.items
+    
+    return render_template('sold_beehives.html', 
+                         beehives=beehives, 
+                         sort_by=sort_by, 
+                         sort_order=sort_order,
+                         pagination=beehives_pagination,
+                         search_import_date=search_import_date,
+                         search_sold_date=search_sold_date)
 
 @app.route('/add_beehive', methods=['GET', 'POST'])
 @login_required
