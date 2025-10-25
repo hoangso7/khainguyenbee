@@ -46,8 +46,8 @@ check_docker() {
         exit 1
     fi
 
-    if ! command_exists docker-compose; then
-        print_error "Docker Compose is not installed. Please install Docker Compose first."
+    if ! docker compose version >/dev/null 2>&1; then
+        print_error "Docker Compose is not available. Please install Docker Compose first."
         exit 1
     fi
 
@@ -87,19 +87,19 @@ setup_frontend_env() {
 # Function to build and start services
 start_services() {
     print_status "Building Docker images..."
-    docker-compose build
+    docker compose build
 
     print_status "Starting services..."
-    docker-compose up -d
+    docker compose up -d
 
     print_status "Waiting for services to be ready..."
     sleep 10
 
     # Check if services are running
-    if docker-compose ps | grep -q "Up"; then
+    if docker compose ps | grep -q "Up"; then
         print_success "Services are running!"
     else
-        print_error "Some services failed to start. Check logs with: docker-compose logs"
+        print_error "Some services failed to start. Check logs with: docker compose logs"
         exit 1
     fi
 }
@@ -109,7 +109,7 @@ check_health() {
     print_status "Checking service health..."
     
     # Check database
-    if docker-compose exec -T db mysqladmin ping -h localhost >/dev/null 2>&1; then
+    if docker compose exec -T db mysqladmin ping -h localhost >/dev/null 2>&1; then
         print_success "Database is healthy"
     else
         print_warning "Database health check failed"
@@ -149,10 +149,10 @@ show_info() {
     echo "  PORT=443"
     echo ""
     echo "📋 Useful Commands:"
-    echo "  View logs:     docker-compose logs -f"
-    echo "  Stop services: docker-compose down"
-    echo "  Restart:       docker-compose restart"
-    echo "  Database shell: docker-compose exec db mysql -u kbee_user -p kbee_manager"
+    echo "  View logs:     docker compose logs -f"
+    echo "  Stop services: docker compose down"
+    echo "  Restart:       docker compose restart"
+    echo "  Database shell: docker compose exec db mysql -u kbee_user -p kbee_manager"
     echo ""
     echo "🔧 Development Mode:"
     echo "  make dev-up    - Start in development mode"
@@ -161,7 +161,7 @@ show_info() {
     echo "📚 Documentation:"
     echo "  Domain setup:  cat DOMAIN_SETUP.md"
     echo "  Makefile:      make help"
-    echo "  Docker logs:   docker-compose logs [service_name]"
+    echo "  Docker logs:   docker compose logs [service_name]"
     echo ""
 }
 

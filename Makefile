@@ -23,41 +23,41 @@ help:
 
 # Production commands
 build:
-	docker-compose build
+	docker compose build
 
 up:
-	docker-compose up -d
+	docker compose up -d
 
 down:
-	docker-compose down
+	docker compose down
 
 restart:
-	docker-compose restart
+	docker compose restart
 
 logs:
-	docker-compose logs -f
+	docker compose logs -f
 
 # Development commands
 dev-up:
-	FLASK_ENV=development FLASK_DEBUG=1 BACKEND_VOLUME=.:/app docker-compose up -d
+	FLASK_ENV=development FLASK_DEBUG=1 BACKEND_VOLUME=.:/app docker compose up -d
 
 dev-down:
-	docker-compose down
+	docker compose down
 
 dev-logs:
-	docker-compose logs -f
+	docker compose logs -f
 
 # Cleanup commands
 clean:
-	docker-compose down -v --remove-orphans
+	docker compose down -v --remove-orphans
 	docker system prune -f
 
 # Database commands
 db-shell:
-	docker-compose exec db mysql -u kbee_user -p kbee_manager
+	docker compose exec db mysql -u kbee_user -p kbee_manager
 
 db-backup:
-	docker-compose exec db mysqldump -u kbee_user -p kbee_manager > backup_$(shell date +%Y%m%d_%H%M%S).sql
+	docker compose exec db mysqldump -u kbee_user -p kbee_manager > backup_$(shell date +%Y%m%d_%H%M%S).sql
 
 # Quick setup
 setup:
