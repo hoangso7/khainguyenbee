@@ -119,6 +119,15 @@ class Beehive(db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# Root route for health check
+@app.route('/')
+def health_check():
+    return jsonify({
+        'status': 'healthy',
+        'message': 'KBee Manager API is running',
+        'version': '1.0.0'
+    })
+
 # API Routes
 def token_required(f):
     @wraps(f)
