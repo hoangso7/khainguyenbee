@@ -237,7 +237,7 @@ const Dashboard = () => {
                 <Box key={health} display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                   <Chip
                     icon={<img src={getHealthStatusIcon(health || 'Unknown')} alt={health || 'Unknown'} style={{ width: 16, height: 16 }} />}
-                    label={health}
+                    label={health || 'Unknown'}
                     color={getHealthStatusColor(health || 'Unknown')}
                     size="small"
                     sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
@@ -339,7 +339,7 @@ const Dashboard = () => {
               <Typography 
                 variant="body2" 
                 color="text.secondary" 
-                align={{ xs: 'left', sm: 'right' }}
+                align="right"
                 sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
               >
                 Hiển thị {activeBeehives.length}/{pagination?.total || 0} tổ ong
@@ -421,7 +421,7 @@ const Dashboard = () => {
                     <TableRow key={beehive.serial_number} hover>
                       <TableCell>
                         <Typography variant="subtitle2" fontWeight="bold">
-                          {beehive.serial_number}
+                          {beehive.serial_number || 'N/A'}
                         </Typography>
                       </TableCell>
                       <TableCell>

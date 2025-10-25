@@ -152,7 +152,7 @@ const QRBeehiveDetail = () => {
             sx={{ mb: 3 }}
           >
             <Typography variant="body1">
-              {businessInfo.qr_custom_message}
+              {businessInfo.qr_custom_message || 'Thông điệp tùy chỉnh'}
             </Typography>
           </Alert>
         )}
@@ -175,14 +175,14 @@ const QRBeehiveDetail = () => {
                     Mã tổ ong:
                   </Typography>
                   <Typography variant="h6" sx={{ mb: 2 }}>
-                    {beehive.serial_number}
+                    {beehive.serial_number || 'N/A'}
                   </Typography>
 
                   <Typography variant="body2" color="text.secondary">
                     Ngày nhập:
                   </Typography>
                   <Typography variant="body1" sx={{ mb: 2 }}>
-                    {new Date(beehive.import_date).toLocaleDateString('vi-VN')}
+                    {beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}
                   </Typography>
 
                   <Typography variant="body2" color="text.secondary">
@@ -255,7 +255,7 @@ const QRBeehiveDetail = () => {
                     Ghi chú
                   </Typography>
                   <Typography variant="body1">
-                    {beehive.notes}
+                    {beehive.notes || 'Không có ghi chú'}
                   </Typography>
                 </CardContent>
               </Card>
@@ -273,27 +273,27 @@ const QRBeehiveDetail = () => {
                   </Typography>
                   {businessInfo.business_name && (
                     <Typography variant="body1" sx={{ mb: 1 }}>
-                      <strong>Tên doanh nghiệp:</strong> {businessInfo.business_name}
+                      <strong>Tên doanh nghiệp:</strong> {businessInfo.business_name || 'N/A'}
                     </Typography>
                   )}
                   {businessInfo.business_address && (
                     <Typography variant="body1" sx={{ mb: 1 }}>
-                      <strong>Địa chỉ:</strong> {businessInfo.business_address}
+                      <strong>Địa chỉ:</strong> {businessInfo.business_address || 'N/A'}
                     </Typography>
                   )}
                   {businessInfo.business_phone && (
                     <Typography variant="body1" sx={{ mb: 1 }}>
-                      <strong>Điện thoại:</strong> {businessInfo.business_phone}
+                      <strong>Điện thoại:</strong> {businessInfo.business_phone || 'N/A'}
                     </Typography>
                   )}
                   {businessInfo.business_email && (
                     <Typography variant="body1" sx={{ mb: 1 }}>
-                      <strong>Email:</strong> {businessInfo.business_email}
+                      <strong>Email:</strong> {businessInfo.business_email || 'N/A'}
                     </Typography>
                   )}
                   {businessInfo.business_website && (
                     <Typography variant="body1">
-                      <strong>Website:</strong> {businessInfo.business_website}
+                      <strong>Website:</strong> {businessInfo.business_website || 'N/A'}
                     </Typography>
                   )}
                 </CardContent>
@@ -311,10 +311,10 @@ const QRBeehiveDetail = () => {
                     Thông tin chủ sở hữu
                   </Typography>
                   <Typography variant="body1">
-                    <strong>Tên:</strong> {owner.username}
+                    <strong>Tên:</strong> {owner.username || 'N/A'}
                   </Typography>
                   <Typography variant="body1">
-                    <strong>Email:</strong> {owner.email}
+                    <strong>Email:</strong> {owner.email || 'N/A'}
                   </Typography>
                 </CardContent>
               </Card>

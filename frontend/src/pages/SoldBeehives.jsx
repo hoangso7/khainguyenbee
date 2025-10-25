@@ -360,7 +360,7 @@ const SoldBeehives = () => {
                     <TableRow key={beehive.serial_number} hover>
                       <TableCell>
                         <Typography variant="subtitle2" fontWeight="bold">
-                          {beehive.serial_number}
+                          {beehive.serial_number || 'N/A'}
                         </Typography>
                       </TableCell>
                       <TableCell>

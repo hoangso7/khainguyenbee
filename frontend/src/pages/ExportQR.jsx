@@ -139,7 +139,7 @@ const ExportQR = () => {
         }
 
         // Generate QR code
-        const qrUrl = `${window.location.origin}/beehive/${beehive.qr_token}`;
+        const qrUrl = `${window.location.origin}/beehive/${beehive.qr_token || ''}`;
         const qrCodeDataURL = await generateQRCode(qrUrl);
 
         // Calculate position
@@ -155,9 +155,9 @@ const ExportQR = () => {
         if (exportSettings.includeDetails) {
           const textY = y + exportSettings.qrSize / 3.78 + 5;
           pdf.setFontSize(10);
-          pdf.text(`Mã tổ: ${beehive.serial_number}`, x, textY);
-          pdf.text(`Ngày nhập: ${new Date(beehive.import_date).toLocaleDateString('vi-VN')}`, x, textY + 5);
-          pdf.text(`Sức khỏe: ${beehive.health_status}`, x, textY + 10);
+          pdf.text(`Mã tổ: ${beehive.serial_number || 'N/A'}`, x, textY);
+          pdf.text(`Ngày nhập: ${beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}`, x, textY + 5);
+          pdf.text(`Sức khỏe: ${beehive.health_status || 'Unknown'}`, x, textY + 10);
         }
 
         currentItem++;
@@ -367,7 +367,7 @@ const ExportQR = () => {
                       </TableCell>
                       <TableCell>
                         <Typography variant="subtitle2" fontWeight="bold">
-                          {beehive.serial_number}
+                          {beehive.serial_number || 'N/A'}
                         </Typography>
                       </TableCell>
                       <TableCell>
@@ -389,7 +389,7 @@ const ExportQR = () => {
                         <Button
                           size="small"
                           startIcon={<QrCodeIcon />}
-                          onClick={() => navigate(`/beehive/${beehive.qr_token}`)}
+                          onClick={() => navigate(`/beehive/${beehive.qr_token || ''}`)}
                         >
                           Xem QR
                         </Button>

@@ -65,6 +65,35 @@ const testCases = [
       console.log(`✅ Chip label test: ${result}`);
       return result;
     }
+  },
+  {
+    name: 'Serial number with undefined',
+    test: () => {
+      const serialNumber = undefined;
+      const result = serialNumber || 'N/A';
+      console.log(`✅ Serial number test: ${result}`);
+      return result;
+    }
+  },
+  {
+    name: 'Import date with undefined',
+    test: () => {
+      const importDate = undefined;
+      const result = importDate ? new Date(importDate).toLocaleDateString('vi-VN') : 'N/A';
+      console.log(`✅ Import date test: ${result}`);
+      return result;
+    }
+  },
+  {
+    name: 'Typography with undefined values',
+    test: () => {
+      const beehive = { serial_number: undefined, import_date: undefined };
+      const serialResult = beehive.serial_number || 'N/A';
+      const dateResult = beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A';
+      console.log(`✅ Typography serial: ${serialResult}`);
+      console.log(`✅ Typography date: ${dateResult}`);
+      return { serial: serialResult, date: dateResult };
+    }
   }
 ];
 

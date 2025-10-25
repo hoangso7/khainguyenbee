@@ -347,7 +347,7 @@ const BulkAddBeehives = () => {
                       <TableCell>
                         <TextField
                           size="small"
-                          value={beehive.notes}
+                          value={beehive.notes || ''}
                           onChange={(e) => updateBeehive(index, 'notes', e.target.value)}
                           multiline
                           rows={1}

@@ -61,10 +61,10 @@ const BeehiveCard = ({ beehive, onEdit, onViewQR, onSell, onDelete }) => {
           }}
         >
           <Typography variant="h6" fontWeight="bold">
-            {beehive.serial_number}
+            {beehive.serial_number || 'N/A'}
           </Typography>
           <Typography variant="body2" sx={{ opacity: 0.9 }}>
-            Nhập: {new Date(beehive.import_date).toLocaleDateString('vi-VN')}
+            Nhập: {beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}
           </Typography>
         </Box>
 
