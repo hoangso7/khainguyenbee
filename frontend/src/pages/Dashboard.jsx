@@ -158,35 +158,35 @@ const Dashboard = () => {
       )}
 
       {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={6} sm={6} md={3}>
           <StatsCard
             title="Tổng số tổ ong"
-            value={stats.total}
+            value={stats?.total || 0}
             icon="🐝"
             color="primary"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <StatsCard
             title="Tổ đang quản lý"
-            value={stats.active}
+            value={stats?.active || 0}
             icon="📊"
             color="info"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <StatsCard
             title="Tổ đã bán"
-            value={stats.sold}
+            value={stats?.sold || 0}
             icon="💰"
             color="warning"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <StatsCard
             title="Tổ khỏe mạnh"
-            value={stats.healthy}
+            value={stats?.healthy || 0}
             icon="💚"
             color="success"
           />
@@ -194,14 +194,14 @@ const Dashboard = () => {
       </Grid>
 
       {/* Health Chart */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={12} md={6}>
           <HealthChart data={healthStats} />
         </Grid>
         <Grid item xs={12} md={6}>
           <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
+            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+              <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
                 Thông tin chi tiết
               </Typography>
               {healthStats && Object.entries(healthStats).map(([health, count]) => (
@@ -211,8 +211,9 @@ const Dashboard = () => {
                     label={health}
                     color={getHealthStatusColor(health)}
                     size="small"
+                    sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
                   />
-                  <Typography variant="body2" fontWeight="bold">
+                  <Typography variant="body2" fontWeight="bold" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                     {count} tổ
                   </Typography>
                 </Box>
@@ -224,17 +225,26 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <Card>
-        <CardContent>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-            <Typography variant="h5" component="h1">
-              Danh sách tổ ong đang quản lý
+        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+          <Box 
+            display="flex" 
+            justifyContent="space-between" 
+            alignItems="center" 
+            mb={3}
+            flexDirection={{ xs: 'column', sm: 'row' }}
+            gap={{ xs: 2, sm: 0 }}
+          >
+            <Typography variant="h5" component="h1" sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
+              Danh Sách Tổ Ong
             </Typography>
-            <Stack direction="row" spacing={1}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} width={{ xs: '100%', sm: 'auto' }}>
               <Button
                 variant="contained"
                 color="warning"
                 startIcon={<MoneyIcon />}
                 onClick={() => navigate('/sold')}
+                fullWidth={{ xs: true, sm: false }}
+                size={{ xs: 'small', sm: 'medium' }}
               >
                 Tổ đã bán
               </Button>
@@ -242,6 +252,8 @@ const Dashboard = () => {
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={() => navigate('/add')}
+                fullWidth={{ xs: true, sm: false }}
+                size={{ xs: 'small', sm: 'medium' }}
               >
                 Thêm tổ ong
               </Button>
@@ -258,6 +270,7 @@ const Dashboard = () => {
                 value={searchFilters.importDate}
                 onChange={(e) => setSearchFilters({ ...searchFilters, importDate: e.target.value })}
                 InputLabelProps={{ shrink: true }}
+                size="small"
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
@@ -268,14 +281,17 @@ const Dashboard = () => {
                 value={searchFilters.splitDate}
                 onChange={(e) => setSearchFilters({ ...searchFilters, splitDate: e.target.value })}
                 InputLabelProps={{ shrink: true }}
+                size="small"
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <Stack direction="row" spacing={1}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
                 <Button
                   variant="contained"
                   startIcon={<SearchIcon />}
                   onClick={handleSearch}
+                  fullWidth={{ xs: true, sm: false }}
+                  size="small"
                 >
                   Tìm kiếm
                 </Button>
@@ -283,13 +299,20 @@ const Dashboard = () => {
                   variant="outlined"
                   startIcon={<ClearIcon />}
                   onClick={handleClearSearch}
+                  fullWidth={{ xs: true, sm: false }}
+                  size="small"
                 >
                   Xóa
                 </Button>
               </Stack>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <Typography variant="body2" color="text.secondary" align="right">
+              <Typography 
+                variant="body2" 
+                color="text.secondary" 
+                align={{ xs: 'left', sm: 'right' }}
+                sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+              >
                 Hiển thị {activeBeehives.length}/{pagination?.total || 0} tổ ong
               </Typography>
             </Grid>

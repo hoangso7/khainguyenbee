@@ -12,7 +12,9 @@ import BeehiveDetail from './pages/BeehiveDetail';
 import QRBeehiveDetail from './pages/QRBeehiveDetail';
 import SoldBeehives from './pages/SoldBeehives';
 import AddBeehive from './pages/AddBeehive';
+import BulkAddBeehives from './pages/BulkAddBeehives';
 import EditBeehive from './pages/EditBeehive';
+import ExportQR from './pages/ExportQR';
 import SetupGuard from './components/SetupGuard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
@@ -115,6 +117,8 @@ function App() {
                 <Route index element={<Dashboard />} />
                 <Route path="sold" element={<SoldBeehives />} />
                 <Route path="add" element={<AddBeehive />} />
+                <Route path="bulk-add" element={<BulkAddBeehives />} />
+                <Route path="export" element={<ExportQR />} />
                 <Route path="edit/:serialNumber" element={<EditBeehive />} />
                 <Route path="detail/:qrToken" element={<BeehiveDetail />} />
               </Route>

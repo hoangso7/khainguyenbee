@@ -71,6 +71,7 @@ const Layout = () => {
   const menuItems = [
     { text: 'Trang chủ', icon: <HomeIcon />, path: '/' },
     { text: 'Thêm tổ ong', icon: <AddIcon />, path: '/add' },
+    { text: 'Thêm hàng loạt', icon: <AddIcon />, path: '/bulk-add' },
     { text: 'Tổ đã bán', icon: <MoneyIcon />, path: '/sold' },
     { text: 'Xuất PDF QR', icon: <DownloadIcon />, path: '/export' },
   ];

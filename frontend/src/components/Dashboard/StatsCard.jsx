@@ -15,23 +15,44 @@ const StatsCard = ({ title, value, icon, color = 'primary' }) => {
           color === 'success' ? '#4caf50' : '#F4A460'} 100%)`,
         color: 'white',
         height: '100%',
+        minHeight: { xs: 100, sm: 120 },
         transition: 'transform 0.2s ease-in-out',
         '&:hover': {
           transform: 'translateY(-4px)',
         },
       }}
     >
-      <CardContent>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Box>
-            <Typography variant="h4" component="div" fontWeight="bold">
+      <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+        <Box display="flex" alignItems="center" justifyContent="space-between" height="100%">
+          <Box flex={1}>
+            <Typography 
+              variant="h4" 
+              component="div" 
+              fontWeight="bold"
+              sx={{ 
+                fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' },
+                lineHeight: 1.2
+              }}
+            >
               {value}
             </Typography>
-            <Typography variant="body2" sx={{ opacity: 0.9 }}>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                opacity: 0.9,
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                lineHeight: 1.2,
+                mt: 0.5
+              }}
+            >
               {title}
             </Typography>
           </Box>
-          <Box fontSize="2.5rem" opacity={0.8}>
+          <Box 
+            fontSize={{ xs: '1.5rem', sm: '2rem', md: '2.5rem' }} 
+            opacity={0.8}
+            ml={1}
+          >
             {icon}
           </Box>
         </Box>
