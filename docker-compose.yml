@@ -29,7 +29,7 @@ services:
     container_name: kbee_web
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "8000:5000"
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - DATABASE_URL=${DATABASE_URL}
@@ -60,7 +60,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx-temp.conf:/etc/nginx/nginx.conf:ro
       - certbot_certs:/etc/letsencrypt
       - certbot_www:/var/www/certbot
       - nginx_logs:/var/log/nginx
@@ -83,9 +83,9 @@ services:
       - certbot_www:/var/www/certbot
     command: >
       sh -c "
-        if [ ! -f /etc/letsencrypt/live/${DOMAIN}/fullchain.pem ]; then
-          echo 'Obtaining SSL certificate...';
-          certbot certonly --webroot --webroot-path=/var/www/certbot --email ${SSL_EMAIL} --agree-tos --no-eff-email -d ${SSL_DOMAINS};
+        if [ ! -f /etc/letsencrypt/live/khainguyenbee.io.vn/fullchain.pem ]; then
+          echo 'Obtaining SSL certificate for domain...';
+          certbot certonly --webroot --webroot-path=/var/www/certbot --email admin@khainguyenbee.io.vn --agree-tos --no-eff-email -d khainguyenbee.io.vn -d www.khainguyenbee.io.vn;
         else
           echo 'SSL certificate already exists';
         fi
@@ -104,7 +104,7 @@ services:
       sh -c "
         trap exit TERM; while :; do
           certbot renew --quiet;
-          nginx -s reload;
+          docker-compose exec nginx nginx -s reload;
           sleep 12h & wait \$${!};
         done
       "

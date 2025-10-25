@@ -98,6 +98,10 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Check if any users exist, if not redirect to setup
+    if not User.query.first():
+        return redirect(url_for('setup'))
+    
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -112,8 +116,12 @@ def login():
     
     return render_template('login.html')
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
+@app.route('/setup', methods=['GET', 'POST'])
+def setup():
+    # Only allow setup if no users exist
+    if User.query.first():
+        return redirect(url_for('login'))
+    
     if request.method == 'POST':
         username = request.form['username']
         email = request.form['email']
@@ -121,21 +129,22 @@ def register():
         
         if User.query.filter_by(username=username).first():
             flash('Tên đăng nhập đã tồn tại!', 'error')
-            return render_template('register.html')
+            return render_template('setup.html')
         
         if User.query.filter_by(email=email).first():
             flash('Email đã tồn tại!', 'error')
-            return render_template('register.html')
+            return render_template('setup.html')
         
         user = User(username=username, email=email)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
         
-        flash('Đăng ký thành công! Vui lòng đăng nhập.', 'success')
+        flash('Tài khoản quản trị đã được tạo thành công! Vui lòng đăng nhập.', 'success')
         return redirect(url_for('login'))
     
-    return render_template('register.html')
+    return render_template('setup.html')
+
 
 @app.route('/logout')
 @login_required
@@ -316,13 +325,5 @@ def export_qr_pdf():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        
-        # Create default admin user if not exists
-        if not User.query.filter_by(username='admin').first():
-            admin = User(username='admin', email='admin@khainguyenbee.io.vn')
-            admin.set_password('khai123')
-            db.session.add(admin)
-            db.session.commit()
-            print("Default admin user created: username=admin, password=khai123")
     
     app.run(debug=True, host='0.0.0.0', port=5000)

@@ -83,16 +83,17 @@ SECRET_KEY=your-very-secure-secret-key
 MYSQL_ROOT_PASSWORD=your-secure-password
 ```
 
-3. **Deploy với SSL tự động**
+3. **Setup và chạy ứng dụng**
 ```bash
-docker-compose up -d
+./setup.sh
 ```
 
 4. **Truy cập ứng dụng**
-- **HTTPS**: https://your-domain.com (SSL tự động)
-- **HTTP**: http://your-domain.com (redirect to HTTPS)
+- **HTTPS**: https://khainguyenbee.io.vn (SSL tự động)
+- **HTTP**: http://khainguyenbee.io.vn (redirect to HTTPS)
+- **Local**: http://localhost (development)
 - **MySQL**: localhost:3306
-- **Tài khoản mặc định**: admin / admin123
+- **Tài khoản**: Tạo tài khoản đầu tiên khi truy cập
 
 ### Cách 2: Chạy thủ công
 
@@ -139,6 +140,45 @@ docker-compose exec certbot certbot renew
 
 # Xem SSL logs
 docker-compose logs ssl-renew
+```
+
+### Testing
+```bash
+# Chạy unit tests
+./run_tests.sh
+
+# Hoặc chạy từng loại test
+python tests/simple_test.py
+python tests/test_deployment.py
+```
+
+### Troubleshooting
+
+**Database connection issues:**
+```bash
+# Reset database
+docker-compose down -v
+docker-compose up -d
+```
+
+**Services restart liên tục:**
+```bash
+# Kiểm tra logs
+docker-compose logs web
+docker-compose logs nginx
+docker-compose logs mysql
+
+# Restart services
+docker-compose restart
+```
+
+**SSL certificate issues:**
+```bash
+# Kiểm tra certbot logs
+docker-compose logs certbot
+
+# Restart certbot
+docker-compose restart certbot
 ```
 
 ## 🔧 Cấu hình
@@ -257,7 +297,7 @@ MYSQL_PASSWORD=your-secure-password
 ## 🐳 Docker
 
 ### Services
-- **web**: Ứng dụng Flask (port 5000)
+- **web**: Ứng dụng Flask (port 8000 → 5000)
 - **mysql**: Database MySQL (port 3306)
 - **nginx**: Reverse proxy với SSL (port 80/443)
 - **certbot**: Obtain SSL certificates
@@ -368,6 +408,15 @@ kbee-manager/
 │   ├── dashboard.html
 │   ├── kbee_info.html
 │   └── 404.html
+├── tests/        # Test suite
+│   ├── simple_test.py
+│   ├── test_deployment.py
+│   ├── requirements-test.txt
+│   └── README.md
+├── docker-compose.yml     # Main Docker Compose file
+├── nginx.conf            # Nginx config with SSL
+├── nginx-temp.conf       # Temporary nginx config (no SSL)
+├── setup.sh              # Setup script
 └── logs/         # Log files
     └── README.md
 ```
