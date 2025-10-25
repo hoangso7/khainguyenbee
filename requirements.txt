@@ -12,3 +12,4 @@ reportlab==4.0.4
 python-dotenv==1.0.0
 Werkzeug==2.3.7
 PyJWT==2.8.0
+gunicorn==21.2.0
