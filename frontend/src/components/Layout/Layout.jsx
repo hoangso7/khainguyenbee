@@ -210,9 +210,11 @@ const Layout = () => {
           flexGrow: 1,
           p: 3,
           width: { md: `calc(100% - ${drawerWidth}px)` },
-          mt: 8,
+          minHeight: '100vh',
+          backgroundColor: theme.palette.background.default,
         }}
       >
+        <Toolbar />
         <Outlet />
       </Box>
     </Box>
