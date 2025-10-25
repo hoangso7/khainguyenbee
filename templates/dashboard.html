@@ -34,7 +34,10 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Danh sách tổ ong</h5>
+                <h5 class="mb-0">
+                    <img src="{{ url_for('static', filename='icon/apiary.png') }}" alt="Apiary Logo" class="logo-small">
+                    Danh sách tổ ong
+                </h5>
                 <div>
                     <a href="{{ url_for('add_beehive') }}" class="btn btn-honey me-2">
                         <i class="fas fa-plus me-1"></i>Thêm tổ ong
@@ -124,7 +127,7 @@
                 </div>
                 {% else %}
                 <div class="text-center py-5">
-                    <i class="fas fa-bee fa-3x text-honey mb-3"></i>
+                    <img src="{{ url_for('static', filename='icon/apiary.png') }}" alt="Apiary Logo" class="logo-large">
                     <h5 class="text-muted">Chưa có tổ ong nào</h5>
                     <p class="text-muted">Hãy thêm tổ ong đầu tiên để bắt đầu quản lý!</p>
                     <a href="{{ url_for('add_beehive') }}" class="btn btn-honey">

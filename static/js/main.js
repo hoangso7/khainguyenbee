@@ -1,6 +1,9 @@
 // KBee Manager - Main JavaScript functions
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Mobile optimization
+    initializeMobileOptimizations();
+    
     // Auto-hide alerts after 5 seconds
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
@@ -138,3 +141,119 @@ function exportToCSV() {
     link.click();
     window.URL.revokeObjectURL(url);
 }
+
+// Mobile optimization functions
+function initializeMobileOptimizations() {
+    // Prevent zoom on input focus (iOS)
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            if (window.innerWidth <= 768) {
+                const viewport = document.querySelector('meta[name="viewport"]');
+                if (viewport) {
+                    viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+                }
+            }
+        });
+        
+        input.addEventListener('blur', function() {
+            const viewport = document.querySelector('meta[name="viewport"]');
+            if (viewport) {
+                viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+            }
+        });
+    });
+    
+    // Touch-friendly table scrolling
+    const tables = document.querySelectorAll('.table-responsive');
+    tables.forEach(table => {
+        let isScrolling = false;
+        
+        table.addEventListener('touchstart', function() {
+            isScrolling = true;
+        });
+        
+        table.addEventListener('touchend', function() {
+            setTimeout(() => {
+                isScrolling = false;
+            }, 100);
+        });
+        
+        // Prevent body scroll when scrolling table
+        table.addEventListener('touchmove', function(e) {
+            if (isScrolling) {
+                e.stopPropagation();
+            }
+        });
+    });
+    
+    // Optimize QR code display for mobile
+    const qrCodes = document.querySelectorAll('.qr-code');
+    qrCodes.forEach(qr => {
+        qr.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            showQRModal(this.src, this.alt);
+        });
+    });
+    
+    // Add swipe gestures for navigation (optional)
+    let startX = 0;
+    let startY = 0;
+    
+    document.addEventListener('touchstart', function(e) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    });
+    
+    document.addEventListener('touchend', function(e) {
+        if (!startX || !startY) return;
+        
+        const endX = e.changedTouches[0].clientX;
+        const endY = e.changedTouches[0].clientY;
+        
+        const diffX = startX - endX;
+        const diffY = startY - endY;
+        
+        // Horizontal swipe detection
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+            if (diffX > 0) {
+                // Swipe left - could go to next page
+                console.log('Swipe left detected');
+            } else {
+                // Swipe right - could go to previous page
+                console.log('Swipe right detected');
+            }
+        }
+        
+        startX = 0;
+        startY = 0;
+    });
+}
+
+// Responsive table functions
+function toggleTableColumns() {
+    const table = document.querySelector('table');
+    if (!table) return;
+    
+    const isMobile = window.innerWidth <= 768;
+    const columns = table.querySelectorAll('th, td');
+    
+    columns.forEach((col, index) => {
+        // Hide less important columns on mobile
+        if (isMobile && (index === 2 || index === 5)) { // Hide split date and QR code columns
+            col.style.display = 'none';
+        } else {
+            col.style.display = '';
+        }
+    });
+}
+
+// Call on window resize
+window.addEventListener('resize', function() {
+    toggleTableColumns();
+});
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', function() {
+    toggleTableColumns();
+});

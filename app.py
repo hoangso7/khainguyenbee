@@ -227,6 +227,10 @@ def qr_code(beehive_id):
     
     return send_file(qr_img, mimetype='image/png')
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_file('static/icon/bee.png', mimetype='image/png')
+
 @app.route('/export_qr_pdf')
 @login_required
 def export_qr_pdf():

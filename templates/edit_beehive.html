@@ -7,7 +7,10 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Chỉnh sửa tổ ong {{ beehive.serial_number }}</h5>
+                <h5 class="mb-0">
+                    <img src="{{ url_for('static', filename='icon/apiary.png') }}" alt="Apiary Logo" class="logo-small">
+                    Chỉnh sửa tổ ong {{ beehive.serial_number }}
+                </h5>
             </div>
             <div class="card-body">
                 <form method="POST">
