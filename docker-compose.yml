@@ -62,6 +62,10 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./static:/usr/share/nginx/html/static:ro
+      - ./certs/www_khainguyenbee_io_vn_cert.pem:/etc/ssl/certs/khainguyenbee.io.vn.crt:ro
+      - ./certs/key_khainguyenbee.io.vn.key:/etc/ssl/private/khainguyenbee.io.vn.key:ro
+      - ./certs/ChainCA.crt:/etc/ssl/certs/chain.crt:ro
+      - ./certs/RootCA.crt:/etc/ssl/certs/root.crt:ro
       - ./logs/nginx:/var/log/nginx
     depends_on:
       - web
