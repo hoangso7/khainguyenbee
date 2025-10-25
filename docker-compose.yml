@@ -36,8 +36,8 @@ services:
       - DOMAIN=${DOMAIN:-localhost}
       - PROTOCOL=${PROTOCOL:-http}
       - PORT=${PORT:-80}
-    # ports:
-      # - "${BACKEND_PORT:-8000}:5000"
+    ports:
+      - "8000:5000"
     depends_on:
       db:
         condition: service_healthy
