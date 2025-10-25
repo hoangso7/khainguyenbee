@@ -51,7 +51,6 @@ def check_environment():
         'Dockerfile', 
         'requirements.txt',
         'app.py',
-        'nginx.conf',
         'init.sql',
         'env.example'
     ]

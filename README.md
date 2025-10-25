@@ -391,7 +391,6 @@ kbee-manager/
 ├── env.example            # Environment template
 ├── setup-env.sh          # Environment setup script
 ├── docker compose.yml    # Docker services với SSL
-├── nginx.conf           # Nginx configuration
 ├── app.py              # Flask application
 ├── config.py          # Configuration settings
 ├── requirements.txt   # Python dependencies
@@ -414,7 +413,6 @@ kbee-manager/
 │   ├── requirements-test.txt
 │   └── README.md
 ├── docker compose.yml     # Main Docker Compose file
-├── nginx.conf            # Nginx config with SSL
 ├── setup.sh              # Setup script
 └── logs/         # Log files
     └── README.md

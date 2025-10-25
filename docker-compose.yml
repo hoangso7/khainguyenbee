@@ -63,6 +63,10 @@ services:
       - "${FRONTEND_SSL_PORT:-8443}:443"
     depends_on:
       - backend
+    volumes:
+      - ./logs/nginx:/var/log/nginx
+      - ./certs:/etc/ssl/certs:ro
+      - ./certs:/etc/ssl/private:ro
     networks:
       - kbee_network
     healthcheck:
