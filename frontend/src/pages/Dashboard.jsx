@@ -243,7 +243,7 @@ const Dashboard = () => {
                 color="warning"
                 startIcon={<MoneyIcon />}
                 onClick={() => navigate('/sold')}
-                fullWidth={isMobile}
+                fullWidth={isMobile ? true : false}
                 size="small"
               >
                 Tổ đã bán
@@ -252,7 +252,7 @@ const Dashboard = () => {
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={() => navigate('/add')}
-                fullWidth={isMobile}
+                fullWidth={isMobile ? true : false}
                 size="small"
               >
                 Thêm tổ ong
@@ -290,7 +290,7 @@ const Dashboard = () => {
                   variant="contained"
                   startIcon={<SearchIcon />}
                   onClick={handleSearch}
-                  fullWidth={isMobile}
+                  fullWidth={isMobile ? true : false}
                   size="small"
                 >
                   Tìm kiếm
@@ -299,7 +299,7 @@ const Dashboard = () => {
                   variant="outlined"
                   startIcon={<ClearIcon />}
                   onClick={handleClearSearch}
-                  fullWidth={isMobile}
+                  fullWidth={isMobile ? true : false}
                   size="small"
                 >
                   Xóa
