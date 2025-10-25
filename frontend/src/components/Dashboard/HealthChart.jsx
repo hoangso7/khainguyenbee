@@ -10,6 +10,22 @@ const HealthChart = ({ data }) => {
     'Unknown': '#6c757d'
   };
 
+  // Kiểm tra data có tồn tại và không null/undefined
+  if (!data || typeof data !== 'object') {
+    return (
+      <Card>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Thống kê sức khỏe tổ ong
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Đang tải dữ liệu...
+          </Typography>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const chartData = Object.entries(data).map(([name, value]) => ({
     name,
     value,

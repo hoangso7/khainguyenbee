@@ -204,7 +204,7 @@ const Dashboard = () => {
               <Typography variant="h6" gutterBottom>
                 Thông tin chi tiết
               </Typography>
-              {Object.entries(healthStats).map(([health, count]) => (
+              {healthStats && Object.entries(healthStats).map(([health, count]) => (
                 <Box key={health} display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                   <Chip
                     icon={<img src={getHealthStatusIcon(health)} alt={health} style={{ width: 16, height: 16 }} />}
@@ -290,7 +290,7 @@ const Dashboard = () => {
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <Typography variant="body2" color="text.secondary" align="right">
-                Hiển thị {activeBeehives.length}/{pagination.total} tổ ong
+                Hiển thị {activeBeehives.length}/{pagination?.total || 0} tổ ong
               </Typography>
             </Grid>
           </Grid>
@@ -303,8 +303,8 @@ const Dashboard = () => {
                 <BeehiveCard
                   key={beehive.serial_number}
                   beehive={beehive}
-                  onEdit={() => navigate(`/edit/${beehive.serial_number}`)}
-                  onViewQR={() => navigate(`/beehive/${beehive.qr_token}`)}
+                  onEdit={() => navigate(`/edit/${beehive.serial_number || ''}`)}
+                  onViewQR={() => navigate(`/beehive/${beehive.qr_token || ''}`)}
                   onSell={() => handleSellBeehive(beehive.serial_number)}
                   onDelete={() => handleDeleteBeehive(beehive.serial_number)}
                 />
@@ -373,7 +373,7 @@ const Dashboard = () => {
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        {new Date(beehive.import_date).toLocaleDateString('vi-VN')}
+                        {beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}
                       </TableCell>
                       <TableCell>
                         {beehive.split_date 
@@ -383,9 +383,9 @@ const Dashboard = () => {
                       </TableCell>
                       <TableCell>
                         <Chip
-                          icon={<img src={getHealthStatusIcon(beehive.health_status)} alt={beehive.health_status} style={{ width: 16, height: 16 }} />}
-                          label={beehive.health_status}
-                          color={getHealthStatusColor(beehive.health_status)}
+                          icon={<img src={getHealthStatusIcon(beehive.health_status || 'Unknown')} alt={beehive.health_status || 'Unknown'} style={{ width: 16, height: 16 }} />}
+                          label={beehive.health_status || 'Unknown'}
+                          color={getHealthStatusColor(beehive.health_status || 'Unknown')}
                           size="small"
                         />
                       </TableCell>
@@ -400,14 +400,14 @@ const Dashboard = () => {
                         <Stack direction="row" spacing={1}>
                           <IconButton
                             size="small"
-                            onClick={() => navigate(`/edit/${beehive.serial_number}`)}
+                            onClick={() => navigate(`/edit/${beehive.serial_number || ''}`)}
                             title="Chỉnh sửa"
                           >
                             <EditIcon />
                           </IconButton>
                           <IconButton
                             size="small"
-                            onClick={() => navigate(`/beehive/${beehive.qr_token}`)}
+                            onClick={() => navigate(`/beehive/${beehive.qr_token || ''}`)}
                             title="Xem QR Code"
                           >
                             <QrCodeIcon />
@@ -438,11 +438,11 @@ const Dashboard = () => {
           )}
 
           {/* Pagination */}
-          {pagination.totalPages > 1 && (
+          {pagination?.totalPages > 1 && (
             <Box display="flex" justifyContent="center" mt={3}>
               <Pagination
-                count={pagination.totalPages}
-                page={pagination.page}
+                count={pagination?.totalPages || 1}
+                page={pagination?.page || 1}
                 onChange={handlePageChange}
                 color="primary"
                 size="large"

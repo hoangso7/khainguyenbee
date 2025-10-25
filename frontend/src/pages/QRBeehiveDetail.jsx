@@ -35,8 +35,8 @@ const QRBeehiveDetail = () => {
       try {
         setLoading(true);
         const response = await api.get(`/beehive/${qrToken}`);
-        setBeehive(response.data.beehive);
-        setOwner(response.data.owner);
+        setBeehive(response.data?.beehive || null);
+        setOwner(response.data?.owner || null);
       } catch (err) {
         setError('Không tìm thấy thông tin tổ ong');
         console.error('Error fetching beehive data:', err);
