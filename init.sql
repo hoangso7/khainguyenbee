@@ -2,10 +2,14 @@
 -- This file is executed when MySQL container starts for the first time
 
 -- Create database if not exists (already created by environment variables)
--- USE kbee_manager;
+USE kbee_manager;
 
 -- Set character set to UTF-8 for Vietnamese support
 ALTER DATABASE kbee_manager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- User creation is handled by MySQL environment variables
+-- MYSQL_USER and MYSQL_PASSWORD are automatically used to create the user
+-- No need to manually create user here
 
 -- Create tables will be handled by Flask-SQLAlchemy
 -- This file can be used for any additional database setup
