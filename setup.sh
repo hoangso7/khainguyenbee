@@ -41,8 +41,7 @@ print_info() {
 # Check if running as root
 check_root() {
     if [ "$EUID" -eq 0 ]; then
-        print_error "Không nên chạy script này với quyền root!"
-        exit 1
+        print_warning "Đang chạy với quyền root - tiếp tục..."
     fi
 }
 
