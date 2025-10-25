@@ -60,11 +60,9 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx-temp.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./static:/usr/share/nginx/html/static:ro
-      - certbot_certs:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
-      - nginx_logs:/var/log/nginx
+      - ./logs/nginx:/var/log/nginx
     depends_on:
       - web
     networks:
@@ -75,52 +73,11 @@ services:
       timeout: ${HEALTH_CHECK_TIMEOUT}
       retries: ${HEALTH_CHECK_RETRIES}
 
-  # Certbot for SSL certificates
-  certbot:
-    image: certbot/certbot
-    container_name: kbee_certbot
-    volumes:
-      - certbot_certs:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
-    command: >
-      sh -c "
-        if [ ! -f /etc/letsencrypt/live/khainguyenbee.io.vn/fullchain.pem ]; then
-          echo 'Obtaining SSL certificate for domain...';
-          certbot certonly --webroot --webroot-path=/var/www/certbot --email admin@khainguyenbee.io.vn --agree-tos --no-eff-email -d khainguyenbee.io.vn -d www.khainguyenbee.io.vn;
-        else
-          echo 'SSL certificate already exists';
-        fi
-      "
-    depends_on:
-      - nginx
-
-  # SSL Auto-renewal
-  ssl-renew:
-    image: certbot/certbot
-    container_name: kbee_ssl_renew
-    volumes:
-      - certbot_certs:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
-    command: >
-      sh -c "
-        trap exit TERM; while :; do
-          certbot renew --quiet;
-          docker-compose exec nginx nginx -s reload;
-          sleep 12h & wait \$${!};
-        done
-      "
-    depends_on:
-      - nginx
-    restart: unless-stopped
 
 volumes:
   mysql_data:
     driver: local
   nginx_logs:
-    driver: local
-  certbot_certs:
-    driver: local
-  certbot_www:
     driver: local
 
 networks:

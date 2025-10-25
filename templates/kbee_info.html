@@ -18,6 +18,12 @@
                         <img src="{{ url_for('static', filename='icon/bee.png') }}?v={{ range(1000000, 9999999) | random }}" alt="KBee Logo" class="logo-large mb-3">
                         <h2 class="text-white mb-0">Trại ong KBee</h2>
                         <p class="text-white-50 mb-0">Chuyên cung cấp mật ong chất lượng cao</p>
+                        {% if owner %}
+                        <p class="text-white-50 mb-0 mt-2">
+                            <i class="fas fa-user me-1"></i>
+                            Quản lý bởi: {{ owner.username }}
+                        </p>
+                        {% endif %}
                     </div>
                     
                     <div class="card-body p-5">

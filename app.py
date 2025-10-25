@@ -48,12 +48,14 @@ class User(UserMixin, db.Model):
 
 class Beehive(db.Model):
     serial_number = db.Column(db.String(50), primary_key=True)  # TO001, TO002, etc.
+    qr_token = db.Column(db.String(12), unique=True, nullable=False)  # Random 12-char token for QR
     import_date = db.Column(db.Date, nullable=False)
     split_date = db.Column(db.Date, nullable=True)
     health_status = db.Column(db.String(20), nullable=False, default='Tốt')  # Tốt, Trung bình, Kém
     notes = db.Column(db.Text, nullable=True)
     is_sold = db.Column(db.Boolean, default=False)
     sold_date = db.Column(db.Date, nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Owner of beehive
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -76,6 +78,20 @@ class Beehive(db.Model):
             next_number = 1
         
         return f"TO{next_number:03d}"
+    
+    @staticmethod
+    def generate_qr_token():
+        """Generate unique 12-character random token for QR code"""
+        import secrets
+        import string
+        
+        while True:
+            # Generate 12-character random string (letters + numbers)
+            token = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+            
+            # Check if token already exists
+            if not Beehive.query.filter_by(qr_token=token).first():
+                return token
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -99,14 +115,10 @@ def generate_qr_code(data):
     
     return img_buffer
 
-def get_beehive_qr_data(beehive, user_id=None):
+def get_beehive_qr_data(beehive):
     domain = os.getenv('DOMAIN', 'localhost:5000')
-    # QR code luôn cố định, chứa user_id và serial_number để xác thực
-    if user_id:
-        return f"https://{domain}/user/{user_id}/beehive/{beehive.serial_number}"
-    else:
-        # Fallback cho trường hợp không có user_id
-        return f"https://{domain}/beehive/{beehive.serial_number}"
+    # QR code chứa token ngẫu nhiên để bảo mật
+    return f"https://{domain}/beehive/{beehive.qr_token}"
 
 # Routes
 @app.route('/')
@@ -259,8 +271,9 @@ def dashboard():
 @login_required
 def add_beehive():
     if request.method == 'POST':
-        # Generate serial number automatically
+        # Generate serial number and QR token automatically
         serial_number = Beehive.generate_serial_number()
+        qr_token = Beehive.generate_qr_token()
         import_date = datetime.strptime(request.form['import_date'], '%Y-%m-%d').date()
         split_date = request.form.get('split_date')
         health_status = request.form['health_status']
@@ -268,10 +281,12 @@ def add_beehive():
         
         beehive = Beehive(
             serial_number=serial_number,
+            qr_token=qr_token,
             import_date=import_date,
             split_date=datetime.strptime(split_date, '%Y-%m-%d').date() if split_date else None,
             health_status=health_status,
-            notes=notes
+            notes=notes,
+            user_id=current_user.id  # Assign to current user
         )
         
         db.session.add(beehive)
@@ -300,15 +315,18 @@ def bulk_create_beehives():
             today = datetime.now().date()
             
             for i in range(count):
-                # Generate serial number automatically
+                # Generate serial number and QR token automatically
                 serial_number = Beehive.generate_serial_number()
+                qr_token = Beehive.generate_qr_token()
                 
                 beehive = Beehive(
                     serial_number=serial_number,
+                    qr_token=qr_token,
                     import_date=today,
                     health_status=health_status,
                     notes=notes,
-                    is_sold=False
+                    is_sold=False,
+                    user_id=current_user.id  # Assign to current user
                 )
                 db.session.add(beehive)
                 created_count += 1
@@ -378,8 +396,8 @@ def unsell_beehive(serial_number):
 @login_required
 def qr_code(serial_number):
     beehive = Beehive.query.get_or_404(serial_number)
-    # Truyền user_id vào QR data để tạo mã QR riêng cho từng user
-    qr_data = get_beehive_qr_data(beehive, user_id=current_user.id)
+    # Tạo QR data với token ngẫu nhiên
+    qr_data = get_beehive_qr_data(beehive)
     qr_img = generate_qr_code(qr_data)
     
     return send_file(qr_img, mimetype='image/png')
@@ -387,18 +405,6 @@ def qr_code(serial_number):
 
 
 
-@app.route('/beehive/<serial_number>')
-def beehive_info(serial_number):
-    """Route fallback cho QR code cũ (không có user_id)"""
-    beehive = Beehive.query.get_or_404(serial_number)
-    
-    # Kiểm tra trạng thái tổ ong
-    if beehive.is_sold:
-        # Nếu đã bán, redirect đến trang thông tin KBee
-        return redirect(url_for('kbee_info', serial_number=serial_number))
-    else:
-        # Nếu chưa bán, hiển thị thông tin chi tiết
-        return render_template('beehive_detail.html', beehive=beehive)
 
 @app.route('/kbee-info/<serial_number>')
 def kbee_info(serial_number):
@@ -492,8 +498,8 @@ def export_qr_pdf():
         table_data = []
         
         for beehive in batch:
-            # Sử dụng user_id của user hiện tại để tạo QR code
-            qr_data = get_beehive_qr_data(beehive, user_id=current_user.id)
+            # Tạo QR data với token ngẫu nhiên
+            qr_data = get_beehive_qr_data(beehive)
             qr_img = generate_qr_code(qr_data)
             
             # Create image from QR code
@@ -534,20 +540,37 @@ def export_qr_pdf():
 
 
 # Add routes at the end to ensure they are loaded
-@app.route('/user/<int:user_id>/beehive/<serial_number>')
-def user_beehive_info_final(user_id, serial_number):
-    """Route xử lý QR code scanning với xác thực user"""
-    # Xác thực user_id
-    user = User.query.get_or_404(user_id)
-    beehive = Beehive.query.get_or_404(serial_number)
+@app.route('/beehive/<qr_token>')
+def beehive_by_token(qr_token):
+    """Route xử lý QR code scanning với token ngẫu nhiên"""
+    # Tìm beehive theo QR token
+    beehive = Beehive.query.filter_by(qr_token=qr_token).first()
+    if not beehive:
+        return render_template('404.html'), 404
+    
+    # Lấy thông tin user sở hữu beehive
+    owner = User.query.get(beehive.user_id)
+    if not owner:
+        return render_template('404.html'), 404
+    
+    # Kiểm tra xem user hiện tại có đăng nhập không
+    if not current_user.is_authenticated:
+        # Chưa đăng nhập - yêu cầu đăng nhập
+        flash('Vui lòng đăng nhập để xem thông tin tổ ong', 'info')
+        return redirect(url_for('login', next=request.url))
+    
+    # Kiểm tra quyền truy cập
+    if current_user.id != beehive.user_id:
+        # User đăng nhập không phải chủ sở hữu - trả về 404
+        return render_template('404.html'), 404
     
     # Kiểm tra trạng thái tổ ong
     if beehive.is_sold:
-        # Nếu đã bán, redirect đến trang thông tin KBee
-        return redirect(url_for('kbee_info', serial_number=serial_number))
+        # Nếu đã bán, hiển thị thông tin KBee
+        return render_template('kbee_info.html', beehive=beehive, owner=owner)
     else:
-        # Nếu chưa bán, hiển thị thông tin chi tiết với thông tin user
-        return render_template('beehive_detail.html', beehive=beehive, user=user)
+        # Nếu chưa bán, hiển thị thông tin chi tiết
+        return render_template('beehive_detail.html', beehive=beehive, owner=owner)
 
 if __name__ == '__main__':
     with app.app_context():
