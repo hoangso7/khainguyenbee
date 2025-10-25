@@ -89,7 +89,7 @@
                             <tr>
                                 <th>
                                     <a href="?sort=created_at&order={{ 'asc' if sort_by == 'created_at' and sort_order == 'desc' else 'desc' }}" 
-                                       class="text-decoration-none text-dark">
+                                       class="text-decoration-none">
                                         Mã tổ
                                         {% if sort_by == 'created_at' %}
                                             <i class="fas fa-sort-{{ 'up' if sort_order == 'asc' else 'down' }} ms-1"></i>
@@ -98,7 +98,7 @@
                                 </th>
                                 <th>
                                     <a href="?sort=import_date&order={{ 'asc' if sort_by == 'import_date' and sort_order == 'desc' else 'desc' }}" 
-                                       class="text-decoration-none text-dark">
+                                       class="text-decoration-none">
                                         Ngày nhập
                                         {% if sort_by == 'import_date' %}
                                             <i class="fas fa-sort-{{ 'up' if sort_order == 'asc' else 'down' }} ms-1"></i>
@@ -107,7 +107,7 @@
                                 </th>
                                 <th>
                                     <a href="?sort=sold_date&order={{ 'asc' if sort_by == 'sold_date' and sort_order == 'desc' else 'desc' }}" 
-                                       class="text-decoration-none text-dark">
+                                       class="text-decoration-none">
                                         Ngày bán
                                         {% if sort_by == 'sold_date' %}
                                             <i class="fas fa-sort-{{ 'up' if sort_order == 'asc' else 'down' }} ms-1"></i>
@@ -116,7 +116,7 @@
                                 </th>
                                 <th>
                                     <a href="?sort=health_status&order={{ 'asc' if sort_by == 'health_status' and sort_order == 'desc' else 'desc' }}" 
-                                       class="text-decoration-none text-dark">
+                                       class="text-decoration-none">
                                         Sức khỏe
                                         {% if sort_by == 'health_status' %}
                                             <i class="fas fa-sort-{{ 'up' if sort_order == 'asc' else 'down' }} ms-1"></i>

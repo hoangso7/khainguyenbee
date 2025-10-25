@@ -44,14 +44,18 @@ body {
 }
 
 .btn-honey-outline {
-    color: var(--honey-primary);
-    border-color: var(--honey-primary);
+    background-color: var(--honey-accent);
+    color: var(--honey-dark);
+    border-color: var(--honey-accent);
+    font-weight: 600;
 }
 
 .btn-honey-outline:hover {
     background-color: var(--honey-primary);
     border-color: var(--honey-primary);
     color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .card {
@@ -137,9 +141,19 @@ body {
 
 .table thead th {
     background-color: var(--honey-primary);
-    color: white;
+    color: white !important;
     border: none;
     font-weight: 600;
+}
+
+.table thead th a {
+    color: white !important;
+    text-decoration: none;
+}
+
+.table thead th a:hover {
+    color: var(--honey-accent) !important;
+    text-decoration: none;
 }
 
 .table tbody tr:hover {
