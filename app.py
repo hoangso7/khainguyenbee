@@ -284,8 +284,18 @@ def dashboard():
     )
     beehives = beehives_pagination.items
     
-    # Calculate health statistics for all active beehives
+    # Calculate statistics for all beehives (not just current page)
+    all_beehives = Beehive.query.all()
     all_active_beehives = Beehive.query.filter_by(is_sold=False).all()
+    all_sold_beehives = Beehive.query.filter_by(is_sold=True).all()
+    
+    # Calculate overall statistics
+    total_beehives = len(all_beehives)
+    active_beehives_count = len(all_active_beehives)
+    sold_beehives_count = len(all_sold_beehives)
+    healthy_beehives_count = len([b for b in all_active_beehives if b.health_status == 'Tốt'])
+    
+    # Calculate health statistics for all active beehives
     health_stats = {}
     for beehive in all_active_beehives:
         health = beehive.health_status or 'Unknown'
@@ -298,7 +308,11 @@ def dashboard():
                          sort_order=sort_order,
                          pagination=beehives_pagination,
                          search_import_date=search_import_date,
-                         search_split_date=search_split_date)
+                         search_split_date=search_split_date,
+                         total_beehives=total_beehives,
+                         active_beehives_count=active_beehives_count,
+                         sold_beehives_count=sold_beehives_count,
+                         healthy_beehives_count=healthy_beehives_count)
 
 @app.route('/sold_beehives')
 @login_required

@@ -6,25 +6,25 @@
 <div class="row mb-4">
     <div class="col-md-3">
         <div class="stats-card">
-            <div class="stats-number">{{ beehives|length }}</div>
+            <div class="stats-number">{{ total_beehives }}</div>
             <div class="stats-label">Tổng số tổ ong</div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="stats-card">
-            <div class="stats-number">{{ beehives|selectattr('is_sold', 'equalto', False)|list|length }}</div>
+            <div class="stats-number">{{ active_beehives_count }}</div>
             <div class="stats-label">Tổ đang quản lý</div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="stats-card">
-            <div class="stats-number">{{ beehives|selectattr('is_sold', 'equalto', True)|list|length }}</div>
+            <div class="stats-number">{{ sold_beehives_count }}</div>
             <div class="stats-label">Tổ đã bán</div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="stats-card">
-            <div class="stats-number">{{ beehives|selectattr('health_status', 'equalto', 'Tốt')|list|length }}</div>
+            <div class="stats-number">{{ healthy_beehives_count }}</div>
             <div class="stats-label">Tổ khỏe mạnh</div>
         </div>
     </div>
