@@ -74,6 +74,7 @@ const Layout = () => {
     { text: 'Thêm hàng loạt', icon: <AddIcon />, path: '/bulk-add' },
     { text: 'Tổ đã bán', icon: <MoneyIcon />, path: '/sold' },
     { text: 'Xuất PDF QR', icon: <DownloadIcon />, path: '/export' },
+    { text: 'Cài đặt hồ sơ', icon: <PersonIcon />, path: '/profile' },
   ];
 
   const drawer = (

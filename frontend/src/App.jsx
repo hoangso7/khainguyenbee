@@ -15,6 +15,7 @@ import AddBeehive from './pages/AddBeehive';
 import BulkAddBeehives from './pages/BulkAddBeehives';
 import EditBeehive from './pages/EditBeehive';
 import ExportQR from './pages/ExportQR';
+import ProfileSettings from './pages/ProfileSettings';
 import SetupGuard from './components/SetupGuard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
@@ -119,6 +120,7 @@ function App() {
                 <Route path="add" element={<AddBeehive />} />
                 <Route path="bulk-add" element={<BulkAddBeehives />} />
                 <Route path="export" element={<ExportQR />} />
+                <Route path="profile" element={<ProfileSettings />} />
                 <Route path="edit/:serialNumber" element={<EditBeehive />} />
                 <Route path="detail/:qrToken" element={<BeehiveDetail />} />
               </Route>

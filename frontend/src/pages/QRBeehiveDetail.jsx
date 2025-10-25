@@ -19,14 +19,16 @@ import {
   HealthAndSafety as HealthIcon,
   Notes as NotesIcon,
   Person as PersonIcon,
-  QrCode as QRCodeIcon
+  QrCode as QRCodeIcon,
+  Business as BusinessIcon
 } from '@mui/icons-material';
-import api from '../services/api';
+import { publicApi } from '../services/api';
 
 const QRBeehiveDetail = () => {
   const { qrToken } = useParams();
   const [beehive, setBeehive] = useState(null);
   const [owner, setOwner] = useState(null);
+  const [businessInfo, setBusinessInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -34,9 +36,10 @@ const QRBeehiveDetail = () => {
     const fetchBeehiveData = async () => {
       try {
         setLoading(true);
-        const response = await api.get(`/beehive/${qrToken}`);
+        const response = await publicApi.get(`/beehive/${qrToken}`);
         setBeehive(response.data?.beehive || null);
         setOwner(response.data?.owner || null);
+        setBusinessInfo(response.data?.business_info || null);
       } catch (err) {
         setError('Không tìm thấy thông tin tổ ong');
         console.error('Error fetching beehive data:', err);
@@ -96,6 +99,34 @@ const QRBeehiveDetail = () => {
             Thông tin tổ ong
           </Typography>
         </Box>
+
+        {/* Status Banner */}
+        {beehive.is_sold && (
+          <Alert 
+            severity="info" 
+            sx={{ mb: 3 }}
+            icon={<QRCodeIcon />}
+          >
+            <Typography variant="body1" fontWeight="bold">
+              Tổ ong đã được bán
+            </Typography>
+            <Typography variant="body2">
+              Thông tin này có thể được xem công khai mà không cần đăng nhập
+            </Typography>
+          </Alert>
+        )}
+
+        {/* Custom Message */}
+        {beehive.is_sold && businessInfo?.qr_custom_message && (
+          <Alert 
+            severity="success" 
+            sx={{ mb: 3 }}
+          >
+            <Typography variant="body1">
+              {businessInfo.qr_custom_message}
+            </Typography>
+          </Alert>
+        )}
 
         <Divider sx={{ mb: 3 }} />
 
@@ -202,8 +233,47 @@ const QRBeehiveDetail = () => {
             </Grid>
           )}
 
-          {/* Owner Information */}
-          {owner && (
+          {/* Business Information - Only show for sold beehives */}
+          {businessInfo && beehive.is_sold && businessInfo.qr_show_business_info && (
+            <Grid item xs={12}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom color="primary">
+                    <BusinessIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                    Thông tin doanh nghiệp
+                  </Typography>
+                  {businessInfo.business_name && (
+                    <Typography variant="body1" sx={{ mb: 1 }}>
+                      <strong>Tên doanh nghiệp:</strong> {businessInfo.business_name}
+                    </Typography>
+                  )}
+                  {businessInfo.business_address && (
+                    <Typography variant="body1" sx={{ mb: 1 }}>
+                      <strong>Địa chỉ:</strong> {businessInfo.business_address}
+                    </Typography>
+                  )}
+                  {businessInfo.business_phone && (
+                    <Typography variant="body1" sx={{ mb: 1 }}>
+                      <strong>Điện thoại:</strong> {businessInfo.business_phone}
+                    </Typography>
+                  )}
+                  {businessInfo.business_email && (
+                    <Typography variant="body1" sx={{ mb: 1 }}>
+                      <strong>Email:</strong> {businessInfo.business_email}
+                    </Typography>
+                  )}
+                  {businessInfo.business_website && (
+                    <Typography variant="body1">
+                      <strong>Website:</strong> {businessInfo.business_website}
+                    </Typography>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+          )}
+
+          {/* Owner Information - Only show for sold beehives */}
+          {owner && beehive.is_sold && businessInfo?.qr_show_owner_contact && (
             <Grid item xs={12}>
               <Card>
                 <CardContent>
@@ -226,7 +296,10 @@ const QRBeehiveDetail = () => {
         {/* Footer */}
         <Box sx={{ mt: 3, textAlign: 'center' }}>
           <Typography variant="body2" color="text.secondary">
-            Quét mã QR để xem thông tin tổ ong
+            {beehive.is_sold 
+              ? (businessInfo?.qr_footer_text || 'Thông tin tổ ong đã bán - Có thể xem công khai')
+              : 'Quét mã QR để xem thông tin tổ ong'
+            }
           </Typography>
         </Box>
       </Paper>

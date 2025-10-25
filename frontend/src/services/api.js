@@ -42,4 +42,16 @@ api.interceptors.response.use(
   }
 );
 
+// Public API instance for QR code access (no auth required)
+const publicApi = axios.create({
+  baseURL: finalApiUrl,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// No interceptors for public API - no auth required
+
 export default api;
+export { publicApi };
