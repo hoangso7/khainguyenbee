@@ -45,7 +45,6 @@ services:
         condition: service_healthy
     volumes:
       - ./static:/app/static:ro
-      - ${BACKEND_VOLUME:-}
     networks:
       - kbee_network
     healthcheck:

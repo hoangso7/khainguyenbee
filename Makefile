@@ -11,6 +11,10 @@ help:
 	@echo "  make restart   - Restart production environment"
 	@echo "  make logs      - Show logs for all services"
 	@echo "  make clean     - Remove all containers and volumes"
+	@echo "  make clean-all - Remove ALL Docker resources (dangerous!)"
+	@echo "  make clean-volumes - Force remove all Docker volumes"
+	@echo "  make clean-kbee - Remove only KBee resources"
+	@echo "  make docker-status - Show Docker resources status"
 	@echo "  make dev-up    - Start development environment"
 	@echo "  make dev-down  - Stop development environment"
 	@echo "  make dev-logs  - Show development logs"
@@ -51,6 +55,18 @@ dev-logs:
 clean:
 	docker compose down -v --remove-orphans
 	docker system prune -f
+
+clean-all:
+	@./cleanup.sh all
+
+clean-volumes:
+	@./cleanup.sh volumes
+
+clean-kbee:
+	@./cleanup.sh kbee
+
+docker-status:
+	@./cleanup.sh status
 
 # Database commands
 db-shell:
