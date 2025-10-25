@@ -236,9 +236,9 @@ const Dashboard = () => {
               {healthStats && Object.entries(healthStats).map(([health, count]) => (
                 <Box key={health} display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                   <Chip
-                    icon={<img src={getHealthStatusIcon(health)} alt={health} style={{ width: 16, height: 16 }} />}
+                    icon={<img src={getHealthStatusIcon(health || 'Unknown')} alt={health || 'Unknown'} style={{ width: 16, height: 16 }} />}
                     label={health}
-                    color={getHealthStatusColor(health)}
+                    color={getHealthStatusColor(health || 'Unknown')}
                     size="small"
                     sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
                   />

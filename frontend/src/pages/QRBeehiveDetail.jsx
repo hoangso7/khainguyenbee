@@ -213,9 +213,9 @@ const QRBeehiveDetail = () => {
                     Trạng thái sức khỏe:
                   </Typography>
                   <Chip
-                    icon={<img src={getHealthStatusIcon(beehive.health_status)} alt={beehive.health_status} style={{ width: 16, height: 16 }} />}
-                    label={beehive.health_status}
-                    color={getHealthStatusColor(beehive.health_status)}
+                    icon={<img src={getHealthStatusIcon(beehive.health_status || 'Unknown')} alt={beehive.health_status || 'Unknown'} style={{ width: 16, height: 16 }} />}
+                    label={beehive.health_status || 'Unknown'}
+                    color={getHealthStatusColor(beehive.health_status || 'Unknown')}
                     size="large"
                     sx={{ mb: 2 }}
                   />
