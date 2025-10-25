@@ -1,8 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_file
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_file, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta
 import qrcode
 import io
 import base64
@@ -20,6 +20,12 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'mysql+pymysql://root:password@localhost/kbee_manager')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Session configuration
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
+app.config['SESSION_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -75,10 +81,13 @@ def generate_qr_code(data):
     return img_buffer
 
 def get_beehive_qr_data(beehive):
+    domain = os.getenv('DOMAIN', 'localhost:5000')
     if beehive.is_sold:
-        return f"Trại ong KBee\nĐịa chỉ: 123 Đường ABC, Quận XYZ, TP.HCM\nSĐT: 0123-456-789\nNgày bán: {beehive.sold_date.strftime('%d/%m/%Y')}"
+        # QR code cho tổ đã bán sẽ redirect đến trang thông tin KBee
+        return f"https://{domain}/kbee-info/{beehive.id}"
     else:
-        return f"Tổ ong KBee\nSố thứ tự: {beehive.serial_number}\nNgày nhập: {beehive.import_date.strftime('%d/%m/%Y')}\nSức khỏe: {beehive.health_status}\nGhi chú: {beehive.notes or 'Không có'}"
+        # QR code cho tổ chưa bán chứa thông tin chi tiết
+        return f"Tổ ong KBee\nSố thứ tự: {beehive.serial_number}\nNgày nhập: {beehive.import_date.strftime('%d/%m/%Y')}\nSức khỏe: {beehive.health_status}\nGhi chú: {beehive.notes or 'Không có'}\nWebsite: https://{domain}"
 
 # Routes
 @app.route('/')
@@ -95,7 +104,8 @@ def login():
         user = User.query.filter_by(username=username).first()
         
         if user and user.check_password(password):
-            login_user(user)
+            login_user(user, remember=True)
+            session.permanent = True
             return redirect(url_for('dashboard'))
         else:
             flash('Tên đăng nhập hoặc mật khẩu không đúng!', 'error')
@@ -227,6 +237,26 @@ def qr_code(beehive_id):
     
     return send_file(qr_img, mimetype='image/png')
 
+@app.route('/kbee-info/<int:beehive_id>')
+def kbee_info(beehive_id):
+    """Trang thông tin KBee cho tổ ong đã bán"""
+    beehive = Beehive.query.get_or_404(beehive_id)
+    
+    # Chỉ hiển thị cho tổ ong đã bán
+    if not beehive.is_sold:
+        return redirect(url_for('index'))
+    
+    return render_template('kbee_info.html', beehive=beehive)
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    return render_template('404.html'), 500
+
 @app.route('/favicon.ico')
 def favicon():
     return send_file('static/icon/bee.png', mimetype='image/png')
@@ -289,10 +319,10 @@ if __name__ == '__main__':
         
         # Create default admin user if not exists
         if not User.query.filter_by(username='admin').first():
-            admin = User(username='admin', email='admin@kbee.com')
-            admin.set_password('admin123')
+            admin = User(username='admin', email='admin@khainguyenbee.io.vn')
+            admin.set_password('khai123')
             db.session.add(admin)
             db.session.commit()
-            print("Default admin user created: username=admin, password=admin123")
+            print("Default admin user created: username=admin, password=khai123")
     
     app.run(debug=True, host='0.0.0.0', port=5000)

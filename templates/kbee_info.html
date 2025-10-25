@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông tin Trại ong KBee</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='icon/bee.png') }}">
+</head>
+<body>
+    <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, var(--honey-light) 0%, #ffffff 100%);">
+        <div class="row w-100 justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow-lg border-0" style="border-radius: 20px;">
+                    <div class="card-header text-center py-4" style="background: linear-gradient(135deg, var(--honey-primary) 0%, var(--honey-secondary) 100%); border-radius: 20px 20px 0 0;">
+                        <img src="{{ url_for('static', filename='icon/bee.png') }}" alt="KBee Logo" class="logo-large mb-3">
+                        <h2 class="text-white mb-0">Trại ong KBee</h2>
+                        <p class="text-white-50 mb-0">Chuyên cung cấp mật ong chất lượng cao</p>
+                    </div>
+                    
+                    <div class="card-body p-5">
+                        <div class="row mb-4">
+                            <div class="col-12 text-center">
+                                <h4 class="text-honey mb-3">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Tổ ong đã được bán
+                                </h4>
+                                <div class="alert alert-success" role="alert">
+                                    <strong>Số tổ:</strong> {{ beehive.serial_number }}<br>
+                                    <strong>Ngày bán:</strong> {{ beehive.sold_date.strftime('%d/%m/%Y') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="info-card h-100">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-map-marker-alt fa-2x text-honey mb-3"></i>
+                                        <h5 class="card-title">Địa chỉ</h5>
+                                        <p class="card-text">
+                                            123 Đường ABC<br>
+                                            Quận XYZ, TP.HCM<br>
+                                            Việt Nam
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <div class="info-card h-100">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-phone fa-2x text-honey mb-3"></i>
+                                        <h5 class="card-title">Liên hệ</h5>
+                                        <p class="card-text">
+                                            <strong>Điện thoại:</strong><br>
+                                            <a href="tel:0123456789" class="text-decoration-none">0123-456-789</a><br><br>
+                                            <strong>Email:</strong><br>
+                                            <a href="mailto:info@khainguyenbee.io.vn" class="text-decoration-none">info@khainguyenbee.io.vn</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="info-card h-100">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-globe fa-2x text-honey mb-3"></i>
+                                        <h5 class="card-title">Website</h5>
+                                        <p class="card-text">
+                                            <a href="https://khainguyenbee.io.vn" target="_blank" class="btn btn-honey-outline">
+                                                <i class="fas fa-external-link-alt me-1"></i>
+                                                Truy cập website
+                                            </a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <div class="info-card h-100">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-clock fa-2x text-honey mb-3"></i>
+                                        <h5 class="card-title">Giờ làm việc</h5>
+                                        <p class="card-text">
+                                            <strong>Thứ 2 - Thứ 6:</strong><br>
+                                            8:00 - 17:00<br><br>
+                                            <strong>Thứ 7:</strong><br>
+                                            8:00 - 12:00
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="info-card">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-award fa-2x text-honey mb-3"></i>
+                                        <h5 class="card-title">Cam kết chất lượng</h5>
+                                        <p class="card-text">
+                                            Chúng tôi cam kết cung cấp mật ong nguyên chất, không pha trộn, 
+                                            đảm bảo an toàn vệ sinh thực phẩm và có nguồn gốc rõ ràng.
+                                        </p>
+                                        <div class="row mt-3">
+                                            <div class="col-md-4">
+                                                <i class="fas fa-certificate text-success me-2"></i>
+                                                <small>Chứng nhận VSATTP</small>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <i class="fas fa-leaf text-success me-2"></i>
+                                                <small>100% Tự nhiên</small>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <i class="fas fa-shield-alt text-success me-2"></i>
+                                                <small>Đảm bảo chất lượng</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <p class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Cảm ơn bạn đã tin tưởng và sử dụng sản phẩm của Trại ong KBee
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+<style>
+.info-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 15px;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.info-card .card-body {
+    padding: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .logo-large {
+        height: 50px !important;
+    }
+    
+    .card-body {
+        padding: 1rem !important;
+    }
+    
+    .info-card .card-body {
+        padding: 1rem !important;
+    }
+}
+</style>

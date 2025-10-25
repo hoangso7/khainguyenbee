@@ -1,6 +1,15 @@
 # 🐝 KBee Manager - Hệ thống quản lý tổ ong
 
-KBee Manager là một ứng dụng web được phát triển bằng Python Flask để quản lý tổ ong với đầy đủ các tính năng hiện đại bao gồm mã QR, xuất PDF và giao diện thân thiện.
+KBee Manager là một ứng dụng web được phát triển bằng Python Flask để quản lý tổ ong với đầy đủ các tính năng hiện đại bao gồm mã QR, xuất PDF, SSL tự động và giao diện thân thiện.
+
+## ✨ Đặc điểm nổi bật
+
+- 🚀 **One-command deployment** với Docker Compose
+- 🔒 **SSL tự động** với Let's Encrypt và auto-renewal
+- 📱 **Mobile-friendly** responsive design
+- 🎨 **Honey-themed UI** với logo integration
+- 🔐 **Session 30 ngày** cho admin
+- 📊 **QR codes thông minh** với domain integration
 
 ## ✨ Tính năng chính
 
@@ -13,7 +22,9 @@ KBee Manager là một ứng dụng web được phát triển bằng Python Fla
 - **Tự động tạo mã QR** cho mỗi tổ ong
 - **Thông tin động**: 
   - Tổ chưa bán: Hiển thị thông tin chi tiết tổ ong
-  - Tổ đã bán: Hiển thị thông tin trại ong KBee (địa chỉ, SĐT, ngày bán)
+  - Tổ đã bán: Redirect đến trang thông tin KBee với địa chỉ, SĐT, ngày bán
+- **Domain integration**: QR codes chứa link website tự động
+- **Trang thông tin KBee**: Giao diện đẹp cho khách hàng
 - **Quét mã QR** để xem thông tin nhanh chóng
 
 ### 📄 Xuất PDF
@@ -25,19 +36,27 @@ KBee Manager là một ứng dụng web được phát triển bằng Python Fla
 - **Hệ thống đăng nhập** an toàn
 - **Phân quyền người dùng**
 - **Mã hóa mật khẩu**
+- **Session 30 ngày** cho tài khoản admin
+- **Secure cookies** cho production
+- **SSL/TLS encryption** với Let's Encrypt
+- **Auto-renewal** SSL certificates
+- **Security headers** (HSTS, CSP, XSS protection)
 
 ### 🎨 Giao diện
 - **Thiết kế thân thiện** với màu sắc mật ong
 - **Responsive** trên mọi thiết bị (mobile, tablet, desktop)
 - **Touch-friendly** cho thiết bị di động
 - **Logo integration** với bee.png và apiary.png
+- **Custom 404 page** với thiết kế đẹp
+- **Modern UI/UX** với Bootstrap 5
 
 ## 🚀 Cài đặt và chạy
 
 ### Yêu cầu hệ thống
-- Python 3.9+
-- MySQL 8.0+
-- Docker & Docker Compose (tùy chọn)
+- Docker & Docker Compose (khuyến nghị)
+- Domain name (cho SSL)
+- Server với ports 80, 443 mở
+- Hoặc Python 3.9+ + MySQL 8.0+ (manual setup)
 
 ### Cách 1: Chạy với Docker (Khuyến nghị)
 
@@ -47,15 +66,33 @@ git clone https://github.com/hoangso7/khainguyenbee.git
 cd khainguyenbee
 ```
 
-2. **Chạy với Docker Compose**
+2. **Setup environment variables**
+```bash
+# Tạo file .env từ template
+./setup-env.sh
+
+# Chỉnh sửa file .env với thông tin của bạn
+nano .env
+```
+
+**Các biến quan trọng cần cập nhật:**
+```env
+DOMAIN=your-domain.com
+SSL_EMAIL=your-email@domain.com
+SECRET_KEY=your-very-secure-secret-key
+MYSQL_ROOT_PASSWORD=your-secure-password
+```
+
+3. **Deploy với SSL tự động**
 ```bash
 docker-compose up -d
 ```
 
-3. **Truy cập ứng dụng**
-- Web: http://localhost:5000
-- MySQL: localhost:3306
-- Tài khoản mặc định: admin / admin123
+4. **Truy cập ứng dụng**
+- **HTTPS**: https://your-domain.com (SSL tự động)
+- **HTTP**: http://your-domain.com (redirect to HTTPS)
+- **MySQL**: localhost:3306
+- **Tài khoản mặc định**: admin / admin123
 
 ### Cách 2: Chạy thủ công
 
@@ -92,19 +129,38 @@ docker-compose down
 docker-compose down -v
 ```
 
+### SSL Certificate
+```bash
+# Kiểm tra SSL certificate
+docker-compose exec nginx openssl x509 -in /etc/letsencrypt/live/your-domain.com/cert.pem -noout -dates
+
+# Manual renewal
+docker-compose exec certbot certbot renew
+
+# Xem SSL logs
+docker-compose logs ssl-renew
+```
+
 ## 🔧 Cấu hình
 
 ### Biến môi trường
+Tất cả biến môi trường được quản lý trong file `.env`:
+
+```bash
+# Tạo file .env từ template
+./setup-env.sh
+
+# Chỉnh sửa file .env
+nano .env
+```
+
+**Các biến quan trọng cần cập nhật:**
 ```env
 SECRET_KEY=your-secret-key-change-this-in-production
-DATABASE_URL=mysql+pymysql://user:password@localhost/kbee_manager
-MYSQL_HOST=localhost
-MYSQL_PORT=3306
-MYSQL_USER=root
-MYSQL_PASSWORD=password
-MYSQL_DATABASE=kbee_manager
-FLASK_ENV=development
-FLASK_DEBUG=True
+DOMAIN=khainguyenbee.io.vn
+SSL_EMAIL=admin@khainguyenbee.io.vn
+MYSQL_ROOT_PASSWORD=your-secure-password
+MYSQL_PASSWORD=your-secure-password
 ```
 
 ### Cấu trúc database
@@ -156,6 +212,12 @@ FLASK_DEBUG=True
 - **Swipe gestures**: Vuốt để điều hướng
 - **Mobile-optimized tables**: Cuộn ngang cho bảng dữ liệu
 
+### 7. QR Code cho tổ đã bán
+- **Quét QR code** của tổ đã bán
+- **Redirect** đến trang thông tin KBee
+- **Thông tin trại ong**: Địa chỉ, SĐT, ngày bán
+- **Giao diện đẹp** cho khách hàng
+
 ## 🛠️ API Endpoints
 
 ### Authentication
@@ -174,6 +236,7 @@ FLASK_DEBUG=True
 ### QR & Export
 - `GET /qr_code/<id>` - Lấy mã QR
 - `GET /export_qr_pdf` - Xuất PDF
+- `GET /kbee-info/<id>` - Trang thông tin KBee cho tổ đã bán
 
 ### Sales
 - `GET /sell_beehive/<id>` - Đánh dấu đã bán
@@ -196,14 +259,24 @@ FLASK_DEBUG=True
 ### Services
 - **web**: Ứng dụng Flask (port 5000)
 - **mysql**: Database MySQL (port 3306)
-- **nginx**: Reverse proxy (port 80/443)
+- **nginx**: Reverse proxy với SSL (port 80/443)
+- **certbot**: Obtain SSL certificates
+- **ssl-renew**: Auto-renewal SSL certificates
 
 ### Volumes
 - `mysql_data`: Dữ liệu MySQL persistent
-- Static files được mount từ host
+- `certbot_certs`: SSL certificates
+- `certbot_www`: Webroot cho SSL validation
+- `nginx_logs`: Nginx access/error logs
 
 ### Networks
 - `kbee_network`: Network riêng cho các services
+
+### SSL Auto-Setup
+- **Tự động obtain** SSL certificate khi start
+- **Auto-renewal** mỗi 12 giờ
+- **HTTP to HTTPS** redirect
+- **Security headers** tự động
 
 ## 📊 Monitoring
 
@@ -214,21 +287,37 @@ FLASK_DEBUG=True
 
 ### Logs
 ```bash
-# Xem logs
-docker-compose logs -f web
-docker-compose logs -f mysql
-
-# Logs real-time
+# Xem logs tất cả services
 docker-compose logs -f
+
+# Xem logs specific service
+docker-compose logs -f web
+docker-compose logs -f nginx
+docker-compose logs -f mysql
+docker-compose logs -f ssl-renew
+
+# Xem nginx access logs
+docker-compose exec nginx tail -f /var/log/nginx/access.log
 ```
 
 ## 🚀 Deployment
 
-### Production
-1. **Cập nhật SECRET_KEY**
-2. **Cấu hình SSL** (uncomment nginx SSL config)
-3. **Backup database** thường xuyên
-4. **Monitor logs** và performance
+### Production Ready
+1. **SSL tự động** - Không cần cấu hình thêm
+2. **Environment variables** - Quản lý trong .env
+3. **Auto-renewal** - SSL certificates tự động renew
+4. **Health checks** - Monitoring tự động
+5. **Security headers** - Bảo mật tự động
+
+### Quick Deploy
+```bash
+# Clone và setup
+git clone https://github.com/hoangso7/khainguyenbee.git
+cd khainguyenbee
+./setup-env.sh
+nano .env  # Cập nhật thông tin
+docker-compose up -d
+```
 
 ### Backup
 ```bash
@@ -237,6 +326,9 @@ docker exec kbee_mysql mysqldump -u kbee_user -p kbee_manager > backup.sql
 
 # Restore database
 docker exec -i kbee_mysql mysql -u kbee_user -p kbee_manager < backup.sql
+
+# Backup SSL certificates
+docker cp kbee_nginx:/etc/letsencrypt ./ssl-backup/
 ```
 
 ## 🤝 Đóng góp
@@ -251,6 +343,35 @@ docker exec -i kbee_mysql mysql -u kbee_user -p kbee_manager < backup.sql
 
 MIT License - Xem file LICENSE để biết thêm chi tiết.
 
+## 📁 Cấu trúc dự án
+
+```
+kbee-manager/
+├── .env                    # Environment variables (not in git)
+├── env.example            # Environment template
+├── setup-env.sh          # Environment setup script
+├── docker-compose.yml    # Docker services với SSL
+├── nginx.conf           # Nginx configuration
+├── app.py              # Flask application
+├── config.py          # Configuration settings
+├── requirements.txt   # Python dependencies
+├── Dockerfile        # Docker image
+├── init.sql         # Database initialization
+├── .gitignore      # Git ignore rules
+├── static/        # Static files
+│   ├── css/      # Stylesheets
+│   ├── js/       # JavaScript
+│   └── icon/     # Logo files
+├── templates/     # HTML templates
+│   ├── base.html
+│   ├── login.html
+│   ├── dashboard.html
+│   ├── kbee_info.html
+│   └── 404.html
+└── logs/         # Log files
+    └── README.md
+```
+
 ## 📞 Hỗ trợ
 
 - **Email**: support@kbee.com
@@ -259,6 +380,12 @@ MIT License - Xem file LICENSE để biết thêm chi tiết.
 
 ## 🎯 Roadmap
 
+- [x] SSL tự động với Let's Encrypt
+- [x] Environment variables management
+- [x] Mobile-responsive design
+- [x] QR codes với domain integration
+- [x] Trang thông tin KBee cho khách hàng
+- [x] Custom 404 page
 - [ ] Mobile app (React Native)
 - [ ] Advanced analytics
 - [ ] Multi-language support
