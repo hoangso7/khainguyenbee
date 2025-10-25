@@ -61,6 +61,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx-temp.conf:/etc/nginx/nginx.conf:ro
+      - ./static:/usr/share/nginx/html/static:ro
       - certbot_certs:/etc/letsencrypt
       - certbot_www:/var/www/certbot
       - nginx_logs:/var/log/nginx

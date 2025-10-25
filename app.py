@@ -8,7 +8,7 @@ import io
 import base64
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 import os
@@ -47,8 +47,7 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
 class Beehive(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    serial_number = db.Column(db.String(50), unique=True, nullable=False)
+    serial_number = db.Column(db.String(50), primary_key=True)  # TO001, TO002, etc.
     import_date = db.Column(db.Date, nullable=False)
     split_date = db.Column(db.Date, nullable=True)
     health_status = db.Column(db.String(20), nullable=False, default='Tốt')  # Tốt, Trung bình, Kém
@@ -57,6 +56,26 @@ class Beehive(db.Model):
     sold_date = db.Column(db.Date, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    @staticmethod
+    def generate_serial_number():
+        """Generate next serial number in format TO001, TO002, etc."""
+        # Get the highest existing serial number
+        last_beehive = Beehive.query.filter(
+            Beehive.serial_number.like('TO%')
+        ).order_by(Beehive.serial_number.desc()).first()
+        
+        if last_beehive:
+            # Extract number from last serial number (e.g., TO001 -> 1)
+            try:
+                last_number = int(last_beehive.serial_number[2:])  # Remove 'TO' prefix
+                next_number = last_number + 1
+            except (ValueError, IndexError):
+                next_number = 1
+        else:
+            next_number = 1
+        
+        return f"TO{next_number:03d}"
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -80,14 +99,14 @@ def generate_qr_code(data):
     
     return img_buffer
 
-def get_beehive_qr_data(beehive):
+def get_beehive_qr_data(beehive, user_id=None):
     domain = os.getenv('DOMAIN', 'localhost:5000')
-    if beehive.is_sold:
-        # QR code cho tổ đã bán sẽ redirect đến trang thông tin KBee
-        return f"https://{domain}/kbee-info/{beehive.id}"
+    # QR code luôn cố định, chứa user_id và serial_number để xác thực
+    if user_id:
+        return f"https://{domain}/user/{user_id}/beehive/{beehive.serial_number}"
     else:
-        # QR code cho tổ chưa bán chứa thông tin chi tiết
-        return f"Tổ ong KBee\nSố thứ tự: {beehive.serial_number}\nNgày nhập: {beehive.import_date.strftime('%d/%m/%Y')}\nSức khỏe: {beehive.health_status}\nGhi chú: {beehive.notes or 'Không có'}\nWebsite: https://{domain}"
+        # Fallback cho trường hợp không có user_id
+        return f"https://{domain}/beehive/{beehive.serial_number}"
 
 # Routes
 @app.route('/')
@@ -152,25 +171,100 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
+@app.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    if request.method == 'POST':
+        current_password = request.form['current_password']
+        new_password = request.form['new_password']
+        confirm_password = request.form['confirm_password']
+        
+        # Verify current password
+        if not current_user.check_password(current_password):
+            flash('Mật khẩu hiện tại không đúng!', 'error')
+            return render_template('change_password.html')
+        
+        # Check if new password matches confirmation
+        if new_password != confirm_password:
+            flash('Mật khẩu mới và xác nhận mật khẩu không khớp!', 'error')
+            return render_template('change_password.html')
+        
+        # Check password length
+        if len(new_password) < 6:
+            flash('Mật khẩu mới phải có ít nhất 6 ký tự!', 'error')
+            return render_template('change_password.html')
+        
+        # Update password
+        current_user.set_password(new_password)
+        db.session.commit()
+        
+        flash('Mật khẩu đã được thay đổi thành công!', 'success')
+        return redirect(url_for('dashboard'))
+    
+    return render_template('change_password.html')
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    beehives = Beehive.query.order_by(Beehive.created_at.desc()).all()
-    return render_template('dashboard.html', beehives=beehives)
+    # Get sorting parameters
+    sort_by = request.args.get('sort', 'created_at')
+    sort_order = request.args.get('order', 'desc')
+    
+    # Validate sort parameters
+    valid_sorts = ['created_at', 'import_date', 'split_date', 'health_status', 'status']
+    if sort_by not in valid_sorts:
+        sort_by = 'created_at'
+    
+    if sort_order not in ['asc', 'desc']:
+        sort_order = 'desc'
+    
+    # Apply sorting
+    if sort_by == 'created_at':
+        if sort_order == 'asc':
+            beehives = Beehive.query.order_by(Beehive.created_at.asc()).all()
+        else:
+            beehives = Beehive.query.order_by(Beehive.created_at.desc()).all()
+    elif sort_by == 'import_date':
+        if sort_order == 'asc':
+            beehives = Beehive.query.order_by(Beehive.import_date.asc()).all()
+        else:
+            beehives = Beehive.query.order_by(Beehive.import_date.desc()).all()
+    elif sort_by == 'split_date':
+        if sort_order == 'asc':
+            beehives = Beehive.query.order_by(Beehive.split_date.asc()).all()
+        else:
+            beehives = Beehive.query.order_by(Beehive.split_date.desc()).all()
+    elif sort_by == 'health_status':
+        if sort_order == 'asc':
+            beehives = Beehive.query.order_by(Beehive.health_status.asc()).all()
+        else:
+            beehives = Beehive.query.order_by(Beehive.health_status.desc()).all()
+    elif sort_by == 'status':
+        if sort_order == 'asc':
+            beehives = Beehive.query.order_by(Beehive.is_sold.asc()).all()
+        else:
+            beehives = Beehive.query.order_by(Beehive.is_sold.desc()).all()
+    
+    # Get health statistics for pie chart
+    health_stats = {}
+    for beehive in beehives:
+        health = beehive.health_status or 'Unknown'
+        health_stats[health] = health_stats.get(health, 0) + 1
+    
+    return render_template('dashboard.html', beehives=beehives, 
+                         sort_by=sort_by, sort_order=sort_order, 
+                         health_stats=health_stats)
 
 @app.route('/add_beehive', methods=['GET', 'POST'])
 @login_required
 def add_beehive():
     if request.method == 'POST':
-        serial_number = request.form['serial_number']
+        # Generate serial number automatically
+        serial_number = Beehive.generate_serial_number()
         import_date = datetime.strptime(request.form['import_date'], '%Y-%m-%d').date()
         split_date = request.form.get('split_date')
         health_status = request.form['health_status']
         notes = request.form.get('notes', '')
-        
-        if Beehive.query.filter_by(serial_number=serial_number).first():
-            flash('Số thứ tự tổ ong đã tồn tại!', 'error')
-            return render_template('add_beehive.html')
         
         beehive = Beehive(
             serial_number=serial_number,
@@ -183,18 +277,61 @@ def add_beehive():
         db.session.add(beehive)
         db.session.commit()
         
-        flash('Thêm tổ ong thành công!', 'success')
+        flash(f'Thêm tổ ong thành công! Mã tổ: {serial_number}', 'success')
         return redirect(url_for('dashboard'))
     
     return render_template('add_beehive.html')
 
-@app.route('/edit_beehive/<int:beehive_id>', methods=['GET', 'POST'])
+@app.route('/bulk_create_beehives', methods=['GET', 'POST'])
 @login_required
-def edit_beehive(beehive_id):
-    beehive = Beehive.query.get_or_404(beehive_id)
+def bulk_create_beehives():
+    if request.method == 'POST':
+        try:
+            count = int(request.form['count'])
+            health_status = request.form.get('health_status', 'Tốt')
+            notes = request.form.get('notes', '')
+            
+            if count <= 0 or count > 50:
+                flash('Số lượng tổ ong phải từ 1 đến 50!', 'error')
+                return render_template('bulk_create_beehives.html')
+            
+            # Generate beehives
+            created_count = 0
+            today = datetime.now().date()
+            
+            for i in range(count):
+                # Generate serial number automatically
+                serial_number = Beehive.generate_serial_number()
+                
+                beehive = Beehive(
+                    serial_number=serial_number,
+                    import_date=today,
+                    health_status=health_status,
+                    notes=notes,
+                    is_sold=False
+                )
+                db.session.add(beehive)
+                created_count += 1
+            
+            db.session.commit()
+            flash(f'Đã tạo thành công {created_count} tổ ong!', 'success')
+            return redirect(url_for('dashboard'))
+            
+        except ValueError:
+            flash('Số lượng tổ ong không hợp lệ!', 'error')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Có lỗi xảy ra: {str(e)}', 'error')
+    
+    return render_template('bulk_create_beehives.html')
+
+@app.route('/edit_beehive/<serial_number>', methods=['GET', 'POST'])
+@login_required
+def edit_beehive(serial_number):
+    beehive = Beehive.query.get_or_404(serial_number)
     
     if request.method == 'POST':
-        beehive.serial_number = request.form['serial_number']
+        # Don't allow changing serial_number as it's the primary key
         beehive.import_date = datetime.strptime(request.form['import_date'], '%Y-%m-%d').date()
         split_date = request.form.get('split_date')
         beehive.split_date = datetime.strptime(split_date, '%Y-%m-%d').date() if split_date else None
@@ -208,52 +345,69 @@ def edit_beehive(beehive_id):
     
     return render_template('edit_beehive.html', beehive=beehive)
 
-@app.route('/delete_beehive/<int:beehive_id>')
+@app.route('/delete_beehive/<serial_number>')
 @login_required
-def delete_beehive(beehive_id):
-    beehive = Beehive.query.get_or_404(beehive_id)
+def delete_beehive(serial_number):
+    beehive = Beehive.query.get_or_404(serial_number)
     db.session.delete(beehive)
     db.session.commit()
     flash('Xóa tổ ong thành công!', 'success')
     return redirect(url_for('dashboard'))
 
-@app.route('/sell_beehive/<int:beehive_id>')
+@app.route('/sell_beehive/<serial_number>')
 @login_required
-def sell_beehive(beehive_id):
-    beehive = Beehive.query.get_or_404(beehive_id)
+def sell_beehive(serial_number):
+    beehive = Beehive.query.get_or_404(serial_number)
     beehive.is_sold = True
     beehive.sold_date = datetime.utcnow().date()
     db.session.commit()
     flash('Đánh dấu tổ ong đã bán thành công!', 'success')
     return redirect(url_for('dashboard'))
 
-@app.route('/unsell_beehive/<int:beehive_id>')
+@app.route('/unsell_beehive/<serial_number>')
 @login_required
-def unsell_beehive(beehive_id):
-    beehive = Beehive.query.get_or_404(beehive_id)
+def unsell_beehive(serial_number):
+    beehive = Beehive.query.get_or_404(serial_number)
     beehive.is_sold = False
     beehive.sold_date = None
     db.session.commit()
     flash('Hủy bán tổ ong thành công!', 'success')
     return redirect(url_for('dashboard'))
 
-@app.route('/qr_code/<int:beehive_id>')
+@app.route('/qr_code/<serial_number>')
 @login_required
-def qr_code(beehive_id):
-    beehive = Beehive.query.get_or_404(beehive_id)
-    qr_data = get_beehive_qr_data(beehive)
+def qr_code(serial_number):
+    beehive = Beehive.query.get_or_404(serial_number)
+    # Truyền user_id vào QR data để tạo mã QR riêng cho từng user
+    qr_data = get_beehive_qr_data(beehive, user_id=current_user.id)
     qr_img = generate_qr_code(qr_data)
     
     return send_file(qr_img, mimetype='image/png')
 
-@app.route('/kbee-info/<int:beehive_id>')
-def kbee_info(beehive_id):
+
+
+
+@app.route('/beehive/<serial_number>')
+def beehive_info(serial_number):
+    """Route fallback cho QR code cũ (không có user_id)"""
+    beehive = Beehive.query.get_or_404(serial_number)
+    
+    # Kiểm tra trạng thái tổ ong
+    if beehive.is_sold:
+        # Nếu đã bán, redirect đến trang thông tin KBee
+        return redirect(url_for('kbee_info', serial_number=serial_number))
+    else:
+        # Nếu chưa bán, hiển thị thông tin chi tiết
+        return render_template('beehive_detail.html', beehive=beehive)
+
+@app.route('/kbee-info/<serial_number>')
+def kbee_info(serial_number):
     """Trang thông tin KBee cho tổ ong đã bán"""
-    beehive = Beehive.query.get_or_404(beehive_id)
+    beehive = Beehive.query.get_or_404(serial_number)
     
     # Chỉ hiển thị cho tổ ong đã bán
     if not beehive.is_sold:
-        return redirect(url_for('index'))
+        return redirect(url_for('beehive_info', serial_number=serial_number))
     
     return render_template('kbee_info.html', beehive=beehive)
 
@@ -277,50 +431,123 @@ def export_qr_pdf():
     
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4)
-    styles = getSampleStyleSheet()
-    story = []
     
-    # Title
+    # Register Vietnamese font
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    
+    # Try to register a font that supports Vietnamese
+    try:
+        # Use DejaVu Sans which supports Vietnamese
+        pdfmetrics.registerFont(TTFont('DejaVuSans', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'))
+        vietnamese_font = 'DejaVuSans'
+    except:
+        try:
+            # Fallback to Liberation Sans
+            pdfmetrics.registerFont(TTFont('LiberationSans', '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf'))
+            vietnamese_font = 'LiberationSans'
+        except:
+            # Final fallback to default font
+            vietnamese_font = 'Helvetica'
+    
+    # Create custom styles with Vietnamese font
+    styles = getSampleStyleSheet()
+    
+    # Title style
     title_style = ParagraphStyle(
         'CustomTitle',
         parent=styles['Heading1'],
+        fontName=vietnamese_font,
         fontSize=18,
         spaceAfter=30,
         alignment=1,
         textColor=colors.HexColor('#D2691E')
     )
+    
+    # Normal style for Vietnamese text
+    normal_style = ParagraphStyle(
+        'VietnameseNormal',
+        parent=styles['Normal'],
+        fontName=vietnamese_font,
+        fontSize=10,
+        spaceAfter=5
+    )
+    
+    story = []
+    
+    # Title
     title = Paragraph("Danh sách mã QR tổ ong KBee", title_style)
     story.append(title)
     story.append(Spacer(1, 20))
     
-    # Create QR codes in grid
-    qr_size = 3 * cm  # 3x3 cm as requested
+    # Create QR codes in horizontal grid (5 per row)
+    qr_per_row = 5  # 5 QR codes per row to save paper
+    # Calculate QR size to fit 5 per row on A4 paper
+    available_width = A4[0] - 4*cm  # A4 width minus margins
+    qr_size = (available_width / qr_per_row) - 0.5*cm  # Leave some space between QR codes
     
-    for i, beehive in enumerate(beehives):
-        if i % 2 == 0:  # Start new row every 2 QR codes
-            if i > 0:
-                story.append(Spacer(1, 20))
+    # Process beehives in batches of qr_per_row
+    for i in range(0, len(beehives), qr_per_row):
+        batch = beehives[i:i + qr_per_row]
+        table_data = []
         
-        qr_data = get_beehive_qr_data(beehive)
-        qr_img = generate_qr_code(qr_data)
+        for beehive in batch:
+            # Sử dụng user_id của user hiện tại để tạo QR code
+            qr_data = get_beehive_qr_data(beehive, user_id=current_user.id)
+            qr_img = generate_qr_code(qr_data)
+            
+            # Create image from QR code
+            img = Image(qr_img, width=qr_size, height=qr_size)
+            
+            # Add beehive info below QR
+            info_text = f"St: {beehive.serial_number}"
+            if beehive.is_sold:
+                info_text += f" (đã bán - {beehive.sold_date.strftime('%d/%m/%Y')})"
+            
+            # Create a cell with QR code and text
+            cell_content = [img, Paragraph(info_text, normal_style)]
+            table_data.append(cell_content)
         
-        # Create image from QR code
-        img = Image(qr_img, width=qr_size, height=qr_size)
-        story.append(img)
+        # Pad row if necessary
+        while len(table_data) < qr_per_row:
+            table_data.append([Spacer(1, 1), Spacer(1, 1)])  # Empty cell with spacers
         
-        # Add beehive info below QR
-        info_text = f"Số tổ: {beehive.serial_number}"
-        if beehive.is_sold:
-            info_text += f" (Đã bán - {beehive.sold_date.strftime('%d/%m/%Y')})"
+        # Create table for this row - adjust column width for 5 QR codes
+        col_width = (A4[0] - 4*cm) / qr_per_row  # Available width divided by number of columns
+        table = Table([table_data], colWidths=[col_width] * qr_per_row)
+        table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ]))
         
-        info_para = Paragraph(info_text, styles['Normal'])
-        story.append(info_para)
-        story.append(Spacer(1, 10))
+        story.append(table)
+        story.append(Spacer(1, 20))
     
     doc.build(story)
     buffer.seek(0)
     
     return send_file(buffer, as_attachment=True, download_name='beehive_qr_codes.pdf', mimetype='application/pdf')
+
+
+# Add routes at the end to ensure they are loaded
+@app.route('/user/<int:user_id>/beehive/<serial_number>')
+def user_beehive_info_final(user_id, serial_number):
+    """Route xử lý QR code scanning với xác thực user"""
+    # Xác thực user_id
+    user = User.query.get_or_404(user_id)
+    beehive = Beehive.query.get_or_404(serial_number)
+    
+    # Kiểm tra trạng thái tổ ong
+    if beehive.is_sold:
+        # Nếu đã bán, redirect đến trang thông tin KBee
+        return redirect(url_for('kbee_info', serial_number=serial_number))
+    else:
+        # Nếu chưa bán, hiển thị thông tin chi tiết với thông tin user
+        return render_template('beehive_detail.html', beehive=beehive, user=user)
 
 if __name__ == '__main__':
     with app.app_context():

@@ -10,6 +10,9 @@ ALTER DATABASE kbee_manager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- Create tables will be handled by Flask-SQLAlchemy
 -- This file can be used for any additional database setup
 
+-- Migration script for existing data (if any)
+-- This will be executed after the application starts
+
 -- Create indexes for better performance
 -- These will be created after the tables are created by the application
 

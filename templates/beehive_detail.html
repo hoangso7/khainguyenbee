@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Thông tin tổ ong {{ beehive.serial_number }} - KBee Manager{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header text-center bg-honey text-white">
+                    <img src="{{ url_for('static', filename='icon/bee.png') }}?v={{ range(1000000, 9999999) | random }}" alt="KBee Logo" class="logo-large mb-3">
+                    <h4 class="mb-0">Thông tin tổ ong</h4>
+                    {% if user %}
+                    <p class="mb-0 mt-2">
+                        <i class="fas fa-user me-1"></i>
+                        Quản lý bởi: {{ user.username }}
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-honey mb-3">
+                                <i class="fas fa-hashtag me-2"></i>Thông tin cơ bản
+                            </h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Mã tổ:</strong></td>
+                                    <td>{{ beehive.serial_number }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Ngày nhập:</strong></td>
+                                    <td>{{ beehive.import_date.strftime('%d/%m/%Y') }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Ngày tách:</strong></td>
+                                    <td>{{ beehive.split_date.strftime('%d/%m/%Y') if beehive.split_date else 'Chưa tách' }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Trạng thái:</strong></td>
+                                    <td>
+                                        <span class="badge bg-success">Đang quản lý</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-honey mb-3">
+                                <i class="fas fa-heartbeat me-2"></i>Tình trạng sức khỏe
+                            </h5>
+                            <div class="text-center mb-3">
+                                <span class="badge bg-{{ 'success' if beehive.health_status == 'Tốt' else 'warning' if beehive.health_status == 'Trung bình' else 'danger' if beehive.health_status == 'Kém' else 'secondary' }} fs-5">
+                                    {{ beehive.health_status }}
+                                </span>
+                            </div>
+                            {% if beehive.notes %}
+                            <h6 class="text-honey">Ghi chú:</h6>
+                            <p class="text-muted">{{ beehive.notes }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-12 text-center">
+                            <h5 class="text-honey mb-3">
+                                <i class="fas fa-qrcode me-2"></i>Mã QR
+                            </h5>
+                            <img src="{{ url_for('qr_code', serial_number=beehive.serial_number) }}" 
+                                 alt="QR Code" 
+                                 class="qr-code-large mb-3">
+                            <p class="text-muted">Quét mã QR để xem thông tin này</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-12 text-center">
+                            <a href="{{ url_for('index') }}" class="btn btn-honey">
+                                <i class="fas fa-home me-1"></i>Về trang chủ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.qr-code-large {
+    width: 200px;
+    height: 200px;
+    border: 2px solid #D2691E;
+    border-radius: 10px;
+    padding: 10px;
+    background: white;
+}
+
+.logo-large {
+    width: 80px;
+    height: 80px;
+}
+
+.text-honey {
+    color: #D2691E;
+}
+
+.bg-honey {
+    background: linear-gradient(135deg, #D2691E, #CD853F) !important;
+}
+</style>
+{% endblock %}

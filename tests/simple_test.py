@@ -67,8 +67,12 @@ class SimpleKBeeTest(unittest.TestCase):
     def test_beehive_creation(self):
         """Test beehive creation"""
         with self.app.app_context():
+            # Test automatic serial number generation
+            serial_number = Beehive.generate_serial_number()
+            self.assertEqual(serial_number, 'TO001')
+            
             beehive = Beehive(
-                serial_number='TEST001',
+                serial_number=serial_number,
                 import_date=date.today(),
                 health_status='Tốt',
                 notes='Test beehive'
@@ -79,13 +83,13 @@ class SimpleKBeeTest(unittest.TestCase):
             # Verify beehive was created
             beehives = Beehive.query.all()
             self.assertEqual(len(beehives), 1)
-            self.assertEqual(beehives[0].serial_number, 'TEST001')
+            self.assertEqual(beehives[0].serial_number, 'TO001')
     
     def test_qr_data_generation(self):
         """Test QR data generation"""
         with self.app.app_context():
             beehive = Beehive(
-                serial_number='TEST002',
+                serial_number='TO002',
                 import_date=date.today(),
                 health_status='Tốt',
                 notes='Test notes'
@@ -95,14 +99,14 @@ class SimpleKBeeTest(unittest.TestCase):
             
             qr_data = get_beehive_qr_data(beehive)
             self.assertIn('Tổ ong KBee', qr_data)
-            self.assertIn('TEST002', qr_data)
+            self.assertIn('TO002', qr_data)
             self.assertIn('Tốt', qr_data)
     
     def test_sold_beehive_qr_data(self):
         """Test QR data for sold beehive"""
         with self.app.app_context():
             beehive = Beehive(
-                serial_number='TEST003',
+                serial_number='TO003',
                 import_date=date.today(),
                 health_status='Tốt',
                 is_sold=True,
@@ -119,12 +123,6 @@ class SimpleKBeeTest(unittest.TestCase):
         response = self.client.get('/login')
         self.assertEqual(response.status_code, 200)
         self.assertIn('Đăng nhập', response.data.decode('utf-8'))
-    
-    def test_register_page(self):
-        """Test register page loads"""
-        response = self.client.get('/register')
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('Đăng ký', response.data.decode('utf-8'))
     
     def test_index_page(self):
         """Test index page redirects to login"""
@@ -177,6 +175,136 @@ class SimpleKBeeTest(unittest.TestCase):
         with self.app.app_context():
             users = User.query.all()
             self.assertGreater(len(users), 0)
+    
+    def test_change_password(self):
+        """Test change password functionality"""
+        # Login first
+        self.client.post('/login', data={
+            'username': 'testadmin',
+            'password': 'testpass123'
+        })
+        
+        # Test change password page access
+        response = self.client.get('/change-password')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Đổi mật khẩu', response.data.decode('utf-8'))
+        
+        # Test change password with wrong current password
+        response = self.client.post('/change-password', data={
+            'current_password': 'wrongpassword',
+            'new_password': 'newpass123',
+            'confirm_password': 'newpass123'
+        })
+        self.assertIn('Mật khẩu hiện tại không đúng', response.data.decode('utf-8'))
+        
+        # Test change password with mismatched new passwords
+        response = self.client.post('/change-password', data={
+            'current_password': 'testpass123',
+            'new_password': 'newpass123',
+            'confirm_password': 'differentpass'
+        })
+        self.assertIn('Mật khẩu mới và xác nhận mật khẩu không khớp', response.data.decode('utf-8'))
+        
+        # Test change password with short password
+        response = self.client.post('/change-password', data={
+            'current_password': 'testpass123',
+            'new_password': '123',
+            'confirm_password': '123'
+        })
+        self.assertIn('Mật khẩu mới phải có ít nhất 6 ký tự', response.data.decode('utf-8'))
+        
+        # Test successful password change
+        response = self.client.post('/change-password', data={
+            'current_password': 'testpass123',
+            'new_password': 'newpass123',
+            'confirm_password': 'newpass123'
+        })
+        self.assertEqual(response.status_code, 302)  # Redirect to dashboard
+        
+        # Test login with new password
+        self.client.get('/logout')  # Logout first
+        response = self.client.post('/login', data={
+            'username': 'testadmin',
+            'password': 'newpass123'
+        })
+        self.assertEqual(response.status_code, 302)  # Should redirect to dashboard
+        
+        # Test login with old password (should fail)
+        self.client.get('/logout')  # Logout first
+        response = self.client.post('/login', data={
+            'username': 'testadmin',
+            'password': 'testpass123'
+        })
+        self.assertIn('Tên đăng nhập hoặc mật khẩu không đúng', response.data.decode('utf-8'))
+    
+    def test_dashboard_sorting(self):
+        """Test dashboard sorting functionality"""
+        # Login first
+        self.client.post('/login', data={
+            'username': 'testadmin',
+            'password': 'testpass123'
+        })
+        
+        # Create a test beehive first
+        self.client.post('/add_beehive', data={
+            'import_date': '2024-01-01',
+            'health_status': 'Tốt',
+            'notes': 'Test beehive for sorting'
+        })
+        
+        # Test dashboard with sorting parameters
+        response = self.client.get('/dashboard?sort=import_date&order=asc')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Mã tổ', response.data.decode('utf-8'))
+        
+        # Test different sorting options
+        sorting_options = [
+            ('created_at', 'desc'),
+            ('import_date', 'asc'),
+            ('health_status', 'desc'),
+            ('status', 'asc')
+        ]
+        
+        for sort_by, order in sorting_options:
+            response = self.client.get(f'/dashboard?sort={sort_by}&order={order}')
+            self.assertEqual(response.status_code, 200)
+    
+    def test_dashboard_pie_chart(self):
+        """Test dashboard pie chart data"""
+        # Login first
+        self.client.post('/login', data={
+            'username': 'testadmin',
+            'password': 'testpass123'
+        })
+        
+        # Test dashboard loads with health stats
+        response = self.client.get('/dashboard')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Thống kê sức khỏe tổ ong', response.data.decode('utf-8'))
+        self.assertIn('healthChart', response.data.decode('utf-8'))
+    
+    def test_pdf_export(self):
+        """Test PDF export functionality"""
+        # Login first
+        self.client.post('/login', data={
+            'username': 'testadmin',
+            'password': 'testpass123'
+        })
+        
+        # Create a test beehive first
+        self.client.post('/add_beehive', data={
+            'import_date': '2024-01-01',
+            'health_status': 'Tốt',
+            'notes': 'Test beehive for PDF'
+        })
+        
+        # Test PDF export
+        response = self.client.get('/export_qr_pdf')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content_type, 'application/pdf')
+        
+        # Check that PDF content is not empty
+        self.assertGreater(len(response.data), 1000)  # PDF should be at least 1KB
 
 def run_tests():
     """Run all tests"""

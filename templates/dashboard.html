@@ -30,6 +30,37 @@
     </div>
 </div>
 
+<!-- Health Statistics Chart -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Thống kê sức khỏe tổ ong</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="healthChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông tin chi tiết</h5>
+            </div>
+            <div class="card-body">
+                {% for health, count in health_stats.items() %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-{{ 'success' if health == 'Tốt' else 'warning' if health == 'Trung bình' else 'danger' if health == 'Kém' else 'secondary' }}">
+                        {{ health }}
+                    </span>
+                    <span class="fw-bold">{{ count }} tổ</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-12">
         <div class="card">
@@ -42,6 +73,9 @@
                     <a href="{{ url_for('add_beehive') }}" class="btn btn-honey me-2">
                         <i class="fas fa-plus me-1"></i>Thêm tổ ong
                     </a>
+                    <a href="{{ url_for('bulk_create_beehives') }}" class="btn btn-honey me-2">
+                        <i class="fas fa-layer-group me-1"></i>Tạo nhiều tổ
+                    </a>
                     <a href="{{ url_for('export_qr_pdf') }}" class="btn btn-honey-outline">
                         <i class="fas fa-download me-1"></i>Xuất PDF QR
                     </a>
@@ -53,11 +87,51 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>Số thứ tự</th>
-                                <th>Ngày nhập</th>
-                                <th>Ngày tách</th>
-                                <th>Sức khỏe</th>
-                                <th>Trạng thái</th>
+                                <th>
+                                    <a href="?sort=created_at&order={{ 'asc' if sort_by == 'created_at' and sort_order == 'desc' else 'desc' }}" 
+                                       class="text-decoration-none text-dark">
+                                        Mã tổ
+                                        {% if sort_by == 'created_at' %}
+                                            <i class="fas fa-sort-{{ 'up' if sort_order == 'asc' else 'down' }} ms-1"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="?sort=import_date&order={{ 'asc' if sort_by == 'import_date' and sort_order == 'desc' else 'desc' }}" 
+                                       class="text-decoration-none text-dark">
+                                        Ngày nhập
+                                        {% if sort_by == 'import_date' %}
+                                            <i class="fas fa-sort-{{ 'up' if sort_order == 'asc' else 'down' }} ms-1"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="?sort=split_date&order={{ 'asc' if sort_by == 'split_date' and sort_order == 'desc' else 'desc' }}" 
+                                       class="text-decoration-none text-dark">
+                                        Ngày tách
+                                        {% if sort_by == 'split_date' %}
+                                            <i class="fas fa-sort-{{ 'up' if sort_order == 'asc' else 'down' }} ms-1"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="?sort=health_status&order={{ 'asc' if sort_by == 'health_status' and sort_order == 'desc' else 'desc' }}" 
+                                       class="text-decoration-none text-dark">
+                                        Sức khỏe
+                                        {% if sort_by == 'health_status' %}
+                                            <i class="fas fa-sort-{{ 'up' if sort_order == 'asc' else 'down' }} ms-1"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="?sort=status&order={{ 'asc' if sort_by == 'status' and sort_order == 'desc' else 'desc' }}" 
+                                       class="text-decoration-none text-dark">
+                                        Trạng thái
+                                        {% if sort_by == 'status' %}
+                                            <i class="fas fa-sort-{{ 'up' if sort_order == 'asc' else 'down' }} ms-1"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
                                 <th>QR Code</th>
                                 <th>Thao tác</th>
                             </tr>
@@ -89,31 +163,31 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <img src="{{ url_for('qr_code', beehive_id=beehive.id) }}" 
+                                    <img src="{{ url_for('qr_code', serial_number=beehive.serial_number) }}" 
                                          class="qr-code" 
                                          alt="QR Code"
                                          title="Mã QR cho tổ {{ beehive.serial_number }}">
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <a href="{{ url_for('edit_beehive', beehive_id=beehive.id) }}" 
+                                        <a href="{{ url_for('edit_beehive', serial_number=beehive.serial_number) }}" 
                                            class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         {% if not beehive.is_sold %}
-                                        <a href="{{ url_for('sell_beehive', beehive_id=beehive.id) }}" 
+                                        <a href="{{ url_for('sell_beehive', serial_number=beehive.serial_number) }}" 
                                            class="btn btn-sm btn-warning" title="Đánh dấu đã bán"
                                            onclick="return confirm('Bạn có chắc muốn đánh dấu tổ này đã bán?')">
                                             <i class="fas fa-dollar-sign"></i>
                                         </a>
                                         {% else %}
-                                        <a href="{{ url_for('unsell_beehive', beehive_id=beehive.id) }}" 
+                                        <a href="{{ url_for('unsell_beehive', serial_number=beehive.serial_number) }}" 
                                            class="btn btn-sm btn-success" title="Hủy bán"
                                            onclick="return confirm('Bạn có chắc muốn hủy bán tổ này?')">
                                             <i class="fas fa-undo"></i>
                                         </a>
                                         {% endif %}
-                                        <a href="{{ url_for('delete_beehive', beehive_id=beehive.id) }}" 
+                                        <a href="{{ url_for('delete_beehive', serial_number=beehive.serial_number) }}" 
                                            class="btn btn-sm btn-outline-danger" title="Xóa"
                                            onclick="return confirm('Bạn có chắc muốn xóa tổ ong này?')">
                                             <i class="fas fa-trash"></i>
@@ -139,4 +213,61 @@
         </div>
     </div>
 </div>
+
+<!-- Chart.js for pie chart -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Health Statistics Pie Chart
+const ctx = document.getElementById('healthChart').getContext('2d');
+const healthData = {{ health_stats | tojson }};
+
+// Prepare data for chart
+const labels = Object.keys(healthData);
+const data = Object.values(healthData);
+const colors = {
+    'Tốt': '#28a745',
+    'Trung bình': '#ffc107', 
+    'Kém': '#dc3545',
+    'Unknown': '#6c757d'
+};
+
+const backgroundColors = labels.map(label => colors[label] || '#6c757d');
+
+const healthChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: labels,
+        datasets: [{
+            data: data,
+            backgroundColor: backgroundColors,
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    usePointStyle: true
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const label = context.label || '';
+                        const value = context.parsed;
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        return `${label}: ${value} tổ (${percentage}%)`;
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
 {% endblock %}

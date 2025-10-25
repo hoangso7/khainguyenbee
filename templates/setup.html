@@ -7,7 +7,7 @@
     <div class="login-card">
         <div class="card">
             <div class="card-header text-center">
-                <img src="{{ url_for('static', filename='icon/bee.png') }}" alt="KBee Logo" class="logo-large">
+                <img src="{{ url_for('static', filename='icon/bee.png') }}?v={{ range(1000000, 9999999) | random }}" alt="KBee Logo" class="logo-large">
                 <h3>KBee Manager</h3>
                 <p class="mb-0">Thiết lập tài khoản quản trị</p>
             </div>
