@@ -213,7 +213,7 @@
                                            class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="{{ url_for('beehive_detail', serial_number=beehive.serial_number) }}" 
+                                        <a href="{{ url_for('beehive_by_token', qr_token=beehive.qr_token) }}" 
                                            class="btn btn-sm btn-info" title="Xem QR Code">
                                             <i class="fas fa-qrcode"></i>
                                         </a>
@@ -291,7 +291,7 @@
                                    class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
                                     <i class="fas fa-edit me-1"></i>Sửa
                                 </a>
-                                <a href="{{ url_for('beehive_detail', serial_number=beehive.serial_number) }}" 
+                                <a href="{{ url_for('beehive_by_token', qr_token=beehive.qr_token) }}" 
                                    class="btn btn-sm btn-info" title="Xem QR Code">
                                     <i class="fas fa-qrcode me-1"></i>QR
                                 </a>

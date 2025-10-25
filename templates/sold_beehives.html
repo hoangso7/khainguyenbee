@@ -145,7 +145,7 @@
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <a href="{{ url_for('beehive_detail', serial_number=beehive.serial_number) }}" 
+                                        <a href="{{ url_for('beehive_by_token', qr_token=beehive.qr_token) }}" 
                                            class="btn btn-sm btn-info" title="Xem QR Code">
                                             <i class="fas fa-qrcode"></i>
                                         </a>
@@ -205,7 +205,7 @@
                                 </div>
                             </div>
                             <div class="action-buttons-mobile">
-                                <a href="{{ url_for('beehive_detail', serial_number=beehive.serial_number) }}" 
+                                <a href="{{ url_for('beehive_by_token', qr_token=beehive.qr_token) }}" 
                                    class="btn btn-sm btn-info" title="Xem QR Code">
                                     <i class="fas fa-qrcode me-1"></i>QR
                                 </a>
