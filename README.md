@@ -415,7 +415,6 @@ kbee-manager/
 │   └── README.md
 ├── docker compose.yml     # Main Docker Compose file
 ├── nginx.conf            # Nginx config with SSL
-├── nginx-temp.conf       # Temporary nginx config (no SSL)
 ├── setup.sh              # Setup script
 └── logs/         # Log files
     └── README.md

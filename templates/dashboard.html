@@ -67,23 +67,31 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
                     <img src="{{ url_for('static', filename='icon/apiary.png') }}" alt="Apiary Logo" class="logo-small">
-                    Danh sách tổ ong
+                    <span class="d-none d-sm-inline">Danh sách tổ ong</span>
+                    <span class="d-sm-none">Tổ ong</span>
                 </h5>
-                <div>
-                    <a href="{{ url_for('add_beehive') }}" class="btn btn-honey me-2">
-                        <i class="fas fa-plus me-1"></i>Thêm tổ ong
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ url_for('add_beehive') }}" class="btn btn-honey btn-sm">
+                        <i class="fas fa-plus me-1"></i>
+                        <span class="d-none d-md-inline">Thêm tổ ong</span>
+                        <span class="d-md-none">Thêm</span>
                     </a>
-                    <a href="{{ url_for('bulk_create_beehives') }}" class="btn btn-honey me-2">
-                        <i class="fas fa-layer-group me-1"></i>Tạo nhiều tổ
+                    <a href="{{ url_for('bulk_create_beehives') }}" class="btn btn-honey btn-sm">
+                        <i class="fas fa-layer-group me-1"></i>
+                        <span class="d-none d-md-inline">Tạo nhiều tổ</span>
+                        <span class="d-md-none">Nhiều tổ</span>
                     </a>
-                    <a href="{{ url_for('export_qr_pdf') }}" class="btn btn-honey-outline">
-                        <i class="fas fa-download me-1"></i>Xuất PDF QR
+                    <a href="{{ url_for('export_qr_pdf') }}" class="btn btn-honey-outline btn-sm">
+                        <i class="fas fa-download me-1"></i>
+                        <span class="d-none d-md-inline">Xuất PDF QR</span>
+                        <span class="d-md-none">PDF QR</span>
                     </a>
                 </div>
             </div>
             <div class="card-body">
                 {% if beehives %}
-                <div class="table-responsive">
+                <!-- Desktop Table View -->
+                <div class="table-responsive d-none d-lg-block">
                     <table class="table table-hover">
                         <thead>
                             <tr>
@@ -198,6 +206,84 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Mobile Card View -->
+                <div class="d-lg-none">
+                    {% for beehive in beehives %}
+                    <div class="beehive-mobile-card mb-3 {% if beehive.is_sold %}sold{% endif %}">
+                        <div class="card-header-mobile d-flex justify-content-between align-items-center">
+                            <div class="beehive-info">
+                                <h6 class="mb-1 fw-bold">{{ beehive.serial_number }}</h6>
+                                <small class="text-muted">
+                                    Nhập: {{ beehive.import_date.strftime('%d/%m/%Y') }}
+                                    {% if beehive.is_sold %}
+                                    | Bán: {{ beehive.sold_date.strftime('%d/%m/%Y') }}
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <div class="qr-code-mobile">
+                                <img src="{{ url_for('qr_code', serial_number=beehive.serial_number) }}" 
+                                     class="qr-code-small" 
+                                     alt="QR Code"
+                                     title="Mã QR cho tổ {{ beehive.serial_number }}">
+                            </div>
+                        </div>
+                        <div class="card-body-mobile">
+                            <div class="row mb-2">
+                                <div class="col-6">
+                                    <small class="text-muted d-block">Ngày tách:</small>
+                                    <span class="fw-medium">
+                                        {{ beehive.split_date.strftime('%d/%m/%Y') if beehive.split_date else 'Chưa tách' }}
+                                    </span>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted d-block">Sức khỏe:</small>
+                                    <span class="status-badge 
+                                        {% if beehive.health_status == 'Tốt' %}status-good
+                                        {% elif beehive.health_status == 'Trung bình' %}status-medium
+                                        {% else %}status-bad{% endif %}">
+                                        {{ beehive.health_status }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <small class="text-muted d-block">Trạng thái:</small>
+                                    {% if beehive.is_sold %}
+                                    <span class="status-badge status-sold">Đã bán</span>
+                                    {% else %}
+                                    <span class="status-badge status-good">Đang quản lý</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="action-buttons-mobile">
+                                <a href="{{ url_for('edit_beehive', serial_number=beehive.serial_number) }}" 
+                                   class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+                                    <i class="fas fa-edit me-1"></i>Sửa
+                                </a>
+                                {% if not beehive.is_sold %}
+                                <a href="{{ url_for('sell_beehive', serial_number=beehive.serial_number) }}" 
+                                   class="btn btn-sm btn-warning" title="Đánh dấu đã bán"
+                                   onclick="return confirm('Bạn có chắc muốn đánh dấu tổ này đã bán?')">
+                                    <i class="fas fa-dollar-sign me-1"></i>Bán
+                                </a>
+                                {% else %}
+                                <a href="{{ url_for('unsell_beehive', serial_number=beehive.serial_number) }}" 
+                                   class="btn btn-sm btn-success" title="Hủy bán"
+                                   onclick="return confirm('Bạn có chắc muốn hủy bán tổ này?')">
+                                    <i class="fas fa-undo me-1"></i>Hủy bán
+                                </a>
+                                {% endif %}
+                                <a href="{{ url_for('delete_beehive', serial_number=beehive.serial_number) }}" 
+                                   class="btn btn-sm btn-outline-danger" title="Xóa"
+                                   onclick="return confirm('Bạn có chắc muốn xóa tổ ong này?')">
+                                    <i class="fas fa-trash me-1"></i>Xóa
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
                 {% else %}
                 <div class="text-center py-5">

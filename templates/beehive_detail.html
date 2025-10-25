@@ -18,7 +18,8 @@
                     {% endif %}
                 </div>
                 <div class="card-body">
-                    <div class="row">
+                    <!-- Desktop Layout -->
+                    <div class="row d-none d-md-flex">
                         <div class="col-md-6">
                             <h5 class="text-honey mb-3">
                                 <i class="fas fa-hashtag me-2"></i>Thông tin cơ bản
@@ -59,22 +60,78 @@
                             {% endif %}
                         </div>
                     </div>
+
+                    <!-- Mobile Layout -->
+                    <div class="d-md-none">
+                        <!-- Basic Information Card -->
+                        <div class="info-card mb-3">
+                            <div class="info-card-header">
+                                <h5 class="text-honey mb-0">
+                                    <i class="fas fa-hashtag me-2"></i>Thông tin cơ bản
+                                </h5>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-row">
+                                    <span class="info-label">Mã tổ:</span>
+                                    <span class="info-value">{{ beehive.serial_number }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Ngày nhập:</span>
+                                    <span class="info-value">{{ beehive.import_date.strftime('%d/%m/%Y') }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Ngày tách:</span>
+                                    <span class="info-value">{{ beehive.split_date.strftime('%d/%m/%Y') if beehive.split_date else 'Chưa tách' }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Trạng thái:</span>
+                                    <span class="info-value">
+                                        <span class="badge bg-success">Đang quản lý</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Health Status Card -->
+                        <div class="info-card mb-3">
+                            <div class="info-card-header">
+                                <h5 class="text-honey mb-0">
+                                    <i class="fas fa-heartbeat me-2"></i>Tình trạng sức khỏe
+                                </h5>
+                            </div>
+                            <div class="info-card-body text-center">
+                                <span class="badge bg-{{ 'success' if beehive.health_status == 'Tốt' else 'warning' if beehive.health_status == 'Trung bình' else 'danger' if beehive.health_status == 'Kém' else 'secondary' }} health-status-badge">
+                                    {{ beehive.health_status }}
+                                </span>
+                                {% if beehive.notes %}
+                                <div class="mt-3">
+                                    <h6 class="text-honey">Ghi chú:</h6>
+                                    <p class="text-muted">{{ beehive.notes }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
                     
+                    <!-- QR Code Section -->
                     <div class="row mt-4">
                         <div class="col-12 text-center">
                             <h5 class="text-honey mb-3">
                                 <i class="fas fa-qrcode me-2"></i>Mã QR
                             </h5>
-                            <img src="{{ url_for('qr_code', serial_number=beehive.serial_number) }}" 
-                                 alt="QR Code" 
-                                 class="qr-code-large mb-3">
+                            <div class="qr-container">
+                                <img src="{{ url_for('qr_code', serial_number=beehive.serial_number) }}" 
+                                     alt="QR Code" 
+                                     class="qr-code-responsive mb-3">
+                            </div>
                             <p class="text-muted">Quét mã QR để xem thông tin này</p>
                         </div>
                     </div>
                     
+                    <!-- Action Buttons -->
                     <div class="row mt-4">
                         <div class="col-12 text-center">
-                            <a href="{{ url_for('index') }}" class="btn btn-honey">
+                            <a href="{{ url_for('index') }}" class="btn btn-honey btn-responsive">
                                 <i class="fas fa-home me-1"></i>Về trang chủ
                             </a>
                         </div>
@@ -86,6 +143,7 @@
 </div>
 
 <style>
+/* Desktop QR Code */
 .qr-code-large {
     width: 200px;
     height: 200px;
@@ -93,6 +151,80 @@
     border-radius: 10px;
     padding: 10px;
     background: white;
+}
+
+/* Responsive QR Code */
+.qr-code-responsive {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    border: 2px solid #D2691E;
+    border-radius: 10px;
+    padding: 10px;
+    background: white;
+}
+
+.qr-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Mobile Info Cards */
+.info-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+    overflow: hidden;
+}
+
+.info-card-header {
+    background: linear-gradient(135deg, #D2691E 0%, #CD853F 100%);
+    color: white;
+    padding: 1rem;
+    border-bottom: none;
+}
+
+.info-card-body {
+    padding: 1rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #6c757d;
+    flex: 1;
+}
+
+.info-value {
+    color: #212529;
+    text-align: right;
+    flex: 1;
+}
+
+/* Health Status Badge */
+.health-status-badge {
+    font-size: 1.1rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+}
+
+/* Responsive Button */
+.btn-responsive {
+    min-width: 120px;
+    padding: 0.75rem 1.5rem;
 }
 
 .logo-large {
@@ -106,6 +238,140 @@
 
 .bg-honey {
     background: linear-gradient(135deg, #D2691E, #CD853F) !important;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 10px;
+    }
+    
+    .card {
+        margin: 0.5rem 0;
+    }
+    
+    .card-header {
+        padding: 1rem;
+    }
+    
+    .logo-large {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .card-header h4 {
+        font-size: 1.25rem;
+    }
+    
+    .card-header p {
+        font-size: 0.9rem;
+    }
+    
+    .info-card-header {
+        padding: 0.75rem;
+    }
+    
+    .info-card-header h5 {
+        font-size: 1rem;
+    }
+    
+    .info-card-body {
+        padding: 0.75rem;
+    }
+    
+    .info-row {
+        padding: 0.4rem 0;
+        font-size: 0.9rem;
+    }
+    
+    .info-label {
+        font-size: 0.85rem;
+    }
+    
+    .health-status-badge {
+        font-size: 1rem;
+        padding: 0.6rem 1.2rem;
+    }
+    
+    .qr-code-responsive {
+        max-width: 150px;
+    }
+    
+    .btn-responsive {
+        width: 100%;
+        max-width: 200px;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding: 0 5px;
+    }
+    
+    .card-header {
+        padding: 0.75rem;
+    }
+    
+    .logo-large {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .card-header h4 {
+        font-size: 1.1rem;
+    }
+    
+    .card-header p {
+        font-size: 0.85rem;
+    }
+    
+    .info-card-header {
+        padding: 0.5rem;
+    }
+    
+    .info-card-header h5 {
+        font-size: 0.95rem;
+    }
+    
+    .info-card-body {
+        padding: 0.5rem;
+    }
+    
+    .info-row {
+        padding: 0.3rem 0;
+        font-size: 0.85rem;
+    }
+    
+    .info-label {
+        font-size: 0.8rem;
+    }
+    
+    .health-status-badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    .qr-code-responsive {
+        max-width: 120px;
+    }
+    
+    .btn-responsive {
+        font-size: 0.9rem;
+        padding: 0.6rem 1.2rem;
+    }
+}
+
+/* Touch-friendly design */
+@media (hover: none) and (pointer: coarse) {
+    .btn-responsive {
+        min-height: 44px;
+    }
+    
+    .info-row {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
 }
 </style>
 {% endblock %}
