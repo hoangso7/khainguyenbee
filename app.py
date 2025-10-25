@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_file, session
+from flask import Flask, request, jsonify, send_file
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_login import LoginManager, UserMixin
+from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 import qrcode
@@ -13,6 +14,8 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 import os
 from dotenv import load_dotenv
+import jwt
+from functools import wraps
 
 load_dotenv()
 
@@ -20,6 +23,9 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'mysql+pymysql://root:password@localhost/kbee_manager')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Enable CORS for React frontend
+CORS(app, origins=['http://localhost:3000', 'http://localhost:5173'])
 
 # Session configuration
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
@@ -39,10 +45,10 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
+    
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
-
+    
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
@@ -51,7 +57,7 @@ class Beehive(db.Model):
     qr_token = db.Column(db.String(12), unique=True, nullable=False)  # Random 12-char token for QR
     import_date = db.Column(db.Date, nullable=False)
     split_date = db.Column(db.Date, nullable=True)
-    health_status = db.Column(db.String(20), nullable=False, default='Tốt')  # Tốt, Trung bình, Kém
+    health_status = db.Column(db.String(20), nullable=False, default='Tốt')  # Tốt, Bình thường, Yếu
     notes = db.Column(db.Text, nullable=True)
     is_sold = db.Column(db.Boolean, default=False)
     sold_date = db.Column(db.Date, nullable=True)
@@ -92,604 +98,429 @@ class Beehive(db.Model):
             # Check if token already exists
             if not Beehive.query.filter_by(qr_token=token).first():
                 return token
+    
+    def to_dict(self):
+        """Convert beehive to dictionary for API responses"""
+        return {
+            'serial_number': self.serial_number,
+            'qr_token': self.qr_token,
+            'import_date': self.import_date.isoformat() if self.import_date else None,
+            'split_date': self.split_date.isoformat() if self.split_date else None,
+            'health_status': self.health_status,
+            'notes': self.notes,
+            'is_sold': self.is_sold,
+            'sold_date': self.sold_date.isoformat() if self.sold_date else None,
+            'user_id': self.user_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+        }
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Utility functions
-def generate_qr_code(data):
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4,
-    )
-    qr.add_data(data)
-    qr.make(fit=True)
+# API Routes
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        if not token:
+            return jsonify({'message': 'Token is missing'}), 401
+        
+        try:
+            if token.startswith('Bearer '):
+                token = token[7:]
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            current_user_id = data['user_id']
+        except:
+            return jsonify({'message': 'Token is invalid'}), 401
+        
+        return f(current_user_id, *args, **kwargs)
+    return decorated
+
+@app.route('/api/auth/login', methods=['POST'])
+def api_login():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
     
-    img = qr.make_image(fill_color="black", back_color="white")
-    img_buffer = io.BytesIO()
-    img.save(img_buffer, format='PNG')
-    img_buffer.seek(0)
+    user = User.query.filter_by(username=username).first()
     
-    return img_buffer
-
-def get_beehive_qr_data(beehive):
-    domain = os.getenv('DOMAIN', 'localhost:5000')
-    # QR code chứa token ngẫu nhiên để bảo mật
-    return f"https://{domain}/beehive/{beehive.qr_token}"
-
-# Routes
-@app.route('/')
-def index():
-    if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
-    return redirect(url_for('login'))
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    # Check if any users exist, if not redirect to setup
-    if not User.query.first():
-        return redirect(url_for('setup'))
+    if user and user.check_password(password):
+        token = jwt.encode({
+            'user_id': user.id,
+            'exp': datetime.utcnow() + timedelta(days=30)
+        }, app.config['SECRET_KEY'], algorithm='HS256')
+        
+        return jsonify({
+            'token': token,
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email
+            }
+        })
     
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = User.query.filter_by(username=username).first()
-        
-        if user and user.check_password(password):
-            login_user(user, remember=True)
-            session.permanent = True
-            return redirect(url_for('dashboard'))
-        else:
-            flash('Tên đăng nhập hoặc mật khẩu không đúng!', 'error')
+    return jsonify({'message': 'Invalid credentials'}), 401
+
+@app.route('/api/auth/me', methods=['GET'])
+@token_required
+def get_current_user(current_user_id):
+    user = User.query.get(current_user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
     
-    return render_template('login.html')
+    return jsonify({
+        'id': user.id,
+        'username': user.username,
+        'email': user.email
+    })
 
-@app.route('/setup', methods=['GET', 'POST'])
-def setup():
-    # Only allow setup if no users exist
-    if User.query.first():
-        return redirect(url_for('login'))
-    
-    if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
-        
-        if User.query.filter_by(username=username).first():
-            flash('Tên đăng nhập đã tồn tại!', 'error')
-            return render_template('setup.html')
-        
-        if User.query.filter_by(email=email).first():
-            flash('Email đã tồn tại!', 'error')
-            return render_template('setup.html')
-        
-        user = User(username=username, email=email)
-        user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
-        
-        flash('Tài khoản quản trị đã được tạo thành công! Vui lòng đăng nhập.', 'success')
-        return redirect(url_for('login'))
-    
-    return render_template('setup.html')
+@app.route('/api/auth/logout', methods=['POST'])
+@token_required
+def api_logout(current_user_id):
+    return jsonify({'message': 'Logged out successfully'})
 
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('login'))
-
-@app.route('/change-password', methods=['GET', 'POST'])
-@login_required
-def change_password():
-    if request.method == 'POST':
-        current_password = request.form['current_password']
-        new_password = request.form['new_password']
-        confirm_password = request.form['confirm_password']
-        
-        # Verify current password
-        if not current_user.check_password(current_password):
-            flash('Mật khẩu hiện tại không đúng!', 'error')
-            return render_template('change_password.html')
-        
-        # Check if new password matches confirmation
-        if new_password != confirm_password:
-            flash('Mật khẩu mới và xác nhận mật khẩu không khớp!', 'error')
-            return render_template('change_password.html')
-        
-        # Check password length
-        if len(new_password) < 6:
-            flash('Mật khẩu mới phải có ít nhất 6 ký tự!', 'error')
-            return render_template('change_password.html')
-        
-        # Update password
-        current_user.set_password(new_password)
-        db.session.commit()
-        
-        flash('Mật khẩu đã được thay đổi thành công!', 'success')
-        return redirect(url_for('dashboard'))
-    
-    return render_template('change_password.html')
-
-@app.route('/dashboard')
-@login_required
-def dashboard():
-    # Get query parameters
+@app.route('/api/beehives', methods=['GET'])
+@token_required
+def get_beehives(current_user_id):
     page = request.args.get('page', 1, type=int)
-    sort_by = request.args.get('sort', 'created_at')
-    sort_order = request.args.get('order', 'desc')
-    search_import_date = request.args.get('import_date', '')
-    search_split_date = request.args.get('split_date', '')
+    per_page = request.args.get('per_page', 20, type=int)
+    sort_field = request.args.get('sort_field', 'created_at')
+    sort_order = request.args.get('sort_order', 'desc')
+    import_date = request.args.get('import_date', '')
+    split_date = request.args.get('split_date', '')
     
-    # Validate sort parameters
-    valid_sorts = ['created_at', 'import_date', 'split_date', 'health_status', 'status']
-    if sort_by not in valid_sorts:
-        sort_by = 'created_at'
-    
-    if sort_order not in ['asc', 'desc']:
-        sort_order = 'desc'
-    
-    # Build query for active beehives (not sold)
-    query = Beehive.query.filter_by(is_sold=False)
+    # Build query for active beehives
+    query = Beehive.query.filter_by(user_id=current_user_id, is_sold=False)
     
     # Apply date filters
-    if search_import_date:
+    if import_date:
         try:
-            import_date = datetime.strptime(search_import_date, '%Y-%m-%d').date()
-            query = query.filter(Beehive.import_date == import_date)
+            import_date_obj = datetime.strptime(import_date, '%Y-%m-%d').date()
+            query = query.filter(Beehive.import_date == import_date_obj)
         except ValueError:
             pass
     
-    if search_split_date:
+    if split_date:
         try:
-            split_date = datetime.strptime(search_split_date, '%Y-%m-%d').date()
-            query = query.filter(Beehive.split_date == split_date)
+            split_date_obj = datetime.strptime(split_date, '%Y-%m-%d').date()
+            query = query.filter(Beehive.split_date == split_date_obj)
         except ValueError:
             pass
     
     # Apply sorting
-    if sort_by == 'created_at':
-        if sort_order == 'asc':
-            query = query.order_by(Beehive.created_at.asc())
-        else:
-            query = query.order_by(Beehive.created_at.desc())
-    elif sort_by == 'import_date':
-        if sort_order == 'asc':
-            query = query.order_by(Beehive.import_date.asc())
-        else:
-            query = query.order_by(Beehive.import_date.desc())
-    elif sort_by == 'split_date':
-        if sort_order == 'asc':
-            query = query.order_by(Beehive.split_date.asc())
-        else:
-            query = query.order_by(Beehive.split_date.desc())
-    elif sort_by == 'health_status':
-        if sort_order == 'asc':
-            query = query.order_by(Beehive.health_status.asc())
-        else:
-            query = query.order_by(Beehive.health_status.desc())
-    elif sort_by == 'status':
-        if sort_order == 'asc':
-            query = query.order_by(Beehive.is_sold.asc())
-        else:
-            query = query.order_by(Beehive.is_sold.desc())
+    if sort_field == 'created_at':
+        query = query.order_by(Beehive.created_at.desc() if sort_order == 'desc' else Beehive.created_at.asc())
+    elif sort_field == 'import_date':
+        query = query.order_by(Beehive.import_date.desc() if sort_order == 'desc' else Beehive.import_date.asc())
+    elif sort_field == 'split_date':
+        query = query.order_by(Beehive.split_date.desc() if sort_order == 'desc' else Beehive.split_date.asc())
+    elif sort_field == 'health_status':
+        query = query.order_by(Beehive.health_status.desc() if sort_order == 'desc' else Beehive.health_status.asc())
     
     # Pagination
-    beehives_pagination = query.paginate(
-        page=page, per_page=20, error_out=False
+    pagination = query.paginate(
+        page=page, per_page=per_page, error_out=False
     )
-    beehives = beehives_pagination.items
     
-    # Calculate statistics for all beehives (not just current page)
-    all_beehives = Beehive.query.all()
-    all_active_beehives = Beehive.query.filter_by(is_sold=False).all()
-    all_sold_beehives = Beehive.query.filter_by(is_sold=True).all()
-    
-    # Calculate overall statistics
-    total_beehives = len(all_beehives)
-    active_beehives_count = len(all_active_beehives)
-    sold_beehives_count = len(all_sold_beehives)
-    healthy_beehives_count = len([b for b in all_active_beehives if b.health_status == 'Tốt'])
-    
-    # Calculate health statistics for all active beehives
+    # Calculate health statistics
+    all_active_beehives = Beehive.query.filter_by(user_id=current_user_id, is_sold=False).all()
     health_stats = {}
     for beehive in all_active_beehives:
         health = beehive.health_status or 'Unknown'
         health_stats[health] = health_stats.get(health, 0) + 1
     
-    return render_template('dashboard.html', 
-                         beehives=beehives, 
-                         health_stats=health_stats, 
-                         sort_by=sort_by, 
-                         sort_order=sort_order,
-                         pagination=beehives_pagination,
-                         search_import_date=search_import_date,
-                         search_split_date=search_split_date,
-                         total_beehives=total_beehives,
-                         active_beehives_count=active_beehives_count,
-                         sold_beehives_count=sold_beehives_count,
-                         healthy_beehives_count=healthy_beehives_count)
+    return jsonify({
+        'beehives': [beehive.to_dict() for beehive in pagination.items],
+        'pagination': {
+            'page': pagination.page,
+            'per_page': pagination.per_page,
+            'total': pagination.total,
+            'total_pages': pagination.pages,
+            'has_prev': pagination.has_prev,
+            'has_next': pagination.has_next,
+        },
+        'health_stats': health_stats
+    })
 
-@app.route('/sold_beehives')
-@login_required
-def sold_beehives():
-    # Get query parameters
+@app.route('/api/sold-beehives', methods=['GET'])
+@token_required
+def get_sold_beehives(current_user_id):
     page = request.args.get('page', 1, type=int)
-    sort_by = request.args.get('sort', 'sold_date')
-    sort_order = request.args.get('order', 'desc')
-    search_import_date = request.args.get('import_date', '')
-    search_sold_date = request.args.get('sold_date', '')
-    
-    # Validate sort parameters
-    valid_sorts = ['created_at', 'import_date', 'sold_date', 'health_status']
-    if sort_by not in valid_sorts:
-        sort_by = 'sold_date'
-    
-    if sort_order not in ['asc', 'desc']:
-        sort_order = 'desc'
+    per_page = request.args.get('per_page', 20, type=int)
+    sort_field = request.args.get('sort_field', 'sold_date')
+    sort_order = request.args.get('sort_order', 'desc')
+    import_date = request.args.get('import_date', '')
+    sold_date = request.args.get('sold_date', '')
     
     # Build query for sold beehives
-    query = Beehive.query.filter_by(is_sold=True)
+    query = Beehive.query.filter_by(user_id=current_user_id, is_sold=True)
     
     # Apply date filters
-    if search_import_date:
+    if import_date:
         try:
-            import_date = datetime.strptime(search_import_date, '%Y-%m-%d').date()
-            query = query.filter(Beehive.import_date == import_date)
+            import_date_obj = datetime.strptime(import_date, '%Y-%m-%d').date()
+            query = query.filter(Beehive.import_date == import_date_obj)
         except ValueError:
             pass
     
-    if search_sold_date:
+    if sold_date:
         try:
-            sold_date = datetime.strptime(search_sold_date, '%Y-%m-%d').date()
-            query = query.filter(Beehive.sold_date == sold_date)
+            sold_date_obj = datetime.strptime(sold_date, '%Y-%m-%d').date()
+            query = query.filter(Beehive.sold_date == sold_date_obj)
         except ValueError:
             pass
     
     # Apply sorting
-    if sort_by == 'created_at':
-        if sort_order == 'asc':
-            query = query.order_by(Beehive.created_at.asc())
-        else:
-            query = query.order_by(Beehive.created_at.desc())
-    elif sort_by == 'import_date':
-        if sort_order == 'asc':
-            query = query.order_by(Beehive.import_date.asc())
-        else:
-            query = query.order_by(Beehive.import_date.desc())
-    elif sort_by == 'sold_date':
-        if sort_order == 'asc':
-            query = query.order_by(Beehive.sold_date.asc())
-        else:
-            query = query.order_by(Beehive.sold_date.desc())
-    elif sort_by == 'health_status':
-        if sort_order == 'asc':
-            query = query.order_by(Beehive.health_status.asc())
-        else:
-            query = query.order_by(Beehive.health_status.desc())
+    if sort_field == 'created_at':
+        query = query.order_by(Beehive.created_at.desc() if sort_order == 'desc' else Beehive.created_at.asc())
+    elif sort_field == 'import_date':
+        query = query.order_by(Beehive.import_date.desc() if sort_order == 'desc' else Beehive.import_date.asc())
+    elif sort_field == 'sold_date':
+        query = query.order_by(Beehive.sold_date.desc() if sort_order == 'desc' else Beehive.sold_date.asc())
+    elif sort_field == 'health_status':
+        query = query.order_by(Beehive.health_status.desc() if sort_order == 'desc' else Beehive.health_status.asc())
     
     # Pagination
-    beehives_pagination = query.paginate(
-        page=page, per_page=20, error_out=False
+    pagination = query.paginate(
+        page=page, per_page=per_page, error_out=False
     )
-    beehives = beehives_pagination.items
     
-    return render_template('sold_beehives.html', 
-                         beehives=beehives, 
-                         sort_by=sort_by, 
-                         sort_order=sort_order,
-                         pagination=beehives_pagination,
-                         search_import_date=search_import_date,
-                         search_sold_date=search_sold_date)
+    return jsonify({
+        'beehives': [beehive.to_dict() for beehive in pagination.items],
+        'pagination': {
+            'page': pagination.page,
+            'per_page': pagination.per_page,
+            'total': pagination.total,
+            'total_pages': pagination.pages,
+            'has_prev': pagination.has_prev,
+            'has_next': pagination.has_next,
+        }
+    })
 
-@app.route('/add_beehive', methods=['GET', 'POST'])
-@login_required
-def add_beehive():
-    if request.method == 'POST':
-        # Generate serial number and QR token automatically
-        serial_number = Beehive.generate_serial_number()
-        qr_token = Beehive.generate_qr_token()
-        import_date = datetime.strptime(request.form['import_date'], '%Y-%m-%d').date()
-        split_date = request.form.get('split_date')
-        health_status = request.form['health_status']
-        notes = request.form.get('notes', '')
-        
-        beehive = Beehive(
-            serial_number=serial_number,
-            qr_token=qr_token,
-            import_date=import_date,
-            split_date=datetime.strptime(split_date, '%Y-%m-%d').date() if split_date else None,
-            health_status=health_status,
-            notes=notes,
-            user_id=current_user.id  # Assign to current user
-        )
-        
-        db.session.add(beehive)
-        db.session.commit()
-        
-        flash(f'Thêm tổ ong thành công! Mã tổ: {serial_number}', 'success')
-        return redirect(url_for('dashboard'))
+@app.route('/api/stats', methods=['GET'])
+@token_required
+def get_stats(current_user_id):
+    all_beehives = Beehive.query.filter_by(user_id=current_user_id).all()
+    all_active_beehives = Beehive.query.filter_by(user_id=current_user_id, is_sold=False).all()
+    all_sold_beehives = Beehive.query.filter_by(user_id=current_user_id, is_sold=True).all()
     
-    return render_template('add_beehive.html')
+    total_beehives = len(all_beehives)
+    active_beehives_count = len(all_active_beehives)
+    sold_beehives_count = len(all_sold_beehives)
+    healthy_beehives_count = len([b for b in all_active_beehives if b.health_status == 'Tốt'])
+    
+    return jsonify({
+        'total': total_beehives,
+        'active': active_beehives_count,
+        'sold': sold_beehives_count,
+        'healthy': healthy_beehives_count,
+    })
 
-@app.route('/bulk_create_beehives', methods=['GET', 'POST'])
-@login_required
-def bulk_create_beehives():
-    if request.method == 'POST':
-        try:
-            count = int(request.form['count'])
-            health_status = request.form.get('health_status', 'Tốt')
-            notes = request.form.get('notes', '')
-            
-            if count <= 0 or count > 50:
-                flash('Số lượng tổ ong phải từ 1 đến 50!', 'error')
-                return render_template('bulk_create_beehives.html')
-            
-            # Generate beehives
-            created_count = 0
-            today = datetime.now().date()
-            
-            for i in range(count):
-                # Generate serial number and QR token automatically
-                serial_number = Beehive.generate_serial_number()
-                qr_token = Beehive.generate_qr_token()
-                
-                beehive = Beehive(
-                    serial_number=serial_number,
-                    qr_token=qr_token,
-                    import_date=today,
-                    health_status=health_status,
-                    notes=notes,
-                    is_sold=False,
-                    user_id=current_user.id  # Assign to current user
-                )
-                db.session.add(beehive)
-                created_count += 1
-            
-            db.session.commit()
-            flash(f'Đã tạo thành công {created_count} tổ ong!', 'success')
-            return redirect(url_for('dashboard'))
-            
-        except ValueError:
-            flash('Số lượng tổ ong không hợp lệ!', 'error')
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Có lỗi xảy ra: {str(e)}', 'error')
+@app.route('/api/beehives', methods=['POST'])
+@token_required
+def create_beehive(current_user_id):
+    data = request.get_json()
     
-    return render_template('bulk_create_beehives.html')
+    # Generate serial number and QR token
+    serial_number = Beehive.generate_serial_number()
+    qr_token = Beehive.generate_qr_token()
+    
+    beehive = Beehive(
+        serial_number=serial_number,
+        qr_token=qr_token,
+        user_id=current_user_id,
+        import_date=datetime.strptime(data['import_date'], '%Y-%m-%d').date(),
+        split_date=datetime.strptime(data['split_date'], '%Y-%m-%d').date() if data.get('split_date') else None,
+        health_status=data.get('health_status', 'Tốt'),
+        notes=data.get('notes', ''),
+        is_sold=False
+    )
+    
+    db.session.add(beehive)
+    db.session.commit()
+    
+    return jsonify(beehive.to_dict()), 201
 
-@app.route('/edit_beehive/<serial_number>', methods=['GET', 'POST'])
-@login_required
-def edit_beehive(serial_number):
-    beehive = Beehive.query.get_or_404(serial_number)
+@app.route('/api/beehives/<serial_number>', methods=['PUT'])
+@token_required
+def update_beehive(current_user_id, serial_number):
+    beehive = Beehive.query.filter_by(serial_number=serial_number, user_id=current_user_id).first()
+    if not beehive:
+        return jsonify({'message': 'Beehive not found'}), 404
     
-    if request.method == 'POST':
-        # Don't allow changing serial_number as it's the primary key
-        beehive.import_date = datetime.strptime(request.form['import_date'], '%Y-%m-%d').date()
-        split_date = request.form.get('split_date')
-        beehive.split_date = datetime.strptime(split_date, '%Y-%m-%d').date() if split_date else None
-        beehive.health_status = request.form['health_status']
-        beehive.notes = request.form.get('notes', '')
-        beehive.updated_at = datetime.utcnow()
-        
-        db.session.commit()
-        flash('Cập nhật tổ ong thành công!', 'success')
-        return redirect(url_for('dashboard'))
+    data = request.get_json()
     
-    return render_template('edit_beehive.html', beehive=beehive)
+    if 'import_date' in data:
+        beehive.import_date = datetime.strptime(data['import_date'], '%Y-%m-%d').date()
+    if 'split_date' in data:
+        beehive.split_date = datetime.strptime(data['split_date'], '%Y-%m-%d').date() if data['split_date'] else None
+    if 'health_status' in data:
+        beehive.health_status = data['health_status']
+    if 'notes' in data:
+        beehive.notes = data['notes']
+    
+    db.session.commit()
+    
+    return jsonify(beehive.to_dict())
 
-@app.route('/delete_beehive/<serial_number>')
-@login_required
-def delete_beehive(serial_number):
-    beehive = Beehive.query.get_or_404(serial_number)
+@app.route('/api/beehives/<serial_number>', methods=['DELETE'])
+@token_required
+def delete_beehive(current_user_id, serial_number):
+    beehive = Beehive.query.filter_by(serial_number=serial_number, user_id=current_user_id).first()
+    if not beehive:
+        return jsonify({'message': 'Beehive not found'}), 404
+    
     db.session.delete(beehive)
     db.session.commit()
-    flash('Xóa tổ ong thành công!', 'success')
-    return redirect(url_for('dashboard'))
+    
+    return jsonify({'message': 'Beehive deleted successfully'})
 
-@app.route('/sell_beehive/<serial_number>')
-@login_required
-def sell_beehive(serial_number):
-    beehive = Beehive.query.get_or_404(serial_number)
+@app.route('/api/beehives/<serial_number>/sell', methods=['POST'])
+@token_required
+def sell_beehive(current_user_id, serial_number):
+    beehive = Beehive.query.filter_by(serial_number=serial_number, user_id=current_user_id).first()
+    if not beehive:
+        return jsonify({'message': 'Beehive not found'}), 404
+    
     beehive.is_sold = True
     beehive.sold_date = datetime.utcnow().date()
+    
     db.session.commit()
-    flash('Đánh dấu tổ ong đã bán thành công!', 'success')
-    return redirect(url_for('dashboard'))
+    
+    return jsonify(beehive.to_dict())
 
-@app.route('/unsell_beehive/<serial_number>')
-@login_required
-def unsell_beehive(serial_number):
-    beehive = Beehive.query.get_or_404(serial_number)
+@app.route('/api/beehives/<serial_number>/unsell', methods=['POST'])
+@token_required
+def unsell_beehive(current_user_id, serial_number):
+    beehive = Beehive.query.filter_by(serial_number=serial_number, user_id=current_user_id).first()
+    if not beehive:
+        return jsonify({'message': 'Beehive not found'}), 404
+    
     beehive.is_sold = False
     beehive.sold_date = None
+    
     db.session.commit()
-    flash('Hủy bán tổ ong thành công!', 'success')
-    return redirect(url_for('dashboard'))
+    
+    return jsonify(beehive.to_dict())
 
-@app.route('/qr_code/<serial_number>')
-@login_required
-def qr_code(serial_number):
-    beehive = Beehive.query.get_or_404(serial_number)
-    # Tạo QR data với token ngẫu nhiên
-    qr_data = get_beehive_qr_data(beehive)
-    qr_img = generate_qr_code(qr_data)
+@app.route('/api/beehive/<qr_token>', methods=['GET'])
+def get_beehive_by_token(qr_token):
+    beehive = Beehive.query.filter_by(qr_token=qr_token).first()
+    if not beehive:
+        return jsonify({'message': 'Beehive not found'}), 404
     
-    return send_file(qr_img, mimetype='image/png')
+    owner = User.query.get(beehive.user_id)
+    
+    return jsonify({
+        'beehive': beehive.to_dict(),
+        'owner': {
+            'id': owner.id,
+            'username': owner.username,
+            'email': owner.email
+        } if owner else None
+    })
 
-
-
-
-
-@app.route('/kbee-info/<serial_number>')
-def kbee_info(serial_number):
-    """Trang thông tin KBee cho tổ ong đã bán"""
-    beehive = Beehive.query.get_or_404(serial_number)
-    
-    # Chỉ hiển thị cho tổ ong đã bán
-    if not beehive.is_sold:
-        return redirect(url_for('beehive_info', serial_number=serial_number))
-    
-    return render_template('kbee_info.html', beehive=beehive)
-
-@app.errorhandler(404)
-def not_found_error(error):
-    return render_template('404.html'), 404
-
-@app.errorhandler(500)
-def internal_error(error):
-    db.session.rollback()
-    return render_template('404.html'), 500
-
-@app.route('/favicon.ico')
-def favicon():
-    return send_file('static/icon/bee.png', mimetype='image/png')
-
-@app.route('/export_qr_pdf')
-@login_required
-def export_qr_pdf():
-    beehives = Beehive.query.all()
-    
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4)
-    
-    # Register Vietnamese font
-    from reportlab.pdfbase import pdfmetrics
-    from reportlab.pdfbase.ttfonts import TTFont
-    
-    # Try to register a font that supports Vietnamese
-    try:
-        # Use DejaVu Sans which supports Vietnamese
-        pdfmetrics.registerFont(TTFont('DejaVuSans', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'))
-        vietnamese_font = 'DejaVuSans'
-    except:
-        try:
-            # Fallback to Liberation Sans
-            pdfmetrics.registerFont(TTFont('LiberationSans', '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf'))
-            vietnamese_font = 'LiberationSans'
-        except:
-            # Final fallback to default font
-            vietnamese_font = 'Helvetica'
-    
-    # Create custom styles with Vietnamese font
-    styles = getSampleStyleSheet()
-    
-    # Title style
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        fontName=vietnamese_font,
-        fontSize=18,
-        spaceAfter=30,
-        alignment=1,
-        textColor=colors.HexColor('#D2691E')
-    )
-    
-    # Normal style for Vietnamese text
-    normal_style = ParagraphStyle(
-        'VietnameseNormal',
-        parent=styles['Normal'],
-        fontName=vietnamese_font,
-        fontSize=10,
-        spaceAfter=5
-    )
-    
-    story = []
-    
-    # Title
-    title = Paragraph("Danh sách mã QR tổ ong KBee", title_style)
-    story.append(title)
-    story.append(Spacer(1, 20))
-    
-    # Create QR codes in horizontal grid (5 per row)
-    qr_per_row = 5  # 5 QR codes per row to save paper
-    # Calculate QR size to fit 5 per row on A4 paper
-    available_width = A4[0] - 4*cm  # A4 width minus margins
-    qr_size = (available_width / qr_per_row) - 0.5*cm  # Leave some space between QR codes
-    
-    # Process beehives in batches of qr_per_row
-    for i in range(0, len(beehives), qr_per_row):
-        batch = beehives[i:i + qr_per_row]
-        table_data = []
-        
-        for beehive in batch:
-            # Tạo QR data với token ngẫu nhiên
-            qr_data = get_beehive_qr_data(beehive)
-            qr_img = generate_qr_code(qr_data)
-            
-            # Create image from QR code
-            img = Image(qr_img, width=qr_size, height=qr_size)
-            
-            # Add beehive info below QR
-            info_text = f"St: {beehive.serial_number}"
-            if beehive.is_sold:
-                info_text += f" (đã bán - {beehive.sold_date.strftime('%d/%m/%Y')})"
-            
-            # Create a cell with QR code and text
-            cell_content = [img, Paragraph(info_text, normal_style)]
-            table_data.append(cell_content)
-        
-        # Pad row if necessary
-        while len(table_data) < qr_per_row:
-            table_data.append([Spacer(1, 1), Spacer(1, 1)])  # Empty cell with spacers
-        
-        # Create table for this row - adjust column width for 5 QR codes
-        col_width = (A4[0] - 4*cm) / qr_per_row  # Available width divided by number of columns
-        table = Table([table_data], colWidths=[col_width] * qr_per_row)
-        table.setStyle(TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 6),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ]))
-        
-        story.append(table)
-        story.append(Spacer(1, 20))
-    
-    doc.build(story)
-    buffer.seek(0)
-    
-    return send_file(buffer, as_attachment=True, download_name='beehive_qr_codes.pdf', mimetype='application/pdf')
-
-
-# Add routes at the end to ensure they are loaded
+# Beehive detail page for QR code access
 @app.route('/beehive/<qr_token>')
 def beehive_by_token(qr_token):
     """Route xử lý QR code scanning với token ngẫu nhiên"""
     # Tìm beehive theo QR token
     beehive = Beehive.query.filter_by(qr_token=qr_token).first()
     if not beehive:
-        return render_template('404.html'), 404
+        return jsonify({'message': 'Beehive not found'}), 404
     
     # Lấy thông tin user sở hữu beehive
     owner = User.query.get(beehive.user_id)
     if not owner:
-        return render_template('404.html'), 404
+        return jsonify({'message': 'Owner not found'}), 404
     
-    # Kiểm tra xem user hiện tại có đăng nhập không
-    if not current_user.is_authenticated:
-        # Chưa đăng nhập - yêu cầu đăng nhập
-        flash('Vui lòng đăng nhập để xem thông tin tổ ong', 'info')
-        return redirect(url_for('login', next=request.url))
+    # Return JSON data for React frontend
+    return jsonify({
+        'beehive': beehive.to_dict(),
+        'owner': {
+            'id': owner.id,
+            'username': owner.username,
+            'email': owner.email
+        }
+    })
+
+# QR Code generation endpoint
+@app.route('/qr/<serial_number>')
+def qr_code(serial_number):
+    beehive = Beehive.query.filter_by(serial_number=serial_number).first()
+    if not beehive:
+        return "Beehive not found", 404
     
-    # Kiểm tra quyền truy cập
-    if current_user.id != beehive.user_id:
-        # User đăng nhập không phải chủ sở hữu - trả về 404
-        return render_template('404.html'), 404
+    # Get domain configuration from environment
+    domain = os.getenv('DOMAIN', 'localhost')
+    protocol = os.getenv('PROTOCOL', 'http')
+    port = os.getenv('PORT', '80')
     
-    # Kiểm tra trạng thái tổ ong
-    if beehive.is_sold:
-        # Nếu đã bán, hiển thị thông tin KBee
-        return render_template('kbee_info.html', beehive=beehive, owner=owner)
+    # Build QR URL
+    if port in ['80', '443']:
+        qr_url = f"{protocol}://{domain}/beehive/{beehive.qr_token}"
     else:
-        # Nếu chưa bán, hiển thị thông tin chi tiết
-        return render_template('beehive_detail.html', beehive=beehive, owner=owner)
+        qr_url = f"{protocol}://{domain}:{port}/beehive/{beehive.qr_token}"
+    
+    # Generate QR code
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(qr_url)
+    qr.make(fit=True)
+    
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    # Convert to base64
+    img_buffer = io.BytesIO()
+    img.save(img_buffer, format='PNG')
+    img_buffer.seek(0)
+    
+    return send_file(img_buffer, mimetype='image/png')
+
+# PDF export endpoint
+@app.route('/export_pdf/<serial_number>')
+@token_required
+def export_pdf(current_user_id, serial_number):
+    beehive = Beehive.query.filter_by(serial_number=serial_number, user_id=current_user_id).first()
+    if not beehive:
+        return jsonify({'message': 'Beehive not found'}), 404
+    
+    # Create PDF
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4)
+    styles = getSampleStyleSheet()
+    
+    # Title
+    title = Paragraph("Thông tin tổ ong", styles['Title'])
+    
+    # Beehive info
+    data = [
+        ['Mã tổ:', beehive.serial_number],
+        ['Ngày nhập:', beehive.import_date.strftime('%d/%m/%Y')],
+        ['Ngày tách:', beehive.split_date.strftime('%d/%m/%Y') if beehive.split_date else 'Chưa tách'],
+        ['Sức khỏe:', beehive.health_status],
+        ['Ghi chú:', beehive.notes or 'Không có'],
+    ]
+    
+    table = Table(data, colWidths=[4*cm, 6*cm])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ('BACKGROUND', (1, 0), (1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    
+    # Build PDF
+    elements = [title, Spacer(1, 20), table]
+    doc.build(elements)
+    
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name=f'{beehive.serial_number}.pdf', mimetype='application/pdf')
 
 if __name__ == '__main__':
     with app.app_context():

@@ -2,20 +2,20 @@ version: '3.8'
 
 services:
   # MySQL Database
-  mysql:
+  db:
     image: mysql:8.0
-    container_name: kbee_mysql
+    container_name: kbee_db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - "${MYSQL_PORT}:3306"
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-kbee_root_password}
+      MYSQL_DATABASE: ${DB_NAME:-kbee_manager}
+      MYSQL_USER: ${DB_USER:-kbee_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-kbee_password}
     volumes:
       - mysql_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "${DB_PORT:-3306}:3306"
     networks:
       - kbee_network
     healthcheck:
@@ -23,65 +23,78 @@ services:
       timeout: 20s
       retries: 10
 
-  # KBee Manager Web Application
-  web:
-    build: .
-    container_name: kbee_web
+  # Backend Flask API
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kbee_backend
     restart: unless-stopped
-    ports:
-      - "8000:5000"
     environment:
-      - SECRET_KEY=${SECRET_KEY}
-      - DATABASE_URL=${DATABASE_URL}
-      - FLASK_ENV=${FLASK_ENV}
-      - FLASK_DEBUG=${FLASK_DEBUG}
-      - DOMAIN=${DOMAIN}
-      - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE}
+      - DATABASE_URL=mysql+pymysql://${DB_USER:-kbee_user}:${DB_PASSWORD:-kbee_password}@db:3306/${DB_NAME:-kbee_manager}
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - FLASK_DEBUG=${FLASK_DEBUG:-0}
+      - DOMAIN=${DOMAIN:-localhost}
+      - PROTOCOL=${PROTOCOL:-http}
+      - PORT=${PORT:-80}
+    ports:
+      - "${BACKEND_PORT:-5000}:5000"
     depends_on:
-      mysql:
+      db:
         condition: service_healthy
+    volumes:
+      - ./static:/app/static:ro
+      - ${BACKEND_VOLUME:-}
     networks:
       - kbee_network
-    volumes:
-      - ./static:/app/static
-      - ./templates:/app/templates
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/"]
-      interval: ${HEALTH_CHECK_INTERVAL}
-      timeout: ${HEALTH_CHECK_TIMEOUT}
-      retries: ${HEALTH_CHECK_RETRIES}
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # Nginx Reverse Proxy
-  nginx:
-    image: nginx:alpine
-    container_name: kbee_nginx
+  # Frontend React App
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: kbee_frontend
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./static:/usr/share/nginx/html/static:ro
-      - ./certs/www_khainguyenbee_io_vn_cert.pem:/etc/ssl/certs/khainguyenbee.io.vn.crt:ro
-      - ./certs/key_khainguyenbee.io.vn.key:/etc/ssl/private/khainguyenbee.io.vn.key:ro
-      - ./certs/ChainCA.crt:/etc/ssl/certs/chain.crt:ro
-      - ./certs/RootCA.crt:/etc/ssl/certs/root.crt:ro
-      - ./logs/nginx:/var/log/nginx
+      - "${FRONTEND_PORT:-80}:80"
+      - "${FRONTEND_SSL_PORT:-443}:443"
     depends_on:
-      - web
+      - backend
     networks:
       - kbee_network
     healthcheck:
-      test: ["CMD", "nginx", "-t"]
-      interval: ${HEALTH_CHECK_INTERVAL}
-      timeout: ${HEALTH_CHECK_TIMEOUT}
-      retries: ${HEALTH_CHECK_RETRIES}
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: kbee_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - kbee_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   mysql_data:
     driver: local
-  nginx_logs:
+  redis_data:
     driver: local
 
 networks:
