@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: kbee_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: kbee_root_password
+      MYSQL_DATABASE: kbee_manager
+      MYSQL_USER: kbee_user
+      MYSQL_PASSWORD: kbee_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - kbee_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # KBee Manager Web Application
+  web:
+    build: .
+    container_name: kbee_web
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - SECRET_KEY=kbee-secret-key-change-in-production
+      - DATABASE_URL=mysql+pymysql://kbee_user:kbee_password@mysql:3306/kbee_manager
+      - FLASK_ENV=production
+      - FLASK_DEBUG=False
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - kbee_network
+    volumes:
+      - ./static:/app/static
+      - ./templates:/app/templates
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: kbee_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - web
+    networks:
+      - kbee_network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  kbee_network:
+    driver: bridge

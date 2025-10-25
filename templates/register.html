@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Đăng ký - KBee Manager{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="card">
+            <div class="card-header text-center">
+                <h3><i class="fas fa-bee me-2"></i>KBee Manager</h3>
+                <p class="mb-0">Đăng ký tài khoản mới</p>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">
+                            <i class="fas fa-user me-1"></i>Tên đăng nhập
+                        </label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope me-1"></i>Email
+                        </label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock me-1"></i>Mật khẩu
+                        </label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-honey">
+                            <i class="fas fa-user-plus me-1"></i>Đăng ký
+                        </button>
+                    </div>
+                </form>
+                <hr>
+                <div class="text-center">
+                    <p class="mb-0">Đã có tài khoản?</p>
+                    <a href="{{ url_for('login') }}" class="btn btn-honey-outline mt-2">
+                        <i class="fas fa-sign-in-alt me-1"></i>Đăng nhập
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

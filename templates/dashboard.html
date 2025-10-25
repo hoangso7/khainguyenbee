@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Trang chủ - KBee Manager{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-number">{{ beehives|length }}</div>
+            <div class="stats-label">Tổng số tổ ong</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-number">{{ beehives|selectattr('is_sold', 'equalto', False)|list|length }}</div>
+            <div class="stats-label">Tổ đang quản lý</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-number">{{ beehives|selectattr('is_sold', 'equalto', True)|list|length }}</div>
+            <div class="stats-label">Tổ đã bán</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-number">{{ beehives|selectattr('health_status', 'equalto', 'Tốt')|list|length }}</div>
+            <div class="stats-label">Tổ khỏe mạnh</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Danh sách tổ ong</h5>
+                <div>
+                    <a href="{{ url_for('add_beehive') }}" class="btn btn-honey me-2">
+                        <i class="fas fa-plus me-1"></i>Thêm tổ ong
+                    </a>
+                    <a href="{{ url_for('export_qr_pdf') }}" class="btn btn-honey-outline">
+                        <i class="fas fa-download me-1"></i>Xuất PDF QR
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if beehives %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Số thứ tự</th>
+                                <th>Ngày nhập</th>
+                                <th>Ngày tách</th>
+                                <th>Sức khỏe</th>
+                                <th>Trạng thái</th>
+                                <th>QR Code</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for beehive in beehives %}
+                            <tr class="{% if beehive.is_sold %}table-warning{% endif %}">
+                                <td>
+                                    <strong>{{ beehive.serial_number }}</strong>
+                                    {% if beehive.is_sold %}
+                                    <br><small class="text-muted">Đã bán: {{ beehive.sold_date.strftime('%d/%m/%Y') }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>{{ beehive.import_date.strftime('%d/%m/%Y') }}</td>
+                                <td>{{ beehive.split_date.strftime('%d/%m/%Y') if beehive.split_date else 'Chưa tách' }}</td>
+                                <td>
+                                    <span class="status-badge 
+                                        {% if beehive.health_status == 'Tốt' %}status-good
+                                        {% elif beehive.health_status == 'Trung bình' %}status-medium
+                                        {% else %}status-bad{% endif %}">
+                                        {{ beehive.health_status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if beehive.is_sold %}
+                                    <span class="status-badge status-sold">Đã bán</span>
+                                    {% else %}
+                                    <span class="status-badge status-good">Đang quản lý</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <img src="{{ url_for('qr_code', beehive_id=beehive.id) }}" 
+                                         class="qr-code" 
+                                         alt="QR Code"
+                                         title="Mã QR cho tổ {{ beehive.serial_number }}">
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="{{ url_for('edit_beehive', beehive_id=beehive.id) }}" 
+                                           class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% if not beehive.is_sold %}
+                                        <a href="{{ url_for('sell_beehive', beehive_id=beehive.id) }}" 
+                                           class="btn btn-sm btn-warning" title="Đánh dấu đã bán"
+                                           onclick="return confirm('Bạn có chắc muốn đánh dấu tổ này đã bán?')">
+                                            <i class="fas fa-dollar-sign"></i>
+                                        </a>
+                                        {% else %}
+                                        <a href="{{ url_for('unsell_beehive', beehive_id=beehive.id) }}" 
+                                           class="btn btn-sm btn-success" title="Hủy bán"
+                                           onclick="return confirm('Bạn có chắc muốn hủy bán tổ này?')">
+                                            <i class="fas fa-undo"></i>
+                                        </a>
+                                        {% endif %}
+                                        <a href="{{ url_for('delete_beehive', beehive_id=beehive.id) }}" 
+                                           class="btn btn-sm btn-outline-danger" title="Xóa"
+                                           onclick="return confirm('Bạn có chắc muốn xóa tổ ong này?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-bee fa-3x text-honey mb-3"></i>
+                    <h5 class="text-muted">Chưa có tổ ong nào</h5>
+                    <p class="text-muted">Hãy thêm tổ ong đầu tiên để bắt đầu quản lý!</p>
+                    <a href="{{ url_for('add_beehive') }}" class="btn btn-honey">
+                        <i class="fas fa-plus me-1"></i>Thêm tổ ong đầu tiên
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
