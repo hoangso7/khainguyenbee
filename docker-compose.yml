@@ -67,6 +67,8 @@ services:
       - ./logs/nginx:/var/log/nginx
       - ./certs:/etc/ssl/certs:ro
       - ./certs:/etc/ssl/private:ro
+    environment:
+      - REACT_APP_API_URL=/api
     networks:
       - kbee_network
     healthcheck:

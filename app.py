@@ -25,7 +25,16 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'mysql+pymysql
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Enable CORS for React frontend
-CORS(app, origins=['http://localhost:3000', 'http://localhost:5173'])
+CORS(app, origins=[
+    'http://localhost:3000', 
+    'http://localhost:5173',
+    'http://localhost:8080',
+    'https://localhost:8443',
+    'http://khainguyenbee.io.vn:8080',
+    'https://khainguyenbee.io.vn:8443',
+    'https://khainguyenbee.io.vn',
+    'http://khainguyenbee.io.vn'
+])
 
 # Session configuration
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
