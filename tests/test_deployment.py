@@ -33,7 +33,7 @@ def check_docker():
                               capture_output=True, text=True, check=True)
         print_status(f"Docker version: {result.stdout.strip()}", "SUCCESS")
         
-        result = subprocess.run(['docker-compose', '--version'], 
+        result = subprocess.run(['docker compose', '--version'], 
                               capture_output=True, text=True, check=True)
         print_status(f"Docker Compose version: {result.stdout.strip()}", "SUCCESS")
         
@@ -47,7 +47,7 @@ def check_environment():
     print_status("Checking environment setup...", "INFO")
     
     required_files = [
-        'docker-compose.yml',
+        'docker compose.yml',
         'Dockerfile', 
         'requirements.txt',
         'app.py',
@@ -99,7 +99,7 @@ def test_docker_build():
     print_status("Testing Docker image build...", "INFO")
     
     try:
-        result = subprocess.run(['docker-compose', 'build', '--no-cache'], 
+        result = subprocess.run(['docker compose', 'build', '--no-cache'], 
                               capture_output=True, text=True, timeout=300)
         
         if result.returncode == 0:
@@ -122,7 +122,7 @@ def test_docker_start():
     
     try:
         # Start services
-        result = subprocess.run(['docker-compose', 'up', '-d'], 
+        result = subprocess.run(['docker compose', 'up', '-d'], 
                               capture_output=True, text=True, timeout=60)
         
         if result.returncode == 0:
@@ -133,7 +133,7 @@ def test_docker_start():
             time.sleep(10)
             
             # Check service status
-            result = subprocess.run(['docker-compose', 'ps'], 
+            result = subprocess.run(['docker compose', 'ps'], 
                                   capture_output=True, text=True)
             print_status("Service status:", "INFO")
             print(result.stdout)
@@ -184,7 +184,7 @@ def test_database_connection():
     print_status("Testing database connection...", "INFO")
     
     try:
-        result = subprocess.run(['docker-compose', 'exec', '-T', 'mysql', 
+        result = subprocess.run(['docker compose', 'exec', '-T', 'mysql', 
                                'mysqladmin', 'ping', '-h', 'localhost'], 
                               capture_output=True, text=True, timeout=10)
         
@@ -227,7 +227,7 @@ def cleanup():
     print_status("Cleaning up test environment...", "INFO")
     
     try:
-        subprocess.run(['docker-compose', 'down'], 
+        subprocess.run(['docker compose', 'down'], 
                       capture_output=True, text=True, timeout=30)
         print_status("Test environment cleaned up", "SUCCESS")
     except Exception as e:
@@ -273,7 +273,7 @@ def main():
         print_status("\nNext steps:", "INFO")
         print_status("1. Update .env with your production values", "INFO")
         print_status("2. Configure your domain DNS", "INFO")
-        print_status("3. Run: docker-compose up -d", "INFO")
+        print_status("3. Run: docker compose up -d", "INFO")
         print_status("4. Access your application at https://your-domain.com", "INFO")
         return True
     else:

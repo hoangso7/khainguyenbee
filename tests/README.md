@@ -166,7 +166,7 @@ coverage html -d htmlcov
    ```bash
    # Ensure Docker is running
    docker --version
-   docker-compose --version
+   docker compose --version
    ```
 
 ### Test Environment Setup

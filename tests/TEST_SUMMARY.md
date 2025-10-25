@@ -147,16 +147,16 @@ python test_deployment.py
 ### Run with Docker
 ```bash
 # Test Docker build
-docker-compose build
+docker compose build
 
 # Test Docker start
-docker-compose up -d
+docker compose up -d
 
 # Check service status
-docker-compose ps
+docker compose ps
 
 # View logs
-docker-compose logs
+docker compose logs
 ```
 
 ## 📈 Quality Metrics

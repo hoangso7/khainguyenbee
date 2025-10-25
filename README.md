@@ -124,22 +124,22 @@ python app.py
 ### Dừng ứng dụng
 ```bash
 # Với Docker
-docker-compose down
+docker compose down
 
 # Với Docker (bao gồm volumes)
-docker-compose down -v
+docker compose down -v
 ```
 
 ### SSL Certificate
 ```bash
 # Kiểm tra SSL certificate
-docker-compose exec nginx openssl x509 -in /etc/letsencrypt/live/your-domain.com/cert.pem -noout -dates
+docker compose exec nginx openssl x509 -in /etc/letsencrypt/live/your-domain.com/cert.pem -noout -dates
 
 # Manual renewal
-docker-compose exec certbot certbot renew
+docker compose exec certbot certbot renew
 
 # Xem SSL logs
-docker-compose logs ssl-renew
+docker compose logs ssl-renew
 ```
 
 ### Testing
@@ -157,28 +157,28 @@ python tests/test_deployment.py
 **Database connection issues:**
 ```bash
 # Reset database
-docker-compose down -v
-docker-compose up -d
+docker compose down -v
+docker compose up -d
 ```
 
 **Services restart liên tục:**
 ```bash
 # Kiểm tra logs
-docker-compose logs web
-docker-compose logs nginx
-docker-compose logs mysql
+docker compose logs web
+docker compose logs nginx
+docker compose logs mysql
 
 # Restart services
-docker-compose restart
+docker compose restart
 ```
 
 **SSL certificate issues:**
 ```bash
 # Kiểm tra certbot logs
-docker-compose logs certbot
+docker compose logs certbot
 
 # Restart certbot
-docker-compose restart certbot
+docker compose restart certbot
 ```
 
 ## 🔧 Cấu hình
@@ -328,16 +328,16 @@ MYSQL_PASSWORD=your-secure-password
 ### Logs
 ```bash
 # Xem logs tất cả services
-docker-compose logs -f
+docker compose logs -f
 
 # Xem logs specific service
-docker-compose logs -f web
-docker-compose logs -f nginx
-docker-compose logs -f mysql
-docker-compose logs -f ssl-renew
+docker compose logs -f web
+docker compose logs -f nginx
+docker compose logs -f mysql
+docker compose logs -f ssl-renew
 
 # Xem nginx access logs
-docker-compose exec nginx tail -f /var/log/nginx/access.log
+docker compose exec nginx tail -f /var/log/nginx/access.log
 ```
 
 ## 🚀 Deployment
@@ -356,7 +356,7 @@ git clone https://github.com/hoangso7/khainguyenbee.git
 cd khainguyenbee
 ./setup-env.sh
 nano .env  # Cập nhật thông tin
-docker-compose up -d
+docker compose up -d
 ```
 
 ### Backup
@@ -390,7 +390,7 @@ kbee-manager/
 ├── .env                    # Environment variables (not in git)
 ├── env.example            # Environment template
 ├── setup-env.sh          # Environment setup script
-├── docker-compose.yml    # Docker services với SSL
+├── docker compose.yml    # Docker services với SSL
 ├── nginx.conf           # Nginx configuration
 ├── app.py              # Flask application
 ├── config.py          # Configuration settings
@@ -413,7 +413,7 @@ kbee-manager/
 │   ├── test_deployment.py
 │   ├── requirements-test.txt
 │   └── README.md
-├── docker-compose.yml     # Main Docker Compose file
+├── docker compose.yml     # Main Docker Compose file
 ├── nginx.conf            # Nginx config with SSL
 ├── nginx-temp.conf       # Temporary nginx config (no SSL)
 ├── setup.sh              # Setup script

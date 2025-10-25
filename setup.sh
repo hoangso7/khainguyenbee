@@ -55,7 +55,7 @@ check_dependencies() {
         exit 1
     fi
     
-    if ! command -v docker-compose &> /dev/null; then
+    if ! docker compose version &> /dev/null; then
         print_error "Docker Compose chưa được cài đặt!"
         exit 1
     fi
@@ -129,8 +129,8 @@ setup_ssl() {
     
     print_success "Quyền file đã được thiết lập"
     
-    # Kiểm tra cấu hình docker-compose
-    print_info "🔧 Kiểm tra cấu hình docker-compose..."
+    # Kiểm tra cấu hình docker compose
+    print_info "🔧 Kiểm tra cấu hình docker compose..."
     if grep -q "www_khainguyenbee_io_vn_cert.pem" docker-compose.yml; then
         print_success "docker-compose.yml đã được cấu hình đúng"
     else
@@ -171,8 +171,8 @@ setup_app() {
     
     # Build và start containers
     print_info "🔨 Building và starting containers..."
-    docker-compose down
-    docker-compose up --build -d
+    docker compose down
+    docker compose up --build -d
     
     # Chờ services khởi động
     print_info "⏳ Chờ services khởi động..."
@@ -180,7 +180,7 @@ setup_app() {
     
     # Kiểm tra trạng thái
     print_info "📊 Kiểm tra trạng thái containers..."
-    docker-compose ps
+    docker compose ps
     
     print_success "Application setup hoàn tất!"
 }
@@ -222,7 +222,7 @@ show_status() {
     print_info "📊 Trạng thái hệ thống:"
     echo ""
     echo "🔍 Containers:"
-    docker-compose ps
+    docker compose ps
     echo ""
     echo "📋 SSL Files:"
     ls -la certs/ 2>/dev/null || echo "Thư mục certs không tồn tại"
@@ -287,7 +287,7 @@ main() {
     echo "   - HTTP: http://khainguyenbee.io.vn (redirects to HTTPS)"
     echo "   - HTTPS: https://khainguyenbee.io.vn"
     echo "   - Logs: docker logs kbee_nginx"
-    echo "   - Status: docker-compose ps"
+    echo "   - Status: docker compose ps"
     echo ""
     print_info "⚠️  Lưu ý bảo mật:"
     echo "   - File private key đã được thiết lập quyền 600"
