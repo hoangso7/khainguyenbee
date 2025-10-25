@@ -13,6 +13,7 @@ import QRBeehiveDetail from './pages/QRBeehiveDetail';
 import SoldBeehives from './pages/SoldBeehives';
 import AddBeehive from './pages/AddBeehive';
 import EditBeehive from './pages/EditBeehive';
+import SetupGuard from './components/SetupGuard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 // Honey-themed Material-UI theme
@@ -100,7 +101,11 @@ function App() {
           <Router>
             <Routes>
               <Route path="/login" element={<Login />} />
-              <Route path="/setup" element={<Setup />} />
+              <Route path="/setup" element={
+                <SetupGuard>
+                  <Setup />
+                </SetupGuard>
+              } />
               <Route path="/beehive/:qrToken" element={<QRBeehiveDetail />} />
               <Route path="/" element={
                 <ProtectedRoute>

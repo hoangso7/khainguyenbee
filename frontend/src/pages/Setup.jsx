@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Paper,
@@ -32,6 +32,29 @@ const Setup = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [checkingSetup, setCheckingSetup] = useState(true);
+
+  // Check if setup is already completed
+  useEffect(() => {
+    const checkSetupStatus = async () => {
+      try {
+        const response = await fetch('/api/setup/check');
+        const data = await response.json();
+        
+        if (!data.setup_needed) {
+          // Admin user already exists, redirect to login
+          navigate('/login', { replace: true });
+        }
+      } catch (error) {
+        console.error('Setup check failed:', error);
+        setError('Không thể kiểm tra trạng thái setup');
+      } finally {
+        setCheckingSetup(false);
+      }
+    };
+
+    checkSetupStatus();
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -80,9 +103,10 @@ const Setup = () => {
 
       if (response.ok) {
         setSuccess(`Tài khoản admin "${formData.username}" đã được tạo thành công!`);
+        // Redirect immediately to login after successful setup
         setTimeout(() => {
-          navigate('/login');
-        }, 2000);
+          navigate('/login', { replace: true });
+        }, 1500);
       } else {
         setError(data.message || 'Có lỗi xảy ra khi tạo tài khoản');
       }
@@ -92,6 +116,22 @@ const Setup = () => {
       setLoading(false);
     }
   };
+
+  // Show loading while checking setup status
+  if (checkingSetup) {
+    return (
+      <Container maxWidth="sm">
+        <StyledPaper elevation={3}>
+          <Box textAlign="center" py={4}>
+            <CircularProgress size={40} />
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              Đang kiểm tra trạng thái setup...
+            </Typography>
+          </Box>
+        </StyledPaper>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="sm">

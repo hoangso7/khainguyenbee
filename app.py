@@ -502,11 +502,15 @@ def check_setup():
 # Setup endpoint to create admin user
 @app.route('/api/setup', methods=['POST'])
 def setup_admin():
-    """Create admin user if no users exist"""
+    """Create admin user if no users exist - ONE TIME ONLY"""
     try:
         # Check if any users exist
-        if User.query.first():
-            return jsonify({'message': 'Admin user already exists'}), 400
+        existing_user = User.query.first()
+        if existing_user:
+            return jsonify({
+                'message': 'Setup already completed. Admin user already exists.',
+                'setup_completed': True
+            }), 400
         
         data = request.get_json()
         username = data.get('username', 'admin')
@@ -515,6 +519,16 @@ def setup_admin():
         
         if not password:
             return jsonify({'message': 'Password is required'}), 400
+        
+        if len(password) < 6:
+            return jsonify({'message': 'Password must be at least 6 characters long'}), 400
+        
+        # Validate username and email
+        if not username or len(username) < 3:
+            return jsonify({'message': 'Username must be at least 3 characters long'}), 400
+        
+        if not email or '@' not in email:
+            return jsonify({'message': 'Valid email is required'}), 400
         
         # Create admin user
         admin = User(
@@ -526,7 +540,11 @@ def setup_admin():
         db.session.add(admin)
         db.session.commit()
         
-        return jsonify({'message': 'Admin user created successfully', 'username': username}), 201
+        return jsonify({
+            'message': 'Admin user created successfully',
+            'username': username,
+            'setup_completed': True
+        }), 201
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': f'Error creating admin user: {str(e)}'}), 500

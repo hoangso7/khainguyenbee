@@ -34,10 +34,13 @@ const Login = () => {
         
         if (data.setup_needed) {
           // No admin user exists, redirect to setup
-          navigate('/setup');
+          navigate('/setup', { replace: true });
         }
+        // If setup is not needed, stay on login page
       } catch (error) {
         console.error('Setup check failed:', error);
+        // If check fails, assume setup is needed and redirect
+        navigate('/setup', { replace: true });
       }
     };
 
