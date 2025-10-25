@@ -4,7 +4,7 @@ import api from '../../services/api';
 export const login = createAsyncThunk(
   'auth/login',
   async (credentials) => {
-    const response = await api.post('/api/auth/login', credentials);
+    const response = await api.post('/auth/login', credentials);
     return response.data;
   }
 );
@@ -12,14 +12,14 @@ export const login = createAsyncThunk(
 export const logout = createAsyncThunk(
   'auth/logout',
   async () => {
-    await api.post('/api/auth/logout');
+    await api.post('/auth/logout');
   }
 );
 
 export const checkAuth = createAsyncThunk(
   'auth/checkAuth',
   async () => {
-    const response = await api.get('/api/auth/me');
+    const response = await api.get('/auth/me');
     return response.data;
   }
 );

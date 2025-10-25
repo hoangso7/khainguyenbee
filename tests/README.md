@@ -1,251 +1,279 @@
-# 🧪 KBee Manager - Test Suite
+# 🧪 KBee Manager Comprehensive Test Suite
 
-Thư mục này chứa tất cả các file test cho ứng dụng KBee Manager.
+Bộ test case toàn diện cho hệ thống KBee Manager, bao gồm Frontend, Backend, API, Network, SSL và các User Flows.
 
-## 📁 Cấu trúc thư mục
+## 📋 Tổng quan
+
+Test suite này được thiết kế để kiểm tra toàn bộ chức năng của hệ thống KBee Manager, đảm bảo không có lỗi nào bị bỏ sót.
+
+### 🎯 Các loại test được bao phủ:
+
+- **🔒 SSL & Network Tests**: Kiểm tra SSL certificates, network connectivity, security headers
+- **🔐 Authentication Tests**: Login, logout, token validation, setup flow
+- **🐝 Beehive Management Tests**: CRUD operations, health status, sales workflow
+- **📱 QR Code Tests**: QR generation, scanning, token validation
+- **📊 Statistics Tests**: Dashboard stats, reporting
+- **🎭 User Flow Tests**: End-to-end user journeys
+- **⚡ Performance Tests**: Response times, concurrent requests
+- **🛡️ Error Handling Tests**: Edge cases, error recovery
+
+## 🚀 Cách sử dụng
+
+### 1. Cài đặt dependencies
+
+```bash
+# Cài đặt Python dependencies
+make install-deps
+
+# Hoặc cài đặt thủ công
+pip3 install requests urllib3
+```
+
+### 2. Kiểm tra môi trường
+
+```bash
+# Kiểm tra environment và services
+make check-env
+
+# Test nhanh connectivity
+make quick-test
+```
+
+### 3. Chạy test suites
+
+```bash
+# Chạy tất cả test suites
+make all
+
+# Chạy từng loại test riêng biệt
+make comprehensive    # API và system tests
+make user-flows       # User journey tests  
+make ssl-network      # SSL và network tests
+
+# Chạy với output chi tiết
+make test-verbose
+```
+
+### 4. Test cụ thể
+
+```bash
+# Test authentication flow
+make test-auth
+
+# Test API endpoints
+make test-api
+
+# Test performance
+make test-performance
+```
+
+## 📁 Cấu trúc Test Suite
 
 ```
 tests/
-├── __init__.py              # Python package marker
-├── README.md               # Tài liệu test suite
-├── simple_test.py          # Unit tests chính
-├── test_app_fixed.py       # Comprehensive tests (legacy)
-├── test_deployment.py      # Deployment tests
-├── requirements-test.txt   # Test dependencies
-├── run_tests.sh           # Test runner script
-└── TEST_SUMMARY.md        # Test results summary
+├── comprehensive_test_suite.py    # Test suite chính (25 tests)
+├── user_flow_tests.py            # User flow tests (6 workflows)
+├── ssl_network_tests.py          # SSL & network tests (10 tests)
+├── run_all_tests.py              # Master test runner
+├── run_comprehensive_tests.py    # Comprehensive test runner
+├── Makefile                      # Make commands
+└── README.md                     # Documentation này
 ```
 
-## 🚀 Cách chạy tests
+## 🧪 Chi tiết Test Cases
 
-### Từ thư mục gốc (khuyến nghị)
-```bash
-# Chạy tất cả tests
-./run_tests.sh
+### 1. Comprehensive Test Suite (25 tests)
 
-# Hoặc chạy từng loại test
-cd tests
-python simple_test.py
-python test_deployment.py
+#### Network & Connectivity (4 tests)
+- ✅ SSL Certificate Validity
+- ✅ HTTPS Connectivity  
+- ✅ Backend Connectivity
+- ✅ CORS Headers
+
+#### Authentication Flow (5 tests)
+- ✅ Setup Check
+- ✅ Admin Setup
+- ✅ User Login
+- ✅ Token Validation
+- ✅ User Logout
+
+#### Beehive CRUD (7 tests)
+- ✅ Create Beehive
+- ✅ Get Beehives List
+- ✅ Get Beehive Details
+- ✅ Update Beehive
+- ✅ Sell Beehive
+- ✅ Get Sold Beehives
+- ✅ Unsell Beehive
+
+#### QR Code Functionality (2 tests)
+- ✅ QR Code Generation
+- ✅ QR Code Scanning
+
+#### Statistics & Reports (1 test)
+- ✅ Dashboard Statistics
+
+#### Error Handling (3 tests)
+- ✅ Invalid Credentials
+- ✅ Unauthorized Access
+- ✅ Invalid Beehive ID
+
+#### Performance & Load (2 tests)
+- ✅ Response Times
+- ✅ Concurrent Requests
+
+#### Cleanup (1 test)
+- ✅ Delete Test Beehive
+
+### 2. User Flow Tests (6 workflows)
+
+#### Complete User Journey
+- 🚀 **Setup Journey**: Setup check → Admin creation → Login
+- 🐝 **Daily Management**: Stats → Create beehives → View list → Update health
+- 💰 **Sales Workflow**: Check status → Sell → Verify sold list → QR test → Unsell
+- 📱 **QR Workflow**: Get QR token → Scan QR → Test health statuses
+- 🛡️ **Error Recovery**: Invalid operations → Unauthorized access → System recovery
+- 🧹 **Cleanup**: Delete test data → Verify cleanup
+
+### 3. SSL & Network Tests (10 tests)
+
+#### SSL Configuration (4 tests)
+- 🔒 SSL Certificate Presence
+- 🔐 SSL Protocols and Ciphers
+- 🌐 HTTPS Connectivity
+- 🔄 HTTP to HTTPS Redirect
+
+#### Network Connectivity (4 tests)
+- ⚙️ Backend Connectivity
+- 🔗 API Endpoints Connectivity
+- ⏱️ Response Times
+- 🔄 Concurrent Connections
+
+#### Security Headers (2 tests)
+- 🛡️ Security Headers
+- 📊 SSL Grade Check
+
+## 📊 Test Reports
+
+Sau khi chạy tests, các báo cáo chi tiết sẽ được tạo:
+
+- `master_test_report_YYYYMMDD_HHMMSS.json` - Báo cáo tổng hợp
+- `test_report_YYYYMMDD_HHMMSS.json` - Báo cáo chi tiết từng suite
+
+### Ví dụ báo cáo:
+
+```json
+{
+  "timestamp": "20241025_143022",
+  "test_suite": "KBee Manager Comprehensive Test Suite",
+  "target_url": "https://khainguyenbee.io.vn:8443",
+  "summary": {
+    "total_test_suites": 3,
+    "total_tests": 41,
+    "total_passed": 40,
+    "total_failed": 1,
+    "total_errors": 0,
+    "overall_success_rate": 97.6
+  }
+}
 ```
 
-### Từ thư mục tests
-```bash
-cd tests
-./run_tests.sh
-```
+## 🎯 Target Environment
 
-## 📋 Các loại test
+Tests được thiết kế để chạy trên:
+- **Frontend**: `https://khainguyenbee.io.vn:8443`
+- **Backend**: `http://khainguyenbee.io.vn:8000`
+- **API Base**: `https://khainguyenbee.io.vn:8443/api`
 
-### 1. Unit Tests (`simple_test.py`)
-- **Mục đích**: Test chức năng cơ bản
-- **Coverage**: Authentication, CRUD, Security
-- **Status**: ✅ PASSED (14/14 tests)
+## 🔧 Configuration
 
-**Test cases:**
-- ✅ App creation
-- ✅ Database connection
-- ✅ User authentication
-- ✅ Beehive creation
-- ✅ QR data generation
-- ✅ Login/logout functionality
-- ✅ Security protection
-- ✅ Error handling
+### Environment Variables
 
-### 2. Deployment Tests (`test_deployment.py`)
-- **Mục đích**: Test deployment readiness
-- **Coverage**: Docker, SSL, Production setup
-- **Status**: ✅ READY
-
-**Test cases:**
-- ✅ Docker installation
-- ✅ Environment setup
-- ✅ Docker build
-- ✅ Service startup
-- ✅ Application health
-- ✅ Database connection
-- ✅ SSL setup
-
-### 3. Comprehensive Tests (`test_app_fixed.py`)
-- **Mục đích**: Test toàn diện (legacy)
-- **Coverage**: Full application testing
-- **Status**: ⚠️ Some template issues (fixed)
-
-## 🔧 Test Dependencies
-
-Cài đặt dependencies cho testing:
-```bash
-pip install -r tests/requirements-test.txt
-```
-
-**Dependencies:**
-- pytest==7.4.3
-- pytest-cov==4.1.0
-- pytest-flask==1.3.0
-- pytest-mock==3.12.0
-- coverage==7.3.2
-- bandit==1.7.5 (security testing)
-- safety==2.3.5 (vulnerability check)
-
-## 📊 Test Results
-
-### Unit Tests Results
-```
-Tests run: 14
-Failures: 0
-Errors: 0
-Success rate: 100.0%
-```
-
-### Security Tests
-- ✅ SQL Injection protection
-- ✅ XSS protection
-- ✅ Authentication security
-- ✅ Session management
-- ✅ Input validation
-
-### Performance Tests
-- ✅ Database queries optimized
-- ✅ Template rendering efficient
-- ✅ Static file serving cached
-- ✅ QR code generation fast
-
-## 🛡️ Security Testing
-
-### Automated Security Scans
-```bash
-# Bandit security scan
-bandit -r . -f json -o tests/bandit-report.json
-
-# Safety vulnerability check
-safety check --json --output tests/safety-report.json
-```
-
-### Manual Security Tests
-- SQL injection attempts
-- XSS payload testing
-- Authentication bypass attempts
-- Input validation testing
-- Session security testing
-
-## 📈 Coverage Analysis
+Tests sử dụng các biến môi trường sau:
 
 ```bash
-# Run coverage analysis
-coverage run --source=. tests/simple_test.py
-coverage report -m
-coverage html -d htmlcov
+# Test credentials
+TEST_USERNAME=flow_test_admin
+TEST_PASSWORD=flow_test_password_123
+TEST_EMAIL=flowtest@khainguyenbee.io.vn
+
+# Target URLs
+FRONTEND_URL=https://khainguyenbee.io.vn:8443
+BACKEND_URL=http://khainguyenbee.io.vn:8000
 ```
 
-**Coverage by Category:**
-- Authentication: 100% (5/5 tests)
-- Beehive Management: 100% (3/3 tests)
-- QR Code Functionality: 100% (3/3 tests)
-- Security: 100% (2/2 tests)
-- Error Handling: 100% (1/1 tests)
+### SSL Configuration
+
+Tests tắt SSL verification để test trong môi trường development:
+```python
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+```
 
 ## 🚨 Troubleshooting
 
-### Common Issues
+### Lỗi thường gặp:
 
-1. **Import errors**
+1. **SSL Certificate Error**
    ```bash
-   # Ensure you're in the project root
-   cd /path/to/kbee-manager
-   python tests/simple_test.py
+   # Kiểm tra SSL certificate
+   openssl s_client -connect khainguyenbee.io.vn:8443 -servername khainguyenbee.io.vn
    ```
 
-2. **Database errors**
+2. **Connection Timeout**
    ```bash
-   # Check environment variables
-   export TESTING=True
-   export DATABASE_URL=sqlite:///:memory:
+   # Kiểm tra services
+   docker-compose ps
+   docker-compose logs frontend
+   docker-compose logs backend
    ```
 
-3. **Docker test failures**
+3. **CORS Errors**
    ```bash
-   # Ensure Docker is running
-   docker --version
-   docker compose --version
+   # Kiểm tra nginx config
+   docker-compose exec frontend cat /etc/nginx/conf.d/default.conf
    ```
 
-### Test Environment Setup
+4. **Authentication Failures**
+   ```bash
+   # Kiểm tra database
+   docker-compose exec db mysql -u kbee_user -p kbee_manager
+   ```
+
+## 📈 Continuous Testing
+
+### Watch Mode
 ```bash
-# Set test environment
-export TESTING=True
-export SECRET_KEY=test-secret-key
-export DATABASE_URL=sqlite:///:memory:
-export DOMAIN=test.example.com
+# Chạy tests liên tục mỗi 30 giây
+make watch
 ```
 
-## 📝 Adding New Tests
-
-### Unit Test Template
-```python
-def test_new_feature(self):
-    """Test new feature functionality"""
-    # Arrange
-    # Act
-    # Assert
-    self.assertEqual(expected, actual)
+### Docker Testing
+```bash
+# Chạy tests trong Docker environment
+make test-docker
 ```
 
-### Security Test Template
-```python
-def test_security_feature(self):
-    """Test security feature"""
-    # Test malicious input
-    # Verify protection
-    # Assert security measures
-```
+## 🎉 Success Criteria
 
-## 🎯 Test Goals
+Hệ thống được coi là **READY FOR PRODUCTION** khi:
 
-### Functional Testing
-- ✅ All user stories covered
-- ✅ All API endpoints tested
-- ✅ All database operations tested
-- ✅ All UI interactions tested
+- ✅ **Overall Success Rate ≥ 95%**
+- ✅ **SSL Tests**: 100% pass
+- ✅ **Authentication Tests**: 100% pass  
+- ✅ **Core API Tests**: 100% pass
+- ✅ **User Flow Tests**: 100% pass
+- ✅ **Response Times**: < 5 seconds
+- ✅ **Concurrent Requests**: ≥ 80% success rate
 
-### Security Testing
-- ✅ OWASP Top 10 covered
-- ✅ Authentication security
-- ✅ Authorization testing
-- ✅ Input validation
-- ✅ Output encoding
+## 📞 Support
 
-### Performance Testing
-- ✅ Response time < 200ms
-- ✅ Database query optimization
-- ✅ Memory usage efficient
-- ✅ Scalability ready
+Nếu gặp vấn đề với test suite:
 
-## 📋 Pre-Deployment Checklist
-
-- [x] Unit tests pass (100%)
-- [x] Security tests pass
-- [x] Performance tests pass
-- [x] Docker tests pass
-- [x] SSL configuration ready
-- [x] Environment variables configured
-- [x] Database schema created
-- [x] Error handling implemented
-- [x] Logging configured
-- [x] Health checks implemented
-
-## 🏆 Conclusion
-
-**KBee Manager Test Suite is COMPLETE and PRODUCTION READY!** 🎉
-
-- ✅ **100% test coverage** for core functionality
-- ✅ **Security hardened** against common attacks
-- ✅ **Performance optimized** for production use
-- ✅ **Docker ready** with SSL auto-setup
-- ✅ **Comprehensive testing** across all components
+1. Kiểm tra logs: `docker-compose logs`
+2. Chạy quick test: `make quick-test`
+3. Kiểm tra environment: `make check-env`
+4. Xem báo cáo chi tiết trong file JSON
 
 ---
 
-**Test Suite Version**: 1.0  
-**Last Updated**: $(date)  
-**Test Status**: ✅ PASSED  
-**Deployment Status**: 🚀 READY
+**🎯 Mục tiêu**: Đảm bảo KBee Manager hoạt động hoàn hảo trong mọi tình huống!

@@ -5,7 +5,7 @@ import api from '../../services/api';
 export const fetchBeehives = createAsyncThunk(
   'beehives/fetchBeehives',
   async (params = {}) => {
-    const response = await api.get('/api/beehives', { params });
+    const response = await api.get('/beehives', { params });
     return response.data;
   }
 );
@@ -13,7 +13,7 @@ export const fetchBeehives = createAsyncThunk(
 export const fetchSoldBeehives = createAsyncThunk(
   'beehives/fetchSoldBeehives',
   async (params = {}) => {
-    const response = await api.get('/api/sold-beehives', { params });
+    const response = await api.get('/sold-beehives', { params });
     return response.data;
   }
 );
@@ -21,7 +21,7 @@ export const fetchSoldBeehives = createAsyncThunk(
 export const fetchBeehiveStats = createAsyncThunk(
   'beehives/fetchStats',
   async () => {
-    const response = await api.get('/api/stats');
+    const response = await api.get('/stats');
     return response.data;
   }
 );
@@ -29,7 +29,7 @@ export const fetchBeehiveStats = createAsyncThunk(
 export const createBeehive = createAsyncThunk(
   'beehives/createBeehive',
   async (beehiveData) => {
-    const response = await api.post('/api/beehives', beehiveData);
+    const response = await api.post('/beehives', beehiveData);
     return response.data;
   }
 );
@@ -37,7 +37,7 @@ export const createBeehive = createAsyncThunk(
 export const updateBeehive = createAsyncThunk(
   'beehives/updateBeehive',
   async ({ serialNumber, data }) => {
-    const response = await api.put(`/api/beehives/${serialNumber}`, data);
+    const response = await api.put(`/beehives/${serialNumber}`, data);
     return response.data;
   }
 );
@@ -45,7 +45,7 @@ export const updateBeehive = createAsyncThunk(
 export const deleteBeehive = createAsyncThunk(
   'beehives/deleteBeehive',
   async (serialNumber) => {
-    await api.delete(`/api/beehives/${serialNumber}`);
+    await api.delete(`/beehives/${serialNumber}`);
     return serialNumber;
   }
 );
@@ -53,7 +53,7 @@ export const deleteBeehive = createAsyncThunk(
 export const sellBeehive = createAsyncThunk(
   'beehives/sellBeehive',
   async (serialNumber) => {
-    const response = await api.post(`/api/beehives/${serialNumber}/sell`);
+    const response = await api.post(`/beehives/${serialNumber}/sell`);
     return response.data;
   }
 );
@@ -61,7 +61,7 @@ export const sellBeehive = createAsyncThunk(
 export const unsellBeehive = createAsyncThunk(
   'beehives/unsellBeehive',
   async (serialNumber) => {
-    const response = await api.post(`/api/beehives/${serialNumber}/unsell`);
+    const response = await api.post(`/beehives/${serialNumber}/unsell`);
     return response.data;
   }
 );
