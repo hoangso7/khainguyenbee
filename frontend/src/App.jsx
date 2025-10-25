@@ -7,6 +7,7 @@ import { store } from './store/store';
 import Layout from './components/Layout/Layout';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
+import Setup from './pages/Setup';
 import BeehiveDetail from './pages/BeehiveDetail';
 import QRBeehiveDetail from './pages/QRBeehiveDetail';
 import SoldBeehives from './pages/SoldBeehives';
@@ -99,6 +100,7 @@ function App() {
           <Router>
             <Routes>
               <Route path="/login" element={<Login />} />
+              <Route path="/setup" element={<Setup />} />
               <Route path="/beehive/:qrToken" element={<QRBeehiveDetail />} />
               <Route path="/" element={
                 <ProtectedRoute>

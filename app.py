@@ -478,6 +478,50 @@ def qr_code(serial_number):
     
     return send_file(img_buffer, mimetype='image/png')
 
+# Check if setup is needed
+@app.route('/api/setup/check', methods=['GET'])
+def check_setup():
+    """Check if admin user exists"""
+    try:
+        if User.query.first():
+            return jsonify({'setup_needed': False}), 200
+        else:
+            return jsonify({'setup_needed': True}), 200
+    except Exception as e:
+        return jsonify({'message': f'Error checking setup: {str(e)}'}), 500
+
+# Setup endpoint to create admin user
+@app.route('/api/setup', methods=['POST'])
+def setup_admin():
+    """Create admin user if no users exist"""
+    try:
+        # Check if any users exist
+        if User.query.first():
+            return jsonify({'message': 'Admin user already exists'}), 400
+        
+        data = request.get_json()
+        username = data.get('username', 'admin')
+        email = data.get('email', 'admin@kbee.com')
+        password = data.get('password')
+        
+        if not password:
+            return jsonify({'message': 'Password is required'}), 400
+        
+        # Create admin user
+        admin = User(
+            username=username,
+            email=email
+        )
+        admin.set_password(password)
+        
+        db.session.add(admin)
+        db.session.commit()
+        
+        return jsonify({'message': 'Admin user created successfully', 'username': username}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': f'Error creating admin user: {str(e)}'}), 500
+
 # PDF export endpoint
 @app.route('/export_pdf/<serial_number>')
 @token_required

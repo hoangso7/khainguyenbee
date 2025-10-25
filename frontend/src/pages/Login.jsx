@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -24,6 +24,25 @@ const Login = () => {
     username: '',
     password: '',
   });
+
+  // Check if setup is needed
+  useEffect(() => {
+    const checkSetup = async () => {
+      try {
+        const response = await fetch('/api/setup/check');
+        const data = await response.json();
+        
+        if (data.setup_needed) {
+          // No admin user exists, redirect to setup
+          navigate('/setup');
+        }
+      } catch (error) {
+        console.error('Setup check failed:', error);
+      }
+    };
+
+    checkSetup();
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({
