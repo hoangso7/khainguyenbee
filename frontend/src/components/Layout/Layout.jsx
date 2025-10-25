@@ -28,6 +28,7 @@ import {
   AccountCircle as AccountIcon,
   Logout as LogoutIcon,
   Settings as SettingsIcon,
+  Person as PersonIcon,
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../store/slices/authSlice';
@@ -81,9 +82,9 @@ const Layout = () => {
     <Box>
       <Toolbar>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <img src={beeIcon} alt="KBee" style={{ height: 32, width: 32 }} />
+          <img src={beeIcon} alt="KhaiNguyenBee" style={{ height: 32, width: 32 }} />
           <Typography variant="h6" noWrap component="div">
-            KBee Manager
+            KhaiNguyenBee
           </Typography>
         </Box>
       </Toolbar>
@@ -129,7 +130,7 @@ const Layout = () => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Quản lý tổ ong
+            KhaiNguyenBee - Quản lý tổ ong
           </Typography>
           <IconButton
             size="large"

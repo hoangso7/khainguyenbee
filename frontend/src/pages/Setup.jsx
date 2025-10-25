@@ -138,7 +138,7 @@ const Setup = () => {
       <StyledPaper elevation={3}>
         <Box textAlign="center" mb={3}>
           <Typography variant="h4" component="h1" gutterBottom color="primary">
-            🐝 KBee Manager
+            🐝 KhaiNguyenBee
           </Typography>
           <Typography variant="h5" component="h2" gutterBottom>
             Thiết lập ban đầu

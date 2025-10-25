@@ -95,11 +95,11 @@ const Login = () => {
             >
               <img
                 src={beeIcon}
-                alt="KBee Logo"
+                alt="KhaiNguyenBee Logo"
                 style={{ height: 80, width: 80, marginBottom: 16 }}
               />
               <Typography component="h1" variant="h4" fontWeight="bold" color="primary">
-                KBee Manager
+                KhaiNguyenBee
               </Typography>
               <Typography variant="body2" color="text.secondary" align="center">
                 Hệ thống quản lý tổ ong thông minh
