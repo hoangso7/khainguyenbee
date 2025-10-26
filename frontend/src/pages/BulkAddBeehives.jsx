@@ -95,10 +95,10 @@ const BulkAddBeehives = () => {
     setIsGeneratingQR(true);
     try {
       const pdf = new jsPDF();
-      const qrSize = 80; // Reduced size to prevent overlap
-      const perPage = 6;
-      const margin = 20;
-      const spacing = 15; // Increased spacing between QR codes
+      const qrSize = 30; // Smaller size for 5 per row
+      const perPage = 20; // 5 columns x 4 rows
+      const margin = 15;
+      const spacing = 8; // Smaller spacing for more QR codes
       
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
@@ -107,9 +107,11 @@ const BulkAddBeehives = () => {
       const availableWidth = pageWidth - 2 * margin;
       const availableHeight = pageHeight - 2 * margin;
       
-      // Calculate positions for 2 columns, 3 rows
-      const colWidth = (availableWidth - spacing) / 2;
-      const rowHeight = (availableHeight - 2 * spacing) / 3;
+      // Calculate positions for 5 columns, 4 rows
+      const cols = 5;
+      const rows = 4;
+      const colWidth = (availableWidth - (cols - 1) * spacing) / cols;
+      const rowHeight = (availableHeight - (rows - 1) * spacing) / rows;
       
       let currentPage = 0;
       let qrCount = 0;
@@ -122,12 +124,12 @@ const BulkAddBeehives = () => {
           currentPage++;
         }
         
-        const row = Math.floor((qrCount % perPage) / 2);
-        const col = (qrCount % perPage) % 2;
+        const row = Math.floor((qrCount % perPage) / cols);
+        const col = (qrCount % perPage) % cols;
         
         // Calculate center position for QR code
-        const x = margin + col * colWidth + (colWidth - qrSize) / 2;
-        const y = margin + row * rowHeight + (rowHeight - qrSize - 20) / 2; // Leave space for text
+        const x = margin + col * (colWidth + spacing) + (colWidth - qrSize) / 2;
+        const y = margin + row * (rowHeight + spacing) + (rowHeight - qrSize - 10) / 2; // Leave space for text
         
         // Generate QR code
         const qrUrl = `${window.location.origin}/beehive/${beehive.qr_token}`;
@@ -143,11 +145,10 @@ const BulkAddBeehives = () => {
         // Add QR code image
         pdf.addImage(qrDataURL, 'PNG', x, y, qrSize, qrSize);
         
-        // Add beehive information below QR code
-        const textY = y + qrSize + 8;
-        pdf.setFontSize(8);
-        pdf.text(`Mã tổ: ${beehive.serial_number}`, x, textY);
-        pdf.text(`Ngày nhập: ${beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}`, x, textY + 4);
+        // Add only beehive ID below QR code
+        const textY = y + qrSize + 5;
+        pdf.setFontSize(6);
+        pdf.text(beehive.serial_number || 'N/A', x, textY);
         
         qrCount++;
       }

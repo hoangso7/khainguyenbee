@@ -192,90 +192,43 @@ const Dashboard = () => {
       )}
 
       {/* Stats Cards */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={6} sm={6} md={3}>
-          <StatsCard
-            title="Tổng số tổ ong"
-            value={stats?.total || 0}
-            icon="🐝"
-            color="primary"
-          />
+      <Box sx={{ mb: 3 }}>
+        <Grid container spacing={1.5}>
+          <Grid item xs={6} sm={3}>
+            <StatsCard
+              title="Tổng số tổ ong"
+              value={stats?.total || 0}
+              icon="🐝"
+              color="primary"
+            />
+          </Grid>
+          <Grid item xs={6} sm={3}>
+            <StatsCard
+              title="Tổ đang quản lý"
+              value={stats?.active || 0}
+              icon="📊"
+              color="info"
+            />
+          </Grid>
+          <Grid item xs={6} sm={3}>
+            <StatsCard
+              title="Tổ đã bán"
+              value={stats?.sold || 0}
+              icon="💰"
+              color="warning"
+            />
+          </Grid>
+          <Grid item xs={6} sm={3}>
+            <StatsCard
+              title="Tổ khỏe mạnh"
+              value={stats?.healthy || 0}
+              icon="💚"
+              color="success"
+            />
+          </Grid>
         </Grid>
-        <Grid item xs={6} sm={6} md={3}>
-          <StatsCard
-            title="Tổ đang quản lý"
-            value={stats?.active || 0}
-            icon="📊"
-            color="info"
-          />
-        </Grid>
-        <Grid item xs={6} sm={6} md={3}>
-          <StatsCard
-            title="Tổ đã bán"
-            value={stats?.sold || 0}
-            icon="💰"
-            color="warning"
-          />
-        </Grid>
-        <Grid item xs={6} sm={6} md={3}>
-          <StatsCard
-            title="Tổ khỏe mạnh"
-            value={stats?.healthy || 0}
-            icon="💚"
-            color="success"
-          />
-        </Grid>
-      </Grid>
+      </Box>
 
-      {/* Health Chart */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={6}>
-          <HealthChart data={healthStats} />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-              <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
-                Thông tin chi tiết
-              </Typography>
-              {healthStats && Object.keys(healthStats).length > 0 ? (
-                Object.entries(healthStats).map(([health, count]) => (
-                  <Box key={health} display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                    <Chip
-                      icon={<img src={getHealthStatusIcon(health || 'Unknown')} alt={health || 'Unknown'} style={{ width: 16, height: 16 }} />}
-                      label={health || 'Unknown'}
-                      color={getHealthStatusColor(health || 'Unknown')}
-                      size="small"
-                      sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
-                    />
-                    <Typography variant="body2" fontWeight="bold" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                      {count} tổ
-                    </Typography>
-                  </Box>
-                ))
-              ) : (
-                <Box 
-                  display="flex" 
-                  justifyContent="center" 
-                  alignItems="center" 
-                  sx={{ 
-                    flexDirection: 'column',
-                    gap: 1,
-                    py: 2
-                  }}
-                >
-                  <Typography variant="body2" color="text.secondary">
-                    Chưa có dữ liệu sức khỏe
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    Dữ liệu sẽ hiển thị khi có tổ ong
-                  </Typography>
-                </Box>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
 
       {/* Main Content */}
       <Card>
@@ -443,7 +396,18 @@ const Dashboard = () => {
                       Trạng thái
                     </Button>
                   </TableCell>
-                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Thao tác</TableCell>
+                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                    <Typography 
+                      variant="body2" 
+                      fontWeight="bold"
+                      sx={{ 
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        color: 'text.primary'
+                      }}
+                    >
+                      Thao tác
+                    </Typography>
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

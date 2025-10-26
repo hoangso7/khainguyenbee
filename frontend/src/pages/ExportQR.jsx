@@ -134,19 +134,18 @@ const ExportQR = () => {
 
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 20;
-      const qrSizeMM = 30; // 3cm = 30mm
-      const spacing = 15; // Spacing between QR codes
-      const textHeight = 10; // Space for text below QR code
+      const margin = 15;
+      const qrSizeMM = 25; // Smaller size for 5 per row
+      const spacing = 5; // Smaller spacing for more QR codes
       
-      // Calculate grid layout for 2 columns, 3 rows (6 per page)
-      const cols = 2;
-      const rows = 3;
+      // Calculate grid layout for 5 columns, 4 rows (20 per page)
+      const cols = 5;
+      const rows = 4;
       const itemsPerPage = cols * rows;
       
       // Calculate cell dimensions
-      const cellWidth = (pageWidth - 2 * margin - spacing) / cols;
-      const cellHeight = (pageHeight - 2 * margin - 2 * spacing) / rows;
+      const cellWidth = (pageWidth - 2 * margin - (cols - 1) * spacing) / cols;
+      const cellHeight = (pageHeight - 2 * margin - (rows - 1) * spacing) / rows;
 
       const selectedBeehiveData = activeBeehives.filter(b => 
         selectedBeehives.includes(b.serial_number)
@@ -167,22 +166,21 @@ const ExportQR = () => {
 
         // Generate QR code
         const qrUrl = `${window.location.origin}/beehive/${beehive.qr_token || ''}`;
-        const qrCodeDataURL = await generateQRCode(qrUrl);
+        const qrCodeDataURL = await generateQRCode(qrUrl, 200);
 
         // Calculate position (center QR code in cell)
         const col = currentItem % cols;
         const row = Math.floor(currentItem / cols);
-        const x = margin + col * cellWidth + (cellWidth - qrSizeMM) / 2;
-        const y = margin + row * cellHeight + (cellHeight - qrSizeMM - textHeight) / 2;
+        const x = margin + col * (cellWidth + spacing) + (cellWidth - qrSizeMM) / 2;
+        const y = margin + row * (cellHeight + spacing) + (cellHeight - qrSizeMM - 8) / 2;
 
         // Add QR code
         pdf.addImage(qrCodeDataURL, 'PNG', x, y, qrSizeMM, qrSizeMM);
 
-        // Add basic information below QR code
-        const textY = y + qrSizeMM + 5;
-        pdf.setFontSize(8);
-        pdf.text(`Mã tổ: ${beehive.serial_number || 'N/A'}`, x, textY);
-        pdf.text(`Ngày nhập: ${beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}`, x, textY + 4);
+        // Add only beehive ID below QR code
+        const textY = y + qrSizeMM + 3;
+        pdf.setFontSize(6);
+        pdf.text(beehive.serial_number || 'N/A', x, textY);
 
         currentItem++;
         if (currentItem >= itemsPerPage) {
