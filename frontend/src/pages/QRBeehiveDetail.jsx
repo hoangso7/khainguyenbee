@@ -36,7 +36,7 @@ import {
   Save as SaveIcon,
   Cancel as CancelIcon
 } from '@mui/icons-material';
-import { publicApi, api } from '../services/api';
+import api, { publicApi } from '../services/api';
 
 const QRBeehiveDetail = () => {
   const { qrToken } = useParams();
