@@ -44,6 +44,7 @@ import {
 } from '../store/slices/beehiveSlice';
 import StatsCard from '../components/Dashboard/StatsCard';
 import BeehiveCard from '../components/Dashboard/BeehiveCard';
+import DateInput from '../components/common/DateInput';
 
 const SoldBeehives = () => {
   const dispatch = useDispatch();
@@ -188,36 +189,36 @@ const SoldBeehives = () => {
       </Box>
 
       {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={6} sm={6} md={3}>
           <StatsCard
             title="Tổng số tổ đã bán"
             value={stats?.sold || 0}
-            icon={<MoneyIcon />}
+            icon="💰"
             color="warning"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <StatsCard
             title="Tổng số tổ"
             value={stats?.total || 0}
-            icon={<MoneyIcon />}
+            icon="🐝"
             color="primary"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <StatsCard
             title="Tỷ lệ bán"
             value={`${stats?.total ? Math.round((stats.sold / stats.total) * 100) : 0}%`}
-            icon={<MoneyIcon />}
+            icon="📊"
             color="success"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <StatsCard
             title="Tổ đang quản lý"
             value={stats?.active || 0}
-            icon={<MoneyIcon />}
+            icon="📈"
             color="info"
           />
         </Grid>
@@ -241,23 +242,19 @@ const SoldBeehives = () => {
           {/* Search Form */}
           <Grid container spacing={2} sx={{ mb: 3 }}>
             <Grid item xs={12} sm={6} md={3}>
-              <TextField
+              <DateInput
                 fullWidth
                 label="Tìm theo ngày nhập"
-                type="date"
                 value={searchFilters.importDate}
                 onChange={(e) => setSearchFilters({ ...searchFilters, importDate: e.target.value })}
-                InputLabelProps={{ shrink: true }}
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <TextField
+              <DateInput
                 fullWidth
                 label="Tìm theo ngày tách"
-                type="date"
                 value={searchFilters.splitDate}
                 onChange={(e) => setSearchFilters({ ...searchFilters, splitDate: e.target.value })}
-                InputLabelProps={{ shrink: true }}
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
@@ -304,10 +301,10 @@ const SoldBeehives = () => {
           ) : (
             // Desktop Table View
             <TableContainer component={Paper}>
-              <Table>
+              <Table sx={{ tableLayout: 'fixed' }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell>
+                    <TableCell sx={{ width: '15%' }}>
                       <Button
                         onClick={() => handleSort('created_at')}
                         endIcon={getSortIcon('created_at')}
@@ -316,7 +313,7 @@ const SoldBeehives = () => {
                         Mã tổ
                       </Button>
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ width: '15%' }}>
                       <Button
                         onClick={() => handleSort('import_date')}
                         endIcon={getSortIcon('import_date')}
@@ -325,7 +322,7 @@ const SoldBeehives = () => {
                         Ngày nhập
                       </Button>
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ width: '15%' }}>
                       <Button
                         onClick={() => handleSort('split_date')}
                         endIcon={getSortIcon('split_date')}
@@ -334,7 +331,7 @@ const SoldBeehives = () => {
                         Ngày tách
                       </Button>
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ width: '15%' }}>
                       <Button
                         onClick={() => handleSort('health_status')}
                         endIcon={getSortIcon('health_status')}
@@ -343,7 +340,7 @@ const SoldBeehives = () => {
                         Sức khỏe
                       </Button>
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ width: '15%' }}>
                       <Button
                         onClick={() => handleSort('sold_date')}
                         endIcon={getSortIcon('sold_date')}
@@ -352,63 +349,73 @@ const SoldBeehives = () => {
                         Ngày bán
                       </Button>
                     </TableCell>
-                    <TableCell>Thao tác</TableCell>
+                    <TableCell sx={{ width: '25%' }}>Thao tác</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {soldBeehives.map((beehive) => (
                     <TableRow key={beehive.serial_number} hover>
                       <TableCell>
-                        <Typography variant="subtitle2" fontWeight="bold">
+                        <Typography variant="subtitle2" fontWeight="bold" sx={{ fontSize: '0.875rem' }}>
                           {beehive.serial_number || 'N/A'}
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        {beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}
+                        <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
+                          {beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}
+                        </Typography>
                       </TableCell>
                       <TableCell>
-                        {beehive.split_date 
-                          ? new Date(beehive.split_date).toLocaleDateString('vi-VN')
-                          : 'Chưa tách'
-                        }
+                        <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
+                          {beehive.split_date 
+                            ? new Date(beehive.split_date).toLocaleDateString('vi-VN')
+                            : 'Chưa tách'
+                          }
+                        </Typography>
                       </TableCell>
                       <TableCell>
                         <Chip
-                          icon={<img src={getHealthStatusIcon(beehive.health_status || 'Unknown')} alt={beehive.health_status || 'Unknown'} style={{ width: 16, height: 16 }} />}
+                          icon={<img src={getHealthStatusIcon(beehive.health_status || 'Unknown')} alt={beehive.health_status || 'Unknown'} style={{ width: 14, height: 14 }} />}
                           label={beehive.health_status || 'Unknown'}
                           color={getHealthStatusColor(beehive.health_status || 'Unknown')}
                           size="small"
+                          sx={{ fontSize: '0.75rem' }}
                         />
                       </TableCell>
                       <TableCell>
-                        {beehive.sold_date 
-                          ? new Date(beehive.sold_date).toLocaleDateString('vi-VN')
-                          : 'N/A'
-                        }
+                        <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
+                          {beehive.sold_date 
+                            ? new Date(beehive.sold_date).toLocaleDateString('vi-VN')
+                            : 'N/A'
+                          }
+                        </Typography>
                       </TableCell>
                       <TableCell>
-                        <Stack direction="row" spacing={1}>
+                        <Stack direction="row" spacing={0.5}>
                           <IconButton
                             size="small"
                             onClick={() => navigate(`/edit/${beehive.serial_number || ''}`)}
                             title="Chỉnh sửa"
+                            sx={{ p: 0.5 }}
                           >
-                            <EditIcon />
+                            <EditIcon fontSize="small" />
                           </IconButton>
                           <IconButton
                             size="small"
                             onClick={() => navigate(`/beehive/${beehive.qr_token || ''}`)}
                             title="Xem QR Code"
+                            sx={{ p: 0.5 }}
                           >
-                            <QrCodeIcon />
+                            <QrCodeIcon fontSize="small" />
                           </IconButton>
                           <IconButton
                             size="small"
                             onClick={() => handleUnsellBeehive(beehive.serial_number)}
                             title="Hoàn trả về quản lý"
                             color="success"
+                            sx={{ p: 0.5 }}
                           >
-                            <UndoIcon />
+                            <UndoIcon fontSize="small" />
                           </IconButton>
                         </Stack>
                       </TableCell>

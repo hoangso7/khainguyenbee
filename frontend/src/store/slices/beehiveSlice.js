@@ -26,6 +26,14 @@ export const fetchBeehiveStats = createAsyncThunk(
   }
 );
 
+export const fetchBeehive = createAsyncThunk(
+  'beehives/fetchBeehive',
+  async (serialNumber) => {
+    const response = await api.get(`/beehives/${serialNumber}`);
+    return response.data;
+  }
+);
+
 export const createBeehive = createAsyncThunk(
   'beehives/createBeehive',
   async (beehiveData) => {
@@ -71,6 +79,7 @@ const beehiveSlice = createSlice({
   initialState: {
     activeBeehives: [],
     soldBeehives: [],
+    currentBeehive: null,
     stats: {
       total: 0,
       active: 0,
@@ -144,6 +153,19 @@ const beehiveSlice = createSlice({
       // Fetch stats
       .addCase(fetchBeehiveStats.fulfilled, (state, action) => {
         state.stats = action.payload;
+      })
+      // Fetch single beehive
+      .addCase(fetchBeehive.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchBeehive.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentBeehive = action.payload;
+      })
+      .addCase(fetchBeehive.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       })
       // Create beehive
       .addCase(createBeehive.fulfilled, (state, action) => {

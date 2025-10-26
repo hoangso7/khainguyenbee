@@ -49,6 +49,7 @@ import StatsCard from '../components/Dashboard/StatsCard';
 import BeehiveCard from '../components/Dashboard/BeehiveCard';
 import HealthChart from '../components/Dashboard/HealthChart';
 import AccessibleIconButton from '../components/common/AccessibleIconButton';
+import DateInput from '../components/common/DateInput';
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -296,24 +297,20 @@ const Dashboard = () => {
           {/* Search Form */}
           <Grid container spacing={2} sx={{ mb: 3 }}>
             <Grid item xs={12} sm={6} md={3}>
-              <TextField
+              <DateInput
                 fullWidth
                 label="Tìm theo ngày nhập"
-                type="date"
                 value={searchFilters.importDate}
                 onChange={(e) => setSearchFilters({ ...searchFilters, importDate: e.target.value })}
-                InputLabelProps={{ shrink: true }}
                 size="small"
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <TextField
+              <DateInput
                 fullWidth
                 label="Tìm theo ngày tách"
-                type="date"
                 value={searchFilters.splitDate}
                 onChange={(e) => setSearchFilters({ ...searchFilters, splitDate: e.target.value })}
-                InputLabelProps={{ shrink: true }}
                 size="small"
               />
             </Grid>

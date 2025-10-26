@@ -153,6 +153,7 @@ const ProfileSettings = () => {
                     onChange={(e) => handleInputChange('username', e.target.value)}
                     disabled
                     helperText="Không thể thay đổi tên đăng nhập"
+                    sx={{ height: '56px' }}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -162,6 +163,7 @@ const ProfileSettings = () => {
                     type="email"
                     value={profileData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
+                    sx={{ height: '56px' }}
                   />
                 </Grid>
               </Grid>
@@ -188,6 +190,7 @@ const ProfileSettings = () => {
                     value={profileData.farmName}
                     onChange={(e) => handleInputChange('farmName', e.target.value)}
                     placeholder="Nhập tên trang trại của bạn"
+                    sx={{ height: '56px' }}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -199,6 +202,7 @@ const ProfileSettings = () => {
                     value={profileData.farmAddress}
                     onChange={(e) => handleInputChange('farmAddress', e.target.value)}
                     placeholder="Nhập địa chỉ trang trại"
+                    sx={{ minHeight: '80px' }}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -208,6 +212,7 @@ const ProfileSettings = () => {
                     value={profileData.farmPhone}
                     onChange={(e) => handleInputChange('farmPhone', e.target.value)}
                     placeholder="Nhập số điện thoại liên hệ"
+                    sx={{ height: '56px' }}
                   />
                 </Grid>
               </Grid>
@@ -290,7 +295,7 @@ const ProfileSettings = () => {
                       value={profileData.qrDisplaySettings.customMessage}
                       onChange={(e) => handleQrSettingChange('customMessage', e.target.value)}
                       placeholder="Nhập lời nhắn sẽ hiển thị trên trang QR..."
-                      sx={{ mb: 2 }}
+                      sx={{ mb: 2, minHeight: '80px' }}
                     />
                     <TextField
                       fullWidth
@@ -298,6 +303,7 @@ const ProfileSettings = () => {
                       value={profileData.qrDisplaySettings.footerText}
                       onChange={(e) => handleQrSettingChange('footerText', e.target.value)}
                       placeholder="Văn bản hiển thị ở cuối trang QR..."
+                      sx={{ height: '56px' }}
                     />
                   </Paper>
                 </Grid>

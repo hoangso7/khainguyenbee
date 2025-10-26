@@ -16,6 +16,7 @@ const StatsCard = ({ title, value, icon, color = 'primary' }) => {
         color: 'white',
         height: '100%',
         minHeight: { xs: 100, sm: 120 },
+        width: '100%',
         transition: 'transform 0.2s ease-in-out',
         '&:hover': {
           transform: 'translateY(-4px)',

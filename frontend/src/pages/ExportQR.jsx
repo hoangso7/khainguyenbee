@@ -8,14 +8,7 @@ import {
   Grid,
   Alert,
   CircularProgress,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TextField,
   Checkbox,
-  FormControlLabel,
-  FormGroup,
   Paper,
   Table,
   TableBody,
@@ -25,6 +18,10 @@ import {
   TableRow,
   Chip,
   Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import {
   Download as DownloadIcon,
@@ -47,14 +44,15 @@ const ExportQR = () => {
   const [selectedBeehives, setSelectedBeehives] = useState([]);
   const [exportSettings, setExportSettings] = useState({
     format: 'A4',
-    qrSize: 100,
+    qrSize: 113, // 3cm = 113px at 96 DPI
     perPage: 6,
-    includeDetails: true,
-    includeLogo: true,
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [currentQrData, setCurrentQrData] = useState(null);
+  const [qrCodeImage, setQrCodeImage] = useState(null);
 
   useEffect(() => {
     dispatch(fetchBeehives());
@@ -91,6 +89,30 @@ const ExportQR = () => {
       console.error('Error generating QR code:', error);
       throw error;
     }
+  };
+
+  const handleViewQR = async (beehive) => {
+    try {
+      const qrUrl = `${window.location.origin}/beehive/${beehive.qr_token || ''}`;
+      const qrCodeDataURL = await generateQRCode(qrUrl);
+      
+      setCurrentQrData({
+        serialNumber: beehive.serial_number,
+        importDate: beehive.import_date,
+        qrUrl: qrUrl
+      });
+      setQrCodeImage(qrCodeDataURL);
+      setQrModalOpen(true);
+    } catch (error) {
+      console.error('Error generating QR code for display:', error);
+      setError('Không thể tạo mã QR');
+    }
+  };
+
+  const handleCloseQrModal = () => {
+    setQrModalOpen(false);
+    setCurrentQrData(null);
+    setQrCodeImage(null);
   };
 
   const generatePDF = async () => {
@@ -151,14 +173,11 @@ const ExportQR = () => {
         // Add QR code
         pdf.addImage(qrCodeDataURL, 'PNG', x, y, exportSettings.qrSize / 3.78, exportSettings.qrSize / 3.78);
 
-        // Add details if enabled
-        if (exportSettings.includeDetails) {
-          const textY = y + exportSettings.qrSize / 3.78 + 5;
-          pdf.setFontSize(10);
-          pdf.text(`Mã tổ: ${beehive.serial_number || 'N/A'}`, x, textY);
-          pdf.text(`Ngày nhập: ${beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}`, x, textY + 5);
-          pdf.text(`Sức khỏe: ${beehive.health_status || 'Unknown'}`, x, textY + 10);
-        }
+        // Add basic information
+        const textY = y + exportSettings.qrSize / 3.78 + 5;
+        pdf.setFontSize(10);
+        pdf.text(`Mã tổ: ${beehive.serial_number || 'N/A'}`, x, textY);
+        pdf.text(`Ngày nhập: ${beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}`, x, textY + 5);
 
         currentItem++;
         if (currentItem >= itemsPerPage) {
@@ -196,75 +215,10 @@ const ExportQR = () => {
           Xuất QR Code PDF
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Tạo file PDF chứa QR code của các tổ ong đã chọn
+          Tạo file PDF chứa QR code của các tổ ong đã chọn (A4, 6 QR/trang, kích thước 3x3cm)
         </Typography>
       </Box>
 
-      {/* Export Settings */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Cài đặt xuất file
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={3}>
-              <FormControl fullWidth>
-                <InputLabel>Định dạng giấy</InputLabel>
-                <Select
-                  value={exportSettings.format}
-                  onChange={(e) => setExportSettings({ ...exportSettings, format: e.target.value })}
-                  label="Định dạng giấy"
-                >
-                  <MenuItem value="A4">A4</MenuItem>
-                  <MenuItem value="A3">A3</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                fullWidth
-                label="Kích thước QR (px)"
-                type="number"
-                value={exportSettings.qrSize}
-                onChange={(e) => setExportSettings({ ...exportSettings, qrSize: parseInt(e.target.value) || 100 })}
-                inputProps={{ min: 50, max: 300 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                fullWidth
-                label="Số QR mỗi trang"
-                type="number"
-                value={exportSettings.perPage}
-                onChange={(e) => setExportSettings({ ...exportSettings, perPage: parseInt(e.target.value) || 6 })}
-                inputProps={{ min: 1, max: 20 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={exportSettings.includeDetails}
-                      onChange={(e) => setExportSettings({ ...exportSettings, includeDetails: e.target.checked })}
-                    />
-                  }
-                  label="Bao gồm thông tin chi tiết"
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={exportSettings.includeLogo}
-                      onChange={(e) => setExportSettings({ ...exportSettings, includeLogo: e.target.checked })}
-                    />
-                  }
-                  label="Bao gồm logo"
-                />
-              </FormGroup>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
 
       {/* Alerts */}
       {error && (
@@ -352,7 +306,6 @@ const ExportQR = () => {
                     <TableCell>Mã tổ</TableCell>
                     <TableCell>Ngày nhập</TableCell>
                     <TableCell>Sức khỏe</TableCell>
-                    <TableCell>QR Token</TableCell>
                     <TableCell>Thao tác</TableCell>
                   </TableRow>
                 </TableHead>
@@ -381,15 +334,10 @@ const ExportQR = () => {
                         />
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                          {beehive.qr_token?.substring(0, 8)}...
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
                         <Button
                           size="small"
                           startIcon={<QrCodeIcon />}
-                          onClick={() => navigate(`/beehive/${beehive.qr_token || ''}`)}
+                          onClick={() => handleViewQR(beehive)}
                         >
                           Xem QR
                         </Button>
@@ -421,6 +369,55 @@ const ExportQR = () => {
           {isGenerating ? 'Đang tạo PDF...' : `Xuất ${selectedBeehives.length} QR Code`}
         </Button>
       </Box>
+
+      {/* QR Code Modal */}
+      <Dialog
+        open={qrModalOpen}
+        onClose={handleCloseQrModal}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box display="flex" alignItems="center">
+            <QrCodeIcon sx={{ mr: 1 }} />
+            Mã QR - Tổ ong #{currentQrData?.serialNumber}
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Box display="flex" flexDirection="column" alignItems="center" p={2}>
+            {qrCodeImage && (
+              <Box mb={2}>
+                <img 
+                  src={qrCodeImage} 
+                  alt={`QR Code for beehive ${currentQrData?.serialNumber}`}
+                  style={{ 
+                    width: '200px', 
+                    height: '200px',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px'
+                  }} 
+                />
+              </Box>
+            )}
+            <Box textAlign="center">
+              <Typography variant="h6" gutterBottom>
+                Mã tổ: {currentQrData?.serialNumber}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Ngày nhập: {currentQrData?.importDate ? new Date(currentQrData.importDate).toLocaleDateString('vi-VN') : 'N/A'}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontFamily: 'monospace', fontSize: '0.75rem' }}>
+                URL: {currentQrData?.qrUrl}
+              </Typography>
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseQrModal}>
+            Đóng
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

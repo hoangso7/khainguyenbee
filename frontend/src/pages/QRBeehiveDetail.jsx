@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Card,
@@ -11,7 +11,18 @@ import {
   Alert,
   Container,
   Paper,
-  Divider
+  Divider,
+  Button,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Stack
 } from '@mui/material';
 import {
   Home as HomeIcon,
@@ -20,19 +31,39 @@ import {
   Notes as NotesIcon,
   Person as PersonIcon,
   QrCode as QRCodeIcon,
-  Business as BusinessIcon
+  Business as BusinessIcon,
+  Edit as EditIcon,
+  Save as SaveIcon,
+  Cancel as CancelIcon
 } from '@mui/icons-material';
-import { publicApi } from '../services/api';
+import { publicApi, api } from '../services/api';
 
 const QRBeehiveDetail = () => {
   const { qrToken } = useParams();
+  const navigate = useNavigate();
   const [beehive, setBeehive] = useState(null);
   const [owner, setOwner] = useState(null);
   const [businessInfo, setBusinessInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    importDate: '',
+    splitDate: '',
+    healthStatus: 'Tốt',
+    notes: '',
+  });
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updateError, setUpdateError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
+    const checkAuthentication = () => {
+      const token = localStorage.getItem('token');
+      setIsAuthenticated(!!token);
+    };
+
     const fetchBeehiveData = async () => {
       try {
         setLoading(true);
@@ -40,6 +71,17 @@ const QRBeehiveDetail = () => {
         setBeehive(response.data?.beehive || null);
         setOwner(response.data?.owner || null);
         setBusinessInfo(response.data?.business_info || null);
+        
+        // Initialize edit form data
+        if (response.data?.beehive) {
+          const beehiveData = response.data.beehive;
+          setEditFormData({
+            importDate: beehiveData.import_date ? new Date(beehiveData.import_date).toISOString().split('T')[0] : '',
+            splitDate: beehiveData.split_date ? new Date(beehiveData.split_date).toISOString().split('T')[0] : '',
+            healthStatus: beehiveData.health_status || 'Tốt',
+            notes: beehiveData.notes || '',
+          });
+        }
       } catch (err) {
         setError('Không tìm thấy thông tin tổ ong');
         console.error('Error fetching beehive data:', err);
@@ -48,6 +90,7 @@ const QRBeehiveDetail = () => {
       }
     };
 
+    checkAuthentication();
     if (qrToken) {
       fetchBeehiveData();
     }
@@ -68,6 +111,81 @@ const QRBeehiveDetail = () => {
       case 'Bình thường': return '/static/icons/health/normal.png';
       case 'Yếu': return '/static/icons/health/weak.png';
       default: return '/static/icons/health/normal.png';
+    }
+  };
+
+  const healthStatusOptions = ['Tốt', 'Bình thường', 'Yếu'];
+
+  const handleEditClick = () => {
+    if (!isAuthenticated) {
+      // Redirect to login with return URL
+      const returnUrl = encodeURIComponent(window.location.pathname);
+      navigate(`/login?returnUrl=${returnUrl}`);
+      return;
+    }
+    setIsEditing(true);
+    setUpdateError(null);
+    setSuccess(null);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setUpdateError(null);
+    setSuccess(null);
+    // Reset form data to original values
+    if (beehive) {
+      setEditFormData({
+        importDate: beehive.import_date ? new Date(beehive.import_date).toISOString().split('T')[0] : '',
+        splitDate: beehive.split_date ? new Date(beehive.split_date).toISOString().split('T')[0] : '',
+        healthStatus: beehive.health_status || 'Tốt',
+        notes: beehive.notes || '',
+      });
+    }
+  };
+
+  const handleInputChange = (field, value) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    if (updateError) setUpdateError(null);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!beehive) return;
+
+    setIsUpdating(true);
+    setUpdateError(null);
+
+    try {
+      const beehiveData = {
+        import_date: editFormData.importDate,
+        split_date: editFormData.splitDate || null,
+        health_status: editFormData.healthStatus,
+        notes: editFormData.notes,
+      };
+
+      const response = await api.put(`/beehives/${beehive.serial_number}`, beehiveData);
+      
+      // Update local state
+      setBeehive(prev => ({
+        ...prev,
+        ...beehiveData
+      }));
+      
+      setSuccess('Cập nhật thông tin tổ ong thành công!');
+      setIsEditing(false);
+
+      // Auto-hide success message after 3 seconds
+      setTimeout(() => {
+        setSuccess(null);
+      }, 3000);
+
+    } catch (error) {
+      console.error('Failed to update beehive:', error);
+      setUpdateError(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật thông tin tổ ong');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -122,11 +240,21 @@ const QRBeehiveDetail = () => {
     <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
       <Paper elevation={3} sx={{ p: 3 }}>
         {/* Header */}
-        <Box display="flex" alignItems="center" mb={3}>
-          <QRCodeIcon sx={{ mr: 2, color: 'primary.main' }} />
-          <Typography variant="h4" component="h1" color="primary">
-            Thông tin tổ ong
-          </Typography>
+        <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
+          <Box display="flex" alignItems="center">
+            <QRCodeIcon sx={{ mr: 2, color: 'primary.main' }} />
+            <Typography variant="h4" component="h1" color="primary">
+              Thông tin tổ ong
+            </Typography>
+          </Box>
+          <Button
+            variant="outlined"
+            startIcon={<EditIcon />}
+            onClick={handleEditClick}
+            disabled={isUpdating}
+          >
+            {isAuthenticated ? 'Chỉnh sửa' : 'Đăng nhập để chỉnh sửa'}
+          </Button>
         </Box>
 
         {/* Status Banner */}
@@ -138,9 +266,6 @@ const QRBeehiveDetail = () => {
           >
             <Typography variant="body1" fontWeight="bold">
               Tổ ong đã được bán
-            </Typography>
-            <Typography variant="body2">
-              Thông tin này có thể được xem công khai mà không cần đăng nhập
             </Typography>
           </Alert>
         )}
@@ -157,6 +282,20 @@ const QRBeehiveDetail = () => {
           </Alert>
         )}
 
+        {/* Success Message */}
+        {success && (
+          <Alert severity="success" sx={{ mb: 3 }}>
+            {success}
+          </Alert>
+        )}
+
+        {/* Error Message */}
+        {updateError && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {updateError}
+          </Alert>
+        )}
+
         <Divider sx={{ mb: 3 }} />
 
         {/* Beehive Information */}
@@ -170,31 +309,63 @@ const QRBeehiveDetail = () => {
                   Thông tin cơ bản
                 </Typography>
                 
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Mã tổ ong:
-                  </Typography>
-                  <Typography variant="h6" sx={{ mb: 2 }}>
-                    {beehive.serial_number || 'N/A'}
-                  </Typography>
+                {isEditing ? (
+                  <Box sx={{ mt: 2 }}>
+                    <TextField
+                      fullWidth
+                      label="Mã tổ ong"
+                      value={beehive.serial_number || 'N/A'}
+                      disabled
+                      sx={{ mb: 2 }}
+                    />
+                    <TextField
+                      fullWidth
+                      label="Ngày nhập"
+                      type="date"
+                      value={editFormData.importDate}
+                      onChange={(e) => handleInputChange('importDate', e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                      sx={{ mb: 2 }}
+                    />
+                    <TextField
+                      fullWidth
+                      label="Ngày tách"
+                      type="date"
+                      value={editFormData.splitDate}
+                      onChange={(e) => handleInputChange('splitDate', e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                      inputProps={{
+                        min: editFormData.importDate
+                      }}
+                    />
+                  </Box>
+                ) : (
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Mã tổ ong:
+                    </Typography>
+                    <Typography variant="h6" sx={{ mb: 2 }}>
+                      {beehive.serial_number || 'N/A'}
+                    </Typography>
 
-                  <Typography variant="body2" color="text.secondary">
-                    Ngày nhập:
-                  </Typography>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
-                    {beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}
-                  </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Ngày nhập:
+                    </Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>
+                      {beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}
+                    </Typography>
 
-                  <Typography variant="body2" color="text.secondary">
-                    Ngày tách:
-                  </Typography>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
-                    {beehive.split_date 
-                      ? new Date(beehive.split_date).toLocaleDateString('vi-VN')
-                      : 'Chưa tách'
-                    }
-                  </Typography>
-                </Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Ngày tách:
+                    </Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>
+                      {beehive.split_date 
+                        ? new Date(beehive.split_date).toLocaleDateString('vi-VN')
+                        : 'Chưa tách'
+                      }
+                    </Typography>
+                  </Box>
+                )}
               </CardContent>
             </Card>
           </Grid>
@@ -208,59 +379,103 @@ const QRBeehiveDetail = () => {
                   Tình trạng sức khỏe
                 </Typography>
                 
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    Trạng thái sức khỏe:
-                  </Typography>
-                  <Chip
-                    icon={<img src={getHealthStatusIcon(beehive.health_status || 'Unknown')} alt={beehive.health_status || 'Unknown'} style={{ width: 16, height: 16 }} />}
-                    label={beehive.health_status || 'Unknown'}
-                    color={getHealthStatusColor(beehive.health_status || 'Unknown')}
-                    size="large"
-                    sx={{ mb: 2 }}
-                  />
-
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    Trạng thái:
-                  </Typography>
-                  <Chip
-                    label={beehive.is_sold ? 'Đã bán' : 'Đang quản lý'}
-                    color={beehive.is_sold ? 'default' : 'success'}
-                    size="large"
-                    sx={{ mb: 2 }}
-                  />
-
-                  {beehive.is_sold && beehive.sold_date && (
-                    <>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                        Ngày bán:
+                {isEditing ? (
+                  <Box sx={{ mt: 2 }}>
+                    <FormControl fullWidth sx={{ mb: 2 }}>
+                      <InputLabel>Tình trạng sức khỏe</InputLabel>
+                      <Select
+                        value={editFormData.healthStatus}
+                        onChange={(e) => handleInputChange('healthStatus', e.target.value)}
+                        label="Tình trạng sức khỏe"
+                      >
+                        {healthStatusOptions.map((status) => (
+                          <MenuItem key={status} value={status}>
+                            {status}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <TextField
+                      fullWidth
+                      label="Trạng thái"
+                      value={beehive.is_sold ? 'Đã bán' : 'Đang quản lý'}
+                      disabled
+                    />
+                  </Box>
+                ) : (
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                      Trạng thái sức khỏe:
+                    </Typography>
+                    <Box display="flex" alignItems="center" sx={{ mb: 2 }}>
+                      <img 
+                        src={getHealthStatusIcon(beehive.health_status || 'Unknown')} 
+                        alt={beehive.health_status || 'Unknown'} 
+                        style={{ 
+                          width: 48, 
+                          height: 48, 
+                          marginRight: 12,
+                          borderRadius: '8px',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                        }} 
+                      />
+                      <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                        {beehive.health_status || 'Unknown'}
                       </Typography>
-                      <Typography variant="body1">
-                        {new Date(beehive.sold_date).toLocaleDateString('vi-VN')}
-                      </Typography>
-                    </>
-                  )}
-                </Box>
+                    </Box>
+
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      Trạng thái:
+                    </Typography>
+                    <Chip
+                      label={beehive.is_sold ? 'Đã bán' : 'Đang quản lý'}
+                      color={beehive.is_sold ? 'default' : 'success'}
+                      size="large"
+                      sx={{ mb: 2 }}
+                    />
+
+                    {beehive.is_sold && beehive.sold_date && (
+                      <>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                          Ngày bán:
+                        </Typography>
+                        <Typography variant="body1">
+                          {new Date(beehive.sold_date).toLocaleDateString('vi-VN')}
+                        </Typography>
+                      </>
+                    )}
+                  </Box>
+                )}
               </CardContent>
             </Card>
           </Grid>
 
           {/* Notes */}
-          {beehive.notes && (
-            <Grid item xs={12}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom color="primary">
-                    <NotesIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                    Ghi chú
-                  </Typography>
+          <Grid item xs={12}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom color="primary">
+                  <NotesIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                  Ghi chú
+                </Typography>
+                {isEditing ? (
+                  <TextField
+                    fullWidth
+                    label="Ghi chú"
+                    multiline
+                    rows={3}
+                    value={editFormData.notes}
+                    onChange={(e) => handleInputChange('notes', e.target.value)}
+                    placeholder="Nhập ghi chú về tổ ong..."
+                  />
+                ) : (
                   <Typography variant="body1">
                     {beehive.notes || 'Không có ghi chú'}
                   </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          )}
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
 
           {/* Farm Information - Only show for sold beehives */}
           {businessInfo && beehive.is_sold && businessInfo.qr_show_farm_info && (
@@ -312,11 +527,33 @@ const QRBeehiveDetail = () => {
           )}
         </Grid>
 
+        {/* Edit Actions */}
+        {isEditing && (
+          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+            <Button
+              variant="outlined"
+              startIcon={<CancelIcon />}
+              onClick={handleCancelEdit}
+              disabled={isUpdating}
+            >
+              Hủy
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={isUpdating ? <CircularProgress size={20} /> : <SaveIcon />}
+              onClick={handleSaveEdit}
+              disabled={isUpdating}
+            >
+              {isUpdating ? 'Đang lưu...' : 'Lưu thay đổi'}
+            </Button>
+          </Box>
+        )}
+
         {/* Footer */}
         <Box sx={{ mt: 3, textAlign: 'center' }}>
           <Typography variant="body2" color="text.secondary">
             {beehive.is_sold 
-              ? (businessInfo?.qr_footer_text || 'Thông tin tổ ong đã bán - Có thể xem công khai')
+              ? (businessInfo?.qr_footer_text || 'Cảm ơn bạn đã tin tưởng sản phẩm của chúng tôi')
               : 'Quét mã QR để xem thông tin tổ ong'
             }
           </Typography>
