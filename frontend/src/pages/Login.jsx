@@ -14,6 +14,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../store/slices/authSlice';
 import beeIcon from '../assets/bee-icon.png';
+import ValidatedTextField from '../components/common/ValidatedTextField';
+import { VALIDATION_RULES } from '../utils/formValidation';
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -56,6 +58,15 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Basic validation
+    if (!formData.username.trim()) {
+      return;
+    }
+    if (!formData.password.trim()) {
+      return;
+    }
+    
     try {
       const result = await dispatch(login(formData)).unwrap();
       localStorage.setItem('token', result.token);
@@ -113,7 +124,7 @@ const Login = () => {
             )}
 
             <Box component="form" onSubmit={handleSubmit}>
-              <TextField
+              <ValidatedTextField
                 margin="normal"
                 required
                 fullWidth
@@ -125,8 +136,9 @@ const Login = () => {
                 value={formData.username}
                 onChange={handleChange}
                 disabled={loading}
+                validationRules={[VALIDATION_RULES.REQUIRED]}
               />
-              <TextField
+              <ValidatedTextField
                 margin="normal"
                 required
                 fullWidth
@@ -138,6 +150,7 @@ const Login = () => {
                 value={formData.password}
                 onChange={handleChange}
                 disabled={loading}
+                validationRules={[VALIDATION_RULES.REQUIRED]}
               />
               <Button
                 type="submit"

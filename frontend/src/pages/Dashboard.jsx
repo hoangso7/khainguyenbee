@@ -48,6 +48,7 @@ import {
 import StatsCard from '../components/Dashboard/StatsCard';
 import BeehiveCard from '../components/Dashboard/BeehiveCard';
 import HealthChart from '../components/Dashboard/HealthChart';
+import AccessibleIconButton from '../components/common/AccessibleIconButton';
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -144,6 +145,9 @@ const Dashboard = () => {
   if (loading && activeBeehives.length === 0) {
     return (
       <Box 
+        role="status"
+        aria-live="polite"
+        aria-label="Đang tải dữ liệu tổ ong"
         display="flex" 
         justifyContent="center" 
         alignItems="center" 
@@ -156,7 +160,7 @@ const Dashboard = () => {
       >
         <img 
           src="/bee.gif" 
-          alt="Loading..." 
+          alt="Đang tải dữ liệu..." 
           style={{ 
             width: '80px', 
             height: '80px',
@@ -435,7 +439,7 @@ const Dashboard = () => {
                       </TableCell>
                       <TableCell>
                         <Chip
-                          icon={<img src={getHealthStatusIcon(beehive.health_status || 'Unknown')} alt={beehive.health_status || 'Unknown'} style={{ width: 16, height: 16 }} />}
+                          icon={<img src={getHealthStatusIcon(beehive.health_status || 'Unknown')} alt={`Tình trạng sức khỏe: ${beehive.health_status || 'Unknown'}`} style={{ width: 16, height: 16 }} />}
                           label={beehive.health_status || 'Unknown'}
                           color={getHealthStatusColor(beehive.health_status || 'Unknown')}
                           size="small"
@@ -450,36 +454,36 @@ const Dashboard = () => {
                       </TableCell>
                       <TableCell>
                         <Stack direction="row" spacing={1}>
-                          <IconButton
-                            size="small"
-                            onClick={() => navigate(`/edit/${beehive.serial_number || ''}`)}
+                          <AccessibleIconButton
+                            ariaLabel={`Chỉnh sửa tổ ong ${beehive.serial_number || 'N/A'}`}
                             title="Chỉnh sửa"
-                          >
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton
+                            onClick={() => navigate(`/edit/${beehive.serial_number || ''}`)}
+                            icon={<EditIcon />}
                             size="small"
-                            onClick={() => navigate(`/beehive/${beehive.qr_token || ''}`)}
+                          />
+                          <AccessibleIconButton
+                            ariaLabel={`Xem QR Code tổ ong ${beehive.serial_number || 'N/A'}`}
                             title="Xem QR Code"
-                          >
-                            <QrCodeIcon />
-                          </IconButton>
-                          <IconButton
+                            onClick={() => navigate(`/beehive/${beehive.qr_token || ''}`)}
+                            icon={<QrCodeIcon />}
                             size="small"
-                            onClick={() => handleSellBeehive(beehive.serial_number)}
+                          />
+                          <AccessibleIconButton
+                            ariaLabel={`Đánh dấu đã bán tổ ong ${beehive.serial_number || 'N/A'}`}
                             title="Đánh dấu đã bán"
+                            onClick={() => handleSellBeehive(beehive.serial_number)}
+                            icon={<MoneyIcon />}
                             color="warning"
-                          >
-                            <MoneyIcon />
-                          </IconButton>
-                          <IconButton
                             size="small"
-                            onClick={() => handleDeleteBeehive(beehive.serial_number)}
+                          />
+                          <AccessibleIconButton
+                            ariaLabel={`Xóa tổ ong ${beehive.serial_number || 'N/A'}`}
                             title="Xóa"
+                            onClick={() => handleDeleteBeehive(beehive.serial_number)}
+                            icon={<DeleteIcon />}
                             color="error"
-                          >
-                            <DeleteIcon />
-                          </IconButton>
+                            size="small"
+                          />
                         </Stack>
                       </TableCell>
                     </TableRow>

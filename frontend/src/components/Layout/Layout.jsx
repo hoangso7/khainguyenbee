@@ -94,6 +94,7 @@ const Layout = () => {
           <ListItem key={item.text} disablePadding>
             <ListItemButton
               selected={location.pathname === item.path}
+              aria-current={location.pathname === item.path ? 'page' : undefined}
               onClick={() => {
                 navigate(item.path);
                 if (isMobile) {
@@ -122,7 +123,9 @@ const Layout = () => {
         <Toolbar>
           <IconButton
             color="inherit"
-            aria-label="open drawer"
+            aria-label="Mở menu điều hướng"
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-drawer"
             edge="start"
             onClick={handleDrawerToggle}
             sx={{ mr: 2, display: { md: 'none' } }}
@@ -135,9 +138,10 @@ const Layout = () => {
           <IconButton
             size="large"
             edge="end"
-            aria-label="account of current user"
-            aria-controls="primary-search-account-menu"
+            aria-label="Tài khoản người dùng hiện tại"
+            aria-controls="user-menu"
             aria-haspopup="true"
+            aria-expanded={Boolean(anchorEl)}
             onClick={handleProfileMenuOpen}
             color="inherit"
           >
@@ -146,10 +150,14 @@ const Layout = () => {
             </Avatar>
           </IconButton>
           <Menu
+            id="user-menu"
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
             onClose={handleProfileMenuClose}
             onClick={handleProfileMenuClose}
+            MenuListProps={{
+              'aria-labelledby': 'user-menu-button',
+            }}
           >
             <MenuItem onClick={handleProfileMenuClose}>
               <ListItemIcon>
@@ -176,9 +184,12 @@ const Layout = () => {
       
       <Box
         component="nav"
+        role="navigation"
+        aria-label="Menu điều hướng chính"
         sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
       >
         <Drawer
+          id="mobile-drawer"
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}

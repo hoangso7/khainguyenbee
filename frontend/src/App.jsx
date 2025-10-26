@@ -19,9 +19,10 @@ import ExportQR from './pages/ExportQR';
 import ProfileSettings from './pages/ProfileSettings';
 import SetupGuard from './components/SetupGuard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { createMobileTheme } from './theme/mobileTheme';
 
 // Honey-themed Material-UI theme
-const theme = createTheme({
+const baseTheme = createTheme({
   palette: {
     primary: {
       main: '#D2691E', // Honey primary
@@ -84,6 +85,9 @@ const theme = createTheme({
     },
   },
 });
+
+// Create mobile-optimized theme
+const theme = createMobileTheme(baseTheme);
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {

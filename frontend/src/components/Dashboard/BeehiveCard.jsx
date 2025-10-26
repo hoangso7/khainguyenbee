@@ -6,7 +6,6 @@ import {
   Box,
   Chip,
   Stack,
-  IconButton,
   Divider,
   Grid,
 } from '@mui/material';
@@ -16,6 +15,7 @@ import {
   AttachMoney as MoneyIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
+import AccessibleIconButton from '../common/AccessibleIconButton';
 
 const BeehiveCard = ({ beehive, onEdit, onViewQR, onSell, onDelete }) => {
   const getHealthStatusColor = (status) => {
@@ -38,6 +38,8 @@ const BeehiveCard = ({ beehive, onEdit, onViewQR, onSell, onDelete }) => {
 
   return (
     <Card
+      role="article"
+      aria-label={`Tổ ong ${beehive.serial_number || 'N/A'}`}
       sx={{
         background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
         borderLeft: '4px solid #D2691E',
@@ -86,7 +88,7 @@ const BeehiveCard = ({ beehive, onEdit, onViewQR, onSell, onDelete }) => {
               Sức khỏe:
             </Typography>
             <Chip
-              icon={<img src={getHealthStatusIcon(beehive.health_status || 'Unknown')} alt={beehive.health_status || 'Unknown'} style={{ width: 16, height: 16 }} />}
+              icon={<img src={getHealthStatusIcon(beehive.health_status || 'Unknown')} alt={`Tình trạng sức khỏe: ${beehive.health_status || 'Unknown'}`} style={{ width: 16, height: 16 }} />}
               label={beehive.health_status || 'Unknown'}
               color={getHealthStatusColor(beehive.health_status || 'Unknown')}
               size="small"
@@ -109,54 +111,54 @@ const BeehiveCard = ({ beehive, onEdit, onViewQR, onSell, onDelete }) => {
 
         {/* Actions */}
         <Stack direction="row" spacing={1} justifyContent="center">
-          <IconButton
-            size="small"
-            onClick={onEdit}
+          <AccessibleIconButton
+            ariaLabel={`Chỉnh sửa tổ ong ${beehive.serial_number || 'N/A'}`}
             title="Chỉnh sửa"
+            onClick={onEdit}
+            icon={<EditIcon fontSize="small" />}
+            color="primary"
             sx={{ 
               bgcolor: 'primary.main', 
               color: 'white',
               '&:hover': { bgcolor: 'primary.dark' }
             }}
-          >
-            <EditIcon fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={onViewQR}
+          />
+          <AccessibleIconButton
+            ariaLabel={`Xem QR Code tổ ong ${beehive.serial_number || 'N/A'}`}
             title="Xem QR Code"
+            onClick={onViewQR}
+            icon={<QrCodeIcon fontSize="small" />}
+            color="info"
             sx={{ 
               bgcolor: 'info.main', 
               color: 'white',
               '&:hover': { bgcolor: 'info.dark' }
             }}
-          >
-            <QrCodeIcon fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={onSell}
+          />
+          <AccessibleIconButton
+            ariaLabel={`Đánh dấu đã bán tổ ong ${beehive.serial_number || 'N/A'}`}
             title="Đánh dấu đã bán"
+            onClick={onSell}
+            icon={<MoneyIcon fontSize="small" />}
+            color="warning"
             sx={{ 
               bgcolor: 'warning.main', 
               color: 'white',
               '&:hover': { bgcolor: 'warning.dark' }
             }}
-          >
-            <MoneyIcon fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={onDelete}
+          />
+          <AccessibleIconButton
+            ariaLabel={`Xóa tổ ong ${beehive.serial_number || 'N/A'}`}
             title="Xóa"
+            onClick={onDelete}
+            icon={<DeleteIcon fontSize="small" />}
+            color="error"
             sx={{ 
               bgcolor: 'error.main', 
               color: 'white',
               '&:hover': { bgcolor: 'error.dark' }
             }}
-          >
-            <DeleteIcon fontSize="small" />
-          </IconButton>
+          />
         </Stack>
       </CardContent>
     </Card>

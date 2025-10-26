@@ -262,38 +262,28 @@ const QRBeehiveDetail = () => {
             </Grid>
           )}
 
-          {/* Business Information - Only show for sold beehives */}
-          {businessInfo && beehive.is_sold && businessInfo.qr_show_business_info && (
+          {/* Farm Information - Only show for sold beehives */}
+          {businessInfo && beehive.is_sold && businessInfo.qr_show_farm_info && (
             <Grid item xs={12}>
               <Card>
                 <CardContent>
                   <Typography variant="h6" gutterBottom color="primary">
                     <BusinessIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                    Thông tin doanh nghiệp
+                    Thông tin trang trại
                   </Typography>
-                  {businessInfo.business_name && (
+                  {businessInfo.farm_name && (
                     <Typography variant="body1" sx={{ mb: 1 }}>
-                      <strong>Tên doanh nghiệp:</strong> {businessInfo.business_name || 'N/A'}
+                      <strong>Tên trang trại:</strong> {businessInfo.farm_name || 'N/A'}
                     </Typography>
                   )}
-                  {businessInfo.business_address && (
+                  {businessInfo.farm_address && (
                     <Typography variant="body1" sx={{ mb: 1 }}>
-                      <strong>Địa chỉ:</strong> {businessInfo.business_address || 'N/A'}
+                      <strong>Địa chỉ:</strong> {businessInfo.farm_address || 'N/A'}
                     </Typography>
                   )}
-                  {businessInfo.business_phone && (
-                    <Typography variant="body1" sx={{ mb: 1 }}>
-                      <strong>Điện thoại:</strong> {businessInfo.business_phone || 'N/A'}
-                    </Typography>
-                  )}
-                  {businessInfo.business_email && (
-                    <Typography variant="body1" sx={{ mb: 1 }}>
-                      <strong>Email:</strong> {businessInfo.business_email || 'N/A'}
-                    </Typography>
-                  )}
-                  {businessInfo.business_website && (
+                  {businessInfo.farm_phone && (
                     <Typography variant="body1">
-                      <strong>Website:</strong> {businessInfo.business_website || 'N/A'}
+                      <strong>Điện thoại:</strong> {businessInfo.farm_phone || 'N/A'}
                     </Typography>
                   )}
                 </CardContent>

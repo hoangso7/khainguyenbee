@@ -19,7 +19,7 @@ import {
   Save as SaveIcon,
   Person as PersonIcon,
   QrCode as QrCodeIcon,
-  Business as BusinessIcon,
+  Agriculture as FarmIcon,
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -33,13 +33,11 @@ const ProfileSettings = () => {
   const [profileData, setProfileData] = useState({
     username: '',
     email: '',
-    businessName: '',
-    businessAddress: '',
-    businessPhone: '',
-    businessEmail: '',
-    businessWebsite: '',
+    farmName: '',
+    farmAddress: '',
+    farmPhone: '',
     qrDisplaySettings: {
-      showBusinessInfo: true,
+      showFarmInfo: true,
       showOwnerContact: true,
       showBeehiveHistory: true,
       showHealthStatus: true,
@@ -58,13 +56,11 @@ const ProfileSettings = () => {
         ...prev,
         username: user.username || '',
         email: user.email || '',
-        businessName: user.business_name || '',
-        businessAddress: user.business_address || '',
-        businessPhone: user.business_phone || '',
-        businessEmail: user.business_email || '',
-        businessWebsite: user.business_website || '',
+        farmName: user.farm_name || '',
+        farmAddress: user.farm_address || '',
+        farmPhone: user.farm_phone || '',
         qrDisplaySettings: {
-          showBusinessInfo: user.qr_show_business_info !== false,
+          showFarmInfo: user.qr_show_farm_info !== false,
           showOwnerContact: user.qr_show_owner_contact !== false,
           showBeehiveHistory: user.qr_show_beehive_history !== false,
           showHealthStatus: user.qr_show_health_status !== false,
@@ -173,14 +169,14 @@ const ProfileSettings = () => {
           </Card>
         </Grid>
 
-        {/* Business Information */}
+        {/* Farm Information */}
         <Grid item xs={12} md={6}>
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center" mb={2}>
-                <BusinessIcon sx={{ mr: 1, color: 'primary.main' }} />
+                <FarmIcon sx={{ mr: 1, color: 'primary.main' }} />
                 <Typography variant="h6">
-                  Thông tin doanh nghiệp
+                  Thông tin trang trại
                 </Typography>
               </Box>
               
@@ -188,44 +184,30 @@ const ProfileSettings = () => {
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
-                    label="Tên doanh nghiệp"
-                    value={profileData.businessName}
-                    onChange={(e) => handleInputChange('businessName', e.target.value)}
+                    label="Tên trang trại"
+                    value={profileData.farmName}
+                    onChange={(e) => handleInputChange('farmName', e.target.value)}
+                    placeholder="Nhập tên trang trại của bạn"
                   />
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
-                    label="Địa chỉ"
+                    label="Địa chỉ trang trại"
                     multiline
                     rows={2}
-                    value={profileData.businessAddress}
-                    onChange={(e) => handleInputChange('businessAddress', e.target.value)}
+                    value={profileData.farmAddress}
+                    onChange={(e) => handleInputChange('farmAddress', e.target.value)}
+                    placeholder="Nhập địa chỉ trang trại"
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12}>
                   <TextField
                     fullWidth
                     label="Số điện thoại"
-                    value={profileData.businessPhone}
-                    onChange={(e) => handleInputChange('businessPhone', e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Email doanh nghiệp"
-                    type="email"
-                    value={profileData.businessEmail}
-                    onChange={(e) => handleInputChange('businessEmail', e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Website"
-                    value={profileData.businessWebsite}
-                    onChange={(e) => handleInputChange('businessWebsite', e.target.value)}
+                    value={profileData.farmPhone}
+                    onChange={(e) => handleInputChange('farmPhone', e.target.value)}
+                    placeholder="Nhập số điện thoại liên hệ"
                   />
                 </Grid>
               </Grid>
@@ -258,11 +240,11 @@ const ProfileSettings = () => {
                       <FormControlLabel
                         control={
                           <Switch
-                            checked={profileData.qrDisplaySettings.showBusinessInfo}
-                            onChange={(e) => handleQrSettingChange('showBusinessInfo', e.target.checked)}
+                            checked={profileData.qrDisplaySettings.showFarmInfo}
+                            onChange={(e) => handleQrSettingChange('showFarmInfo', e.target.checked)}
                           />
                         }
-                        label="Hiển thị thông tin doanh nghiệp"
+                        label="Hiển thị thông tin trang trại"
                       />
                       <FormControlLabel
                         control={
