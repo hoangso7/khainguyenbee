@@ -95,15 +95,21 @@ const BulkAddBeehives = () => {
     setIsGeneratingQR(true);
     try {
       const pdf = new jsPDF();
-      const qrSize = 113; // 3cm in pixels (113px = 3cm at 96 DPI)
+      const qrSize = 80; // Reduced size to prevent overlap
       const perPage = 6;
       const margin = 20;
-      const spacing = 10;
+      const spacing = 15; // Increased spacing between QR codes
       
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-      const qrAreaWidth = (pageWidth - 2 * margin - spacing) / 2;
-      const qrAreaHeight = (pageHeight - 2 * margin - 2 * spacing) / 3;
+      
+      // Calculate available space for QR codes
+      const availableWidth = pageWidth - 2 * margin;
+      const availableHeight = pageHeight - 2 * margin;
+      
+      // Calculate positions for 2 columns, 3 rows
+      const colWidth = (availableWidth - spacing) / 2;
+      const rowHeight = (availableHeight - 2 * spacing) / 3;
       
       let currentPage = 0;
       let qrCount = 0;
@@ -119,8 +125,9 @@ const BulkAddBeehives = () => {
         const row = Math.floor((qrCount % perPage) / 2);
         const col = (qrCount % perPage) % 2;
         
-        const x = margin + col * (qrAreaWidth + spacing);
-        const y = margin + row * (qrAreaHeight + spacing);
+        // Calculate center position for QR code
+        const x = margin + col * colWidth + (colWidth - qrSize) / 2;
+        const y = margin + row * rowHeight + (rowHeight - qrSize - 20) / 2; // Leave space for text
         
         // Generate QR code
         const qrUrl = `${window.location.origin}/beehive/${beehive.qr_token}`;
@@ -137,10 +144,10 @@ const BulkAddBeehives = () => {
         pdf.addImage(qrDataURL, 'PNG', x, y, qrSize, qrSize);
         
         // Add beehive information below QR code
-        const textY = y + qrSize + 5;
-        pdf.setFontSize(10);
+        const textY = y + qrSize + 8;
+        pdf.setFontSize(8);
         pdf.text(`Mã tổ: ${beehive.serial_number}`, x, textY);
-        pdf.text(`Ngày nhập: ${beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}`, x, textY + 5);
+        pdf.text(`Ngày nhập: ${beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}`, x, textY + 4);
         
         qrCount++;
       }

@@ -258,149 +258,156 @@ const SoldBeehives = () => {
             </Grid>
           </Grid>
 
-          {/* Beehives List */}
-          {isMobile ? (
-            // Mobile Card View
-            <Stack spacing={2}>
-              {soldBeehives.map((beehive) => (
-                <BeehiveCard
-                  key={beehive.serial_number}
-                  beehive={beehive}
-                  onEdit={() => navigate(`/edit/${beehive.serial_number || ''}`)}
-                  onViewQR={() => navigate(`/beehive/${beehive.qr_token || ''}`)}
-                  onSell={() => handleUnsellBeehive(beehive.serial_number)}
-                  onDelete={() => {}} // Không cho phép xóa tổ đã bán
-                  isSold={true}
-                />
-              ))}
-            </Stack>
-          ) : (
-            // Desktop Table View
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>
-                      <Button
-                        onClick={() => handleSort('created_at')}
-                        endIcon={getSortIcon('created_at')}
-                        sx={{ textTransform: 'none', fontSize: '0.875rem' }}
-                      >
-                        Mã tổ
-                      </Button>
+          {/* Beehives List - Compact Table View for all devices */}
+          <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
+            <Table stickyHeader>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                    <Button
+                      onClick={() => handleSort('created_at')}
+                      endIcon={getSortIcon('created_at')}
+                      sx={{ 
+                        textTransform: 'none', 
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        minWidth: 'auto',
+                        p: { xs: 0.5, sm: 1 }
+                      }}
+                    >
+                      Mã tổ
+                    </Button>
+                  </TableCell>
+                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                    <Button
+                      onClick={() => handleSort('import_date')}
+                      endIcon={getSortIcon('import_date')}
+                      sx={{ 
+                        textTransform: 'none', 
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        minWidth: 'auto',
+                        p: { xs: 0.5, sm: 1 }
+                      }}
+                    >
+                      Ngày nhập
+                    </Button>
+                  </TableCell>
+                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                    <Button
+                      onClick={() => handleSort('split_date')}
+                      endIcon={getSortIcon('split_date')}
+                      sx={{ 
+                        textTransform: 'none', 
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        minWidth: 'auto',
+                        p: { xs: 0.5, sm: 1 }
+                      }}
+                    >
+                      Ngày tách
+                    </Button>
+                  </TableCell>
+                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                    <Button
+                      onClick={() => handleSort('health_status')}
+                      endIcon={getSortIcon('health_status')}
+                      sx={{ 
+                        textTransform: 'none', 
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        minWidth: 'auto',
+                        p: { xs: 0.5, sm: 1 }
+                      }}
+                    >
+                      Sức khỏe
+                    </Button>
+                  </TableCell>
+                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                    <Button
+                      onClick={() => handleSort('sold_date')}
+                      endIcon={getSortIcon('sold_date')}
+                      sx={{ 
+                        textTransform: 'none', 
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        minWidth: 'auto',
+                        p: { xs: 0.5, sm: 1 }
+                      }}
+                    >
+                      Ngày bán
+                    </Button>
+                  </TableCell>
+                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Thao tác</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {soldBeehives.map((beehive) => (
+                  <TableRow key={beehive.serial_number} hover>
+                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                      <Typography variant="subtitle2" fontWeight="bold" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                        {beehive.serial_number || 'N/A'}
+                      </Typography>
                     </TableCell>
-                    <TableCell>
-                      <Button
-                        onClick={() => handleSort('import_date')}
-                        endIcon={getSortIcon('import_date')}
-                        sx={{ textTransform: 'none', fontSize: '0.875rem' }}
-                      >
-                        Ngày nhập
-                      </Button>
+                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                      <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                        {beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}
+                      </Typography>
                     </TableCell>
-                    <TableCell>
-                      <Button
-                        onClick={() => handleSort('split_date')}
-                        endIcon={getSortIcon('split_date')}
-                        sx={{ textTransform: 'none', fontSize: '0.875rem' }}
-                      >
-                        Ngày tách
-                      </Button>
+                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                      <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                        {beehive.split_date 
+                          ? new Date(beehive.split_date).toLocaleDateString('vi-VN')
+                          : 'Chưa tách'
+                        }
+                      </Typography>
                     </TableCell>
-                    <TableCell>
-                      <Button
-                        onClick={() => handleSort('health_status')}
-                        endIcon={getSortIcon('health_status')}
-                        sx={{ textTransform: 'none', fontSize: '0.875rem' }}
-                      >
-                        Sức khỏe
-                      </Button>
+                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                      <Chip
+                        icon={<img src={getHealthStatusIcon(beehive.health_status || 'Unknown')} alt={beehive.health_status || 'Unknown'} style={{ width: 12, height: 12 }} />}
+                        label={beehive.health_status || 'Unknown'}
+                        color={getHealthStatusColor(beehive.health_status || 'Unknown')}
+                        size="small"
+                        sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
+                      />
                     </TableCell>
-                    <TableCell>
-                      <Button
-                        onClick={() => handleSort('sold_date')}
-                        endIcon={getSortIcon('sold_date')}
-                        sx={{ textTransform: 'none', fontSize: '0.875rem' }}
-                      >
-                        Ngày bán
-                      </Button>
+                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                      <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                        {beehive.sold_date 
+                          ? new Date(beehive.sold_date).toLocaleDateString('vi-VN')
+                          : 'N/A'
+                        }
+                      </Typography>
                     </TableCell>
-                    <TableCell>Thao tác</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {soldBeehives.map((beehive) => (
-                    <TableRow key={beehive.serial_number} hover>
-                      <TableCell>
-                        <Typography variant="subtitle2" fontWeight="bold" sx={{ fontSize: '0.875rem' }}>
-                          {beehive.serial_number || 'N/A'}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
-                          {beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
-                          {beehive.split_date 
-                            ? new Date(beehive.split_date).toLocaleDateString('vi-VN')
-                            : 'Chưa tách'
-                          }
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          icon={<img src={getHealthStatusIcon(beehive.health_status || 'Unknown')} alt={beehive.health_status || 'Unknown'} style={{ width: 14, height: 14 }} />}
-                          label={beehive.health_status || 'Unknown'}
-                          color={getHealthStatusColor(beehive.health_status || 'Unknown')}
+                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                      <Stack direction="row" spacing={0.25}>
+                        <IconButton
                           size="small"
-                          sx={{ fontSize: '0.75rem' }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
-                          {beehive.sold_date 
-                            ? new Date(beehive.sold_date).toLocaleDateString('vi-VN')
-                            : 'N/A'
-                          }
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Stack direction="row" spacing={0.5}>
-                          <IconButton
-                            size="small"
-                            onClick={() => navigate(`/edit/${beehive.serial_number || ''}`)}
-                            title="Chỉnh sửa"
-                            sx={{ p: 0.5 }}
-                          >
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton
-                            size="small"
-                            onClick={() => navigate(`/beehive/${beehive.qr_token || ''}`)}
-                            title="Xem QR Code"
-                            sx={{ p: 0.5 }}
-                          >
-                            <QrCodeIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton
-                            size="small"
-                            onClick={() => handleUnsellBeehive(beehive.serial_number)}
-                            title="Hoàn trả về quản lý"
-                            color="success"
-                            sx={{ p: 0.5 }}
-                          >
-                            <UndoIcon fontSize="small" />
-                          </IconButton>
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
+                          onClick={() => navigate(`/edit/${beehive.serial_number || ''}`)}
+                          title="Chỉnh sửa"
+                          sx={{ p: { xs: 0.25, sm: 0.5 } }}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => navigate(`/beehive/${beehive.qr_token || ''}`)}
+                          title="Xem QR Code"
+                          sx={{ p: { xs: 0.25, sm: 0.5 } }}
+                        >
+                          <QrCodeIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleUnsellBeehive(beehive.serial_number)}
+                          title="Hoàn trả về quản lý"
+                          color="success"
+                          sx={{ p: { xs: 0.25, sm: 0.5 } }}
+                        >
+                          <UndoIcon fontSize="small" />
+                        </IconButton>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
 
           {/* Pagination */}
           {pagination?.totalPages > 1 && (

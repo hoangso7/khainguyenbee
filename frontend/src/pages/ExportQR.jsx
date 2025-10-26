@@ -74,10 +74,10 @@ const ExportQR = () => {
     }
   };
 
-  const generateQRCode = async (text) => {
+  const generateQRCode = async (text, size = 200) => {
     try {
       const qrCodeDataURL = await QRCode.toDataURL(text, {
-        width: exportSettings.qrSize,
+        width: size,
         margin: 1,
         color: {
           dark: '#000000',
@@ -127,21 +127,26 @@ const ExportQR = () => {
 
     try {
       const pdf = new jsPDF({
-        orientation: exportSettings.format === 'A4' ? 'portrait' : 'landscape',
+        orientation: 'portrait',
         unit: 'mm',
-        format: exportSettings.format.toLowerCase()
+        format: 'a4'
       });
 
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 20;
-      const contentWidth = pageWidth - (margin * 2);
-      const contentHeight = pageHeight - (margin * 2);
-
-      // Calculate grid layout
-      const cols = Math.floor(contentWidth / (exportSettings.qrSize / 3.78 + 20)); // Convert px to mm
-      const rows = Math.floor(contentHeight / (exportSettings.qrSize / 3.78 + 60));
+      const qrSizeMM = 30; // 3cm = 30mm
+      const spacing = 15; // Spacing between QR codes
+      const textHeight = 10; // Space for text below QR code
+      
+      // Calculate grid layout for 2 columns, 3 rows (6 per page)
+      const cols = 2;
+      const rows = 3;
       const itemsPerPage = cols * rows;
+      
+      // Calculate cell dimensions
+      const cellWidth = (pageWidth - 2 * margin - spacing) / cols;
+      const cellHeight = (pageHeight - 2 * margin - 2 * spacing) / rows;
 
       const selectedBeehiveData = activeBeehives.filter(b => 
         selectedBeehives.includes(b.serial_number)
@@ -164,20 +169,20 @@ const ExportQR = () => {
         const qrUrl = `${window.location.origin}/beehive/${beehive.qr_token || ''}`;
         const qrCodeDataURL = await generateQRCode(qrUrl);
 
-        // Calculate position
+        // Calculate position (center QR code in cell)
         const col = currentItem % cols;
         const row = Math.floor(currentItem / cols);
-        const x = margin + col * (exportSettings.qrSize / 3.78 + 20);
-        const y = margin + row * (exportSettings.qrSize / 3.78 + 60);
+        const x = margin + col * cellWidth + (cellWidth - qrSizeMM) / 2;
+        const y = margin + row * cellHeight + (cellHeight - qrSizeMM - textHeight) / 2;
 
         // Add QR code
-        pdf.addImage(qrCodeDataURL, 'PNG', x, y, exportSettings.qrSize / 3.78, exportSettings.qrSize / 3.78);
+        pdf.addImage(qrCodeDataURL, 'PNG', x, y, qrSizeMM, qrSizeMM);
 
-        // Add basic information
-        const textY = y + exportSettings.qrSize / 3.78 + 5;
-        pdf.setFontSize(10);
+        // Add basic information below QR code
+        const textY = y + qrSizeMM + 5;
+        pdf.setFontSize(8);
         pdf.text(`Mã tổ: ${beehive.serial_number || 'N/A'}`, x, textY);
-        pdf.text(`Ngày nhập: ${beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}`, x, textY + 5);
+        pdf.text(`Ngày nhập: ${beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}`, x, textY + 4);
 
         currentItem++;
         if (currentItem >= itemsPerPage) {

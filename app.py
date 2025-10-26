@@ -563,17 +563,17 @@ def get_beehive_by_token(qr_token):
             'id': owner.id,
             'username': owner.username,
             'email': owner.email,
-            'farmName': owner.farm_name,
-            'farmAddress': owner.farm_address,
-            'farmPhone': owner.farm_phone,
-            'qrDisplaySettings': {
-                'showFarmInfo': owner.qr_show_farm_info,
-                'showOwnerContact': owner.qr_show_owner_contact,
-                'showBeehiveHistory': owner.qr_show_beehive_history,
-                'showHealthStatus': owner.qr_show_health_status,
-                'customMessage': owner.qr_custom_message,
-                'footerText': owner.qr_footer_text,
-            }
+        } if owner else None,
+        'business_info': {
+            'farm_name': owner.farm_name,
+            'farm_address': owner.farm_address,
+            'farm_phone': owner.farm_phone,
+            'qr_show_farm_info': owner.qr_show_farm_info,
+            'qr_show_owner_contact': owner.qr_show_owner_contact,
+            'qr_show_beehive_history': owner.qr_show_beehive_history,
+            'qr_show_health_status': owner.qr_show_health_status,
+            'qr_custom_message': owner.qr_custom_message,
+            'qr_footer_text': owner.qr_footer_text,
         } if owner else None
     })
 

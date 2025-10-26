@@ -24,6 +24,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { checkAuth } from '../store/slices/authSlice';
 
 const ProfileSettings = () => {
   const dispatch = useDispatch();
@@ -51,21 +52,26 @@ const ProfileSettings = () => {
   const [success, setSuccess] = useState(null);
 
   useEffect(() => {
+    // Fetch fresh user data when component mounts
+    dispatch(checkAuth());
+  }, [dispatch]);
+
+  useEffect(() => {
     if (user) {
       setProfileData(prev => ({
         ...prev,
         username: user.username || '',
         email: user.email || '',
-        farmName: user.farm_name || '',
-        farmAddress: user.farm_address || '',
-        farmPhone: user.farm_phone || '',
+        farmName: user.farmName || '',
+        farmAddress: user.farmAddress || '',
+        farmPhone: user.farmPhone || '',
         qrDisplaySettings: {
-          showFarmInfo: user.qr_show_farm_info !== false,
-          showOwnerContact: user.qr_show_owner_contact !== false,
-          showBeehiveHistory: user.qr_show_beehive_history !== false,
-          showHealthStatus: user.qr_show_health_status !== false,
-          customMessage: user.qr_custom_message || '',
-          footerText: user.qr_footer_text || 'Cảm ơn bạn đã tin tưởng sản phẩm của chúng tôi',
+          showFarmInfo: user.qrDisplaySettings?.showFarmInfo !== false,
+          showOwnerContact: user.qrDisplaySettings?.showOwnerContact !== false,
+          showBeehiveHistory: user.qrDisplaySettings?.showBeehiveHistory !== false,
+          showHealthStatus: user.qrDisplaySettings?.showHealthStatus !== false,
+          customMessage: user.qrDisplaySettings?.customMessage || '',
+          footerText: user.qrDisplaySettings?.footerText || 'Cảm ơn bạn đã tin tưởng sản phẩm của chúng tôi',
         }
       }));
     }
@@ -98,7 +104,8 @@ const ProfileSettings = () => {
       
       if (response.status === 200) {
         setSuccess('Đã lưu cài đặt thành công!');
-        // Update user data in store if needed
+        // Refresh user data to get updated information
+        dispatch(checkAuth());
       }
     } catch (err) {
       console.error('Error saving profile:', err);
@@ -196,7 +203,7 @@ const ProfileSettings = () => {
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
-                    label="Địa chỉ trang trại"
+                    label="Địa chỉ"
                     multiline
                     rows={2}
                     value={profileData.farmAddress}
