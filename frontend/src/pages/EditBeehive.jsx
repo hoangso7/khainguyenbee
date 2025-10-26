@@ -239,10 +239,10 @@ const EditBeehive = () => {
       )}
 
       {/* Form */}
-      <Card>
-        <CardContent>
-          <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
-            Thông tin tổ ong
+      <Card sx={{ maxWidth: 800, mx: 'auto' }}>
+        <CardContent sx={{ p: 4 }}>
+          <Typography variant="h5" gutterBottom sx={{ mb: 4, textAlign: 'center', color: 'primary.main' }}>
+            Chỉnh sửa thông tin tổ ong
           </Typography>
 
           <form onSubmit={handleSubmit}>
@@ -255,17 +255,12 @@ const EditBeehive = () => {
                   value={currentBeehive.serial_number || 'N/A'}
                   disabled
                   InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-
-              {/* QR Token (Read-only) */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="QR Token"
-                  value={currentBeehive.qr_token ? `${currentBeehive.qr_token.substring(0, 8)}...` : 'N/A'}
-                  disabled
-                  InputLabelProps={{ shrink: true }}
+                  sx={{ 
+                    '& .MuiInputBase-input': { 
+                      fontWeight: 'bold',
+                      color: 'primary.main'
+                    }
+                  }}
                 />
               </Grid>
 
@@ -273,7 +268,7 @@ const EditBeehive = () => {
               <Grid item xs={12} sm={6}>
                 <ValidatedTextField
                   fullWidth
-                  label="Ngày nhập"
+                  label="Ngày nhập tổ"
                   name="importDate"
                   type="date"
                   value={formData.importDate}
@@ -289,7 +284,7 @@ const EditBeehive = () => {
               <Grid item xs={12} sm={6}>
                 <ValidatedTextField
                   fullWidth
-                  label="Ngày tách"
+                  label="Ngày tách tổ"
                   name="splitDate"
                   type="date"
                   value={formData.splitDate}
@@ -307,11 +302,11 @@ const EditBeehive = () => {
               {/* Health Status */}
               <Grid item xs={12} sm={6}>
                 <FormControl fullWidth>
-                  <InputLabel>Tình trạng sức khỏe</InputLabel>
+                  <InputLabel>Tình trạng</InputLabel>
                   <Select
                     value={formData.healthStatus}
                     onChange={(e) => handleInputChange('healthStatus', e.target.value)}
-                    label="Tình trạng sức khỏe"
+                    label="Tình trạng"
                   >
                     {healthStatusOptions.map((status) => (
                       <MenuItem key={status} value={status}>
@@ -322,22 +317,11 @@ const EditBeehive = () => {
                 </FormControl>
               </Grid>
 
-              {/* Status (Read-only) */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Trạng thái"
-                  value={currentBeehive.status === 'sold' ? 'Đã bán' : 'Đang quản lý'}
-                  disabled
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-
               {/* Notes */}
               <Grid item xs={12}>
                 <ValidatedTextField
                   fullWidth
-                  label="Ghi chú"
+                  label="Nhập ghi chú"
                   name="notes"
                   multiline
                   rows={3}
@@ -346,17 +330,19 @@ const EditBeehive = () => {
                   validationRules={[VALIDATION_RULES.MAX_LENGTH]}
                   validationOptions={{ maxLength: 500 }}
                   errorMessage={fieldErrors.notes}
-                  placeholder="Nhập ghi chú về tổ ong (tùy chọn)"
+                  placeholder="Nhập ghi chú"
                 />
               </Grid>
 
               {/* Submit Buttons */}
               <Grid item xs={12}>
-                <Stack direction="row" spacing={2} justifyContent="flex-end">
+                <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 2 }}>
                   <Button
                     variant="outlined"
                     onClick={handleBack}
                     disabled={isUpdating}
+                    size="large"
+                    sx={{ minWidth: 120 }}
                   >
                     Hủy
                   </Button>
@@ -365,6 +351,7 @@ const EditBeehive = () => {
                     variant="contained"
                     startIcon={isUpdating ? <CircularProgress size={20} /> : <EditIcon />}
                     disabled={isUpdating || Object.values(fieldErrors).some(error => error)}
+                    size="large"
                     sx={{ minWidth: 150 }}
                   >
                     {isUpdating ? 'Đang cập nhật...' : 'Cập nhật tổ ong'}

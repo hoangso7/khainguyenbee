@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { TextField } from '@mui/material';
+import { TextField, Box, IconButton, Popover } from '@mui/material';
+import { CalendarToday as CalendarIcon } from '@mui/icons-material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 
 const DateInput = ({ 
   value, 
@@ -14,6 +19,8 @@ const DateInput = ({
 }) => {
   const [displayValue, setDisplayValue] = useState('');
   const [isValid, setIsValid] = useState(true);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
 
   // Convert ISO date (YYYY-MM-DD) to DD/MM/YYYY format
   const formatDateToDisplay = (isoDate) => {
@@ -62,6 +69,11 @@ const DateInput = ({
   // Update display value when prop value changes
   useEffect(() => {
     setDisplayValue(formatDateToDisplay(value));
+    if (value) {
+      setSelectedDate(dayjs(value));
+    } else {
+      setSelectedDate(null);
+    }
   }, [value]);
 
   const handleChange = (event) => {
@@ -93,24 +105,94 @@ const DateInput = ({
     }
   };
 
+  const handleCalendarClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCalendarClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDateChange = (date) => {
+    if (date) {
+      const isoDate = date.format('YYYY-MM-DD');
+      setSelectedDate(date);
+      setDisplayValue(formatDateToDisplay(isoDate));
+      setIsValid(true);
+      
+      if (onChange) {
+        onChange({
+          target: {
+            value: isoDate
+          }
+        });
+      }
+    }
+    handleCalendarClose();
+  };
+
+  const open = Boolean(anchorEl);
+
   return (
-    <TextField
-      {...props}
-      fullWidth={fullWidth}
-      size={size}
-      label={label}
-      value={displayValue}
-      onChange={handleChange}
-      onBlur={handleBlur}
-      error={error || !isValid}
-      helperText={helperText || (!isValid && displayValue ? 'Định dạng ngày không hợp lệ (dd/mm/yyyy)' : '')}
-      disabled={disabled}
-      placeholder="dd/mm/yyyy"
-      inputProps={{
-        maxLength: 10,
-        ...props.inputProps
-      }}
-    />
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Box sx={{ position: 'relative' }}>
+        <TextField
+          {...props}
+          fullWidth={fullWidth}
+          size={size}
+          label={label}
+          value={displayValue}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={error || !isValid}
+          helperText={helperText || (!isValid && displayValue ? 'Định dạng ngày không hợp lệ (dd/mm/yyyy)' : '')}
+          disabled={disabled}
+          placeholder="dd/mm/yyyy"
+          inputProps={{
+            maxLength: 10,
+            ...props.inputProps
+          }}
+          InputProps={{
+            endAdornment: (
+              <IconButton
+                size="small"
+                onClick={handleCalendarClick}
+                disabled={disabled}
+                sx={{ mr: -1 }}
+              >
+                <CalendarIcon fontSize="small" />
+              </IconButton>
+            ),
+            ...props.InputProps
+          }}
+        />
+        
+        <Popover
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleCalendarClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+        >
+          <DatePicker
+            value={selectedDate}
+            onChange={handleDateChange}
+            slotProps={{
+              textField: {
+                size: 'small',
+                sx: { display: 'none' }
+              }
+            }}
+          />
+        </Popover>
+      </Box>
+    </LocalizationProvider>
   );
 };
 
