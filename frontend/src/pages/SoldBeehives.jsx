@@ -18,6 +18,10 @@ import {
   Paper,
   Pagination,
   Stack,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   CircularProgress,
   Alert,
   useMediaQuery,
@@ -62,33 +66,45 @@ const SoldBeehives = () => {
   } = useSelector((state) => state.beehives);
 
   const [searchFilters, setSearchFilters] = useState({
-    importDate: '',
-    splitDate: '',
+    serialNumber: '',
+    dateType: 'import_date',
+    date: '',
   });
 
   useEffect(() => {
-    dispatch(fetchSoldBeehives());
-  }, [dispatch]);
+    dispatch(fetchSoldBeehives({ 
+      ...filters, 
+      sort_field: sort.field,
+      sort_order: sort.order,
+      page: pagination.page 
+    }));
+  }, [dispatch, filters, sort, pagination.page]);
 
   const handleSearch = () => {
-    dispatch(setFilters(searchFilters));
-    dispatch(fetchSoldBeehives());
+    const newFilters = {
+      serialNumber: searchFilters.serialNumber,
+      [searchFilters.dateType]: searchFilters.date,
+    };
+    dispatch(setFilters(newFilters));
+    dispatch(setPage(1));
   };
 
   const handleClearSearch = () => {
-    const clearedFilters = { importDate: '', splitDate: '' };
+    const clearedFilters = { serialNumber: '', dateType: 'import_date', date: '' };
     setSearchFilters(clearedFilters);
-    dispatch(setFilters(clearedFilters));
-    dispatch(fetchSoldBeehives());
+    dispatch(setFilters({ serialNumber: '', import_date: '', sold_date: '' }));
+    dispatch(setPage(1));
   };
 
   const handleSort = (field) => {
-    const newSort = {
-      field,
-      direction: sort.field === field && sort.direction === 'asc' ? 'desc' : 'asc'
-    };
-    dispatch(setSort(newSort));
-    dispatch(fetchSoldBeehives());
+    const newOrder = sort.field === field && sort.order === 'asc' ? 'desc' : 'asc';
+    dispatch(setSort({ field, order: newOrder }));
+    dispatch(fetchSoldBeehives({ 
+      ...filters, 
+      sort_field: field,
+      sort_order: newOrder,
+      page: pagination.page 
+    }));
   };
 
   const handlePageChange = (event, page) => {
@@ -109,7 +125,7 @@ const SoldBeehives = () => {
 
   const getSortIcon = (field) => {
     if (sort.field !== field) return null;
-    return sort.direction === 'asc' ? <ArrowUpIcon /> : <ArrowDownIcon />;
+    return sort.order === 'asc' ? <ArrowUpIcon /> : <ArrowDownIcon />;
   };
 
   const getHealthStatusColor = (status) => {
@@ -211,19 +227,35 @@ const SoldBeehives = () => {
           {/* Search Form */}
           <Grid container spacing={2} sx={{ mb: 3 }}>
             <Grid item xs={12} sm={6} md={3}>
-              <DateInput
+              <TextField
                 fullWidth
-                label="Tìm theo ngày nhập"
-                value={searchFilters.importDate}
-                onChange={(e) => setSearchFilters({ ...searchFilters, importDate: e.target.value })}
+                label="Tìm theo mã tổ"
+                value={searchFilters.serialNumber}
+                onChange={(e) => setSearchFilters({ ...searchFilters, serialNumber: e.target.value })}
+                size="small"
+                placeholder="VD: TO001"
               />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Loại ngày</InputLabel>
+                <Select
+                  value={searchFilters.dateType}
+                  onChange={(e) => setSearchFilters({ ...searchFilters, dateType: e.target.value })}
+                  label="Loại ngày"
+                >
+                  <MenuItem value="import_date">Ngày nhập</MenuItem>
+                  <MenuItem value="sold_date">Ngày bán</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <DateInput
                 fullWidth
-                label="Tìm theo ngày tách"
-                value={searchFilters.splitDate}
-                onChange={(e) => setSearchFilters({ ...searchFilters, splitDate: e.target.value })}
+                label={`Tìm theo ${searchFilters.dateType === 'import_date' ? 'ngày nhập' : 'ngày bán'}`}
+                value={searchFilters.date}
+                onChange={(e) => setSearchFilters({ ...searchFilters, date: e.target.value })}
+                size="small"
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>

@@ -332,11 +332,16 @@ def get_beehives(current_user_id):
     per_page = request.args.get('per_page', 20, type=int)
     sort_field = request.args.get('sort_field', 'created_at')
     sort_order = request.args.get('sort_order', 'desc')
+    serial_number = request.args.get('serialNumber', '')
     import_date = request.args.get('import_date', '')
     split_date = request.args.get('split_date', '')
     
     # Build query for active beehives
     query = Beehive.query.filter_by(user_id=current_user_id, is_sold=False)
+    
+    # Apply serial number filter
+    if serial_number:
+        query = query.filter(Beehive.serial_number.like(f'%{serial_number}%'))
     
     # Apply date filters
     if import_date:
@@ -397,11 +402,16 @@ def get_sold_beehives(current_user_id):
     per_page = request.args.get('per_page', 20, type=int)
     sort_field = request.args.get('sort_field', 'sold_date')
     sort_order = request.args.get('sort_order', 'desc')
+    serial_number = request.args.get('serialNumber', '')
     import_date = request.args.get('import_date', '')
     sold_date = request.args.get('sold_date', '')
     
     # Build query for sold beehives
     query = Beehive.query.filter_by(user_id=current_user_id, is_sold=True)
+    
+    # Apply serial number filter
+    if serial_number:
+        query = query.filter(Beehive.serial_number.like(f'%{serial_number}%'))
     
     # Apply date filters
     if import_date:
@@ -490,6 +500,15 @@ def create_beehive(current_user_id):
     db.session.commit()
     
     return jsonify(beehive.to_dict()), 201
+
+@app.route('/api/beehives/<serial_number>', methods=['GET'])
+@token_required
+def get_beehive(current_user_id, serial_number):
+    beehive = Beehive.query.filter_by(serial_number=serial_number, user_id=current_user_id).first()
+    if not beehive:
+        return jsonify({'message': 'Beehive not found'}), 404
+    
+    return jsonify(beehive.to_dict())
 
 @app.route('/api/beehives/<serial_number>', methods=['PUT'])
 @token_required
