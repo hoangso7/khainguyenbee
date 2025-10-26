@@ -354,7 +354,9 @@ def get_beehives(current_user_id):
             pass
     
     # Apply sorting
-    if sort_field == 'created_at':
+    if sort_field == 'serial_number':
+        query = query.order_by(Beehive.serial_number.desc() if sort_order == 'desc' else Beehive.serial_number.asc())
+    elif sort_field == 'created_at':
         query = query.order_by(Beehive.created_at.desc() if sort_order == 'desc' else Beehive.created_at.asc())
     elif sort_field == 'import_date':
         query = query.order_by(Beehive.import_date.desc() if sort_order == 'desc' else Beehive.import_date.asc())
@@ -417,7 +419,9 @@ def get_sold_beehives(current_user_id):
             pass
     
     # Apply sorting
-    if sort_field == 'created_at':
+    if sort_field == 'serial_number':
+        query = query.order_by(Beehive.serial_number.desc() if sort_order == 'desc' else Beehive.serial_number.asc())
+    elif sort_field == 'created_at':
         query = query.order_by(Beehive.created_at.desc() if sort_order == 'desc' else Beehive.created_at.asc())
     elif sort_field == 'import_date':
         query = query.order_by(Beehive.import_date.desc() if sort_order == 'desc' else Beehive.import_date.asc())

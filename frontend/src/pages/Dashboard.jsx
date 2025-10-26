@@ -328,8 +328,8 @@ const Dashboard = () => {
                 <TableRow>
                   <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                     <Button
-                      onClick={() => handleSort('created_at')}
-                      endIcon={getSortIcon('created_at')}
+                      onClick={() => handleSort('serial_number')}
+                      endIcon={getSortIcon('serial_number')}
                       sx={{ 
                         textTransform: 'none', 
                         fontSize: { xs: '0.75rem', sm: '0.875rem' },

@@ -26,7 +26,6 @@ import {
 import {
   Search as SearchIcon,
   Clear as ClearIcon,
-  Edit as EditIcon,
   QrCode as QrCodeIcon,
   AttachMoney as MoneyIcon,
   ArrowUpward as ArrowUpIcon,
@@ -203,16 +202,10 @@ const SoldBeehives = () => {
       {/* Main Content */}
       <Card>
         <CardContent>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+          <Box mb={3}>
             <Typography variant="h5" component="h1">
               Danh sách tổ ong đã bán
             </Typography>
-            <Button
-              variant="outlined"
-              onClick={() => navigate('/dashboard')}
-            >
-              Quay lại Dashboard
-            </Button>
           </Box>
 
           {/* Search Form */}
@@ -265,8 +258,8 @@ const SoldBeehives = () => {
                 <TableRow>
                   <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                     <Button
-                      onClick={() => handleSort('created_at')}
-                      endIcon={getSortIcon('created_at')}
+                      onClick={() => handleSort('serial_number')}
+                      endIcon={getSortIcon('serial_number')}
                       sx={{ 
                         textTransform: 'none', 
                         fontSize: { xs: '0.75rem', sm: '0.875rem' },
@@ -376,14 +369,6 @@ const SoldBeehives = () => {
                     </TableCell>
                     <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
                       <Stack direction="row" spacing={0.25}>
-                        <IconButton
-                          size="small"
-                          onClick={() => navigate(`/edit/${beehive.serial_number || ''}`)}
-                          title="Chỉnh sửa"
-                          sx={{ p: { xs: 0.25, sm: 0.5 } }}
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
                         <IconButton
                           size="small"
                           onClick={() => navigate(`/beehive/${beehive.qr_token || ''}`)}

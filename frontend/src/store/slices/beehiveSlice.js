@@ -101,7 +101,7 @@ const beehiveSlice = createSlice({
       soldDate: '',
     },
     sort: {
-      field: 'created_at',
+      field: 'serial_number',
       order: 'desc',
     },
   },

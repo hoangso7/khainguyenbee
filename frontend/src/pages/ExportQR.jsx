@@ -134,13 +134,13 @@ const ExportQR = () => {
 
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 15;
-      const qrSizeMM = 25; // Smaller size for 5 per row
-      const spacing = 5; // Smaller spacing for more QR codes
+      const margin = 8;
+      const qrSizeMM = 20; // Smaller size for 5x5 layout
+      const spacing = 3; // Minimal spacing for maximum QR codes
       
-      // Calculate grid layout for 5 columns, 4 rows (20 per page)
+      // Calculate grid layout for 5 columns, 5 rows (25 per page)
       const cols = 5;
-      const rows = 4;
+      const rows = 5;
       const itemsPerPage = cols * rows;
       
       // Calculate cell dimensions
@@ -172,14 +172,14 @@ const ExportQR = () => {
         const col = currentItem % cols;
         const row = Math.floor(currentItem / cols);
         const x = margin + col * (cellWidth + spacing) + (cellWidth - qrSizeMM) / 2;
-        const y = margin + row * (cellHeight + spacing) + (cellHeight - qrSizeMM - 8) / 2;
+        const y = margin + row * (cellHeight + spacing) + (cellHeight - qrSizeMM - 6) / 2;
 
         // Add QR code
         pdf.addImage(qrCodeDataURL, 'PNG', x, y, qrSizeMM, qrSizeMM);
 
         // Add only beehive ID below QR code
-        const textY = y + qrSizeMM + 3;
-        pdf.setFontSize(6);
+        const textY = y + qrSizeMM + 2;
+        pdf.setFontSize(4);
         pdf.text(beehive.serial_number || 'N/A', x, textY);
 
         currentItem++;

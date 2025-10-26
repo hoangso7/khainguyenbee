@@ -25,9 +25,7 @@ import {
   Add as AddIcon,
   AttachMoney as MoneyIcon,
   Download as DownloadIcon,
-  AccountCircle as AccountIcon,
   Logout as LogoutIcon,
-  Settings as SettingsIcon,
   Person as PersonIcon,
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
@@ -58,6 +56,7 @@ const Layout = () => {
   const handleProfileMenuClose = () => {
     setAnchorEl(null);
   };
+
 
   const handleLogout = async () => {
     try {
@@ -159,19 +158,6 @@ const Layout = () => {
               'aria-labelledby': 'user-menu-button',
             }}
           >
-            <MenuItem onClick={handleProfileMenuClose}>
-              <ListItemIcon>
-                <AccountIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Hồ sơ</ListItemText>
-            </MenuItem>
-            <MenuItem onClick={handleProfileMenuClose}>
-              <ListItemIcon>
-                <SettingsIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Cài đặt</ListItemText>
-            </MenuItem>
-            <Divider />
             <MenuItem onClick={handleLogout}>
               <ListItemIcon>
                 <LogoutIcon fontSize="small" />

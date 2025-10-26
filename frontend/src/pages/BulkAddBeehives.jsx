@@ -95,10 +95,10 @@ const BulkAddBeehives = () => {
     setIsGeneratingQR(true);
     try {
       const pdf = new jsPDF();
-      const qrSize = 30; // Smaller size for 5 per row
-      const perPage = 20; // 5 columns x 4 rows
-      const margin = 15;
-      const spacing = 8; // Smaller spacing for more QR codes
+      const qrSize = 25; // Smaller size for 5x5 layout
+      const perPage = 25; // 5 columns x 5 rows
+      const margin = 10;
+      const spacing = 5; // Minimal spacing for maximum QR codes
       
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
@@ -107,9 +107,9 @@ const BulkAddBeehives = () => {
       const availableWidth = pageWidth - 2 * margin;
       const availableHeight = pageHeight - 2 * margin;
       
-      // Calculate positions for 5 columns, 4 rows
+      // Calculate positions for 5 columns, 5 rows
       const cols = 5;
-      const rows = 4;
+      const rows = 5;
       const colWidth = (availableWidth - (cols - 1) * spacing) / cols;
       const rowHeight = (availableHeight - (rows - 1) * spacing) / rows;
       
@@ -129,7 +129,7 @@ const BulkAddBeehives = () => {
         
         // Calculate center position for QR code
         const x = margin + col * (colWidth + spacing) + (colWidth - qrSize) / 2;
-        const y = margin + row * (rowHeight + spacing) + (rowHeight - qrSize - 10) / 2; // Leave space for text
+        const y = margin + row * (rowHeight + spacing) + (rowHeight - qrSize - 8) / 2; // Leave space for text
         
         // Generate QR code
         const qrUrl = `${window.location.origin}/beehive/${beehive.qr_token}`;
@@ -146,8 +146,8 @@ const BulkAddBeehives = () => {
         pdf.addImage(qrDataURL, 'PNG', x, y, qrSize, qrSize);
         
         // Add only beehive ID below QR code
-        const textY = y + qrSize + 5;
-        pdf.setFontSize(6);
+        const textY = y + qrSize + 3;
+        pdf.setFontSize(5);
         pdf.text(beehive.serial_number || 'N/A', x, textY);
         
         qrCount++;
