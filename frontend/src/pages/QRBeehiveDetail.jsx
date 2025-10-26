@@ -247,14 +247,16 @@ const QRBeehiveDetail = () => {
               Thông tin tổ ong
             </Typography>
           </Box>
-          <Button
-            variant="outlined"
-            startIcon={<EditIcon />}
-            onClick={handleEditClick}
-            disabled={isUpdating}
-          >
-            {isAuthenticated ? 'Chỉnh sửa' : 'Đăng nhập để chỉnh sửa'}
-          </Button>
+          {!beehive.is_sold && (
+            <Button
+              variant="outlined"
+              startIcon={<EditIcon />}
+              onClick={handleEditClick}
+              disabled={isUpdating}
+            >
+              {isAuthenticated ? 'Chỉnh sửa' : 'Đăng nhập để chỉnh sửa'}
+            </Button>
+          )}
         </Box>
 
         {/* Status Banner */}

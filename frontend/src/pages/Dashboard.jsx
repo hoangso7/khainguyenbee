@@ -238,20 +238,40 @@ const Dashboard = () => {
               <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
                 Thông tin chi tiết
               </Typography>
-              {healthStats && Object.entries(healthStats).map(([health, count]) => (
-                <Box key={health} display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                  <Chip
-                    icon={<img src={getHealthStatusIcon(health || 'Unknown')} alt={health || 'Unknown'} style={{ width: 16, height: 16 }} />}
-                    label={health || 'Unknown'}
-                    color={getHealthStatusColor(health || 'Unknown')}
-                    size="small"
-                    sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
-                  />
-                  <Typography variant="body2" fontWeight="bold" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                    {count} tổ
+              {healthStats && Object.keys(healthStats).length > 0 ? (
+                Object.entries(healthStats).map(([health, count]) => (
+                  <Box key={health} display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                    <Chip
+                      icon={<img src={getHealthStatusIcon(health || 'Unknown')} alt={health || 'Unknown'} style={{ width: 16, height: 16 }} />}
+                      label={health || 'Unknown'}
+                      color={getHealthStatusColor(health || 'Unknown')}
+                      size="small"
+                      sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                    />
+                    <Typography variant="body2" fontWeight="bold" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                      {count} tổ
+                    </Typography>
+                  </Box>
+                ))
+              ) : (
+                <Box 
+                  display="flex" 
+                  justifyContent="center" 
+                  alignItems="center" 
+                  sx={{ 
+                    flexDirection: 'column',
+                    gap: 1,
+                    py: 2
+                  }}
+                >
+                  <Typography variant="body2" color="text.secondary">
+                    Chưa có dữ liệu sức khỏe
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Dữ liệu sẽ hiển thị khi có tổ ong
                   </Typography>
                 </Box>
-              ))}
+              )}
             </CardContent>
           </Card>
         </Grid>
@@ -373,7 +393,7 @@ const Dashboard = () => {
                       <Button
                         onClick={() => handleSort('created_at')}
                         endIcon={getSortIcon('created_at')}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ textTransform: 'none', fontSize: '0.875rem' }}
                       >
                         Mã tổ
                       </Button>
@@ -382,7 +402,7 @@ const Dashboard = () => {
                       <Button
                         onClick={() => handleSort('import_date')}
                         endIcon={getSortIcon('import_date')}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ textTransform: 'none', fontSize: '0.875rem' }}
                       >
                         Ngày nhập
                       </Button>
@@ -391,7 +411,7 @@ const Dashboard = () => {
                       <Button
                         onClick={() => handleSort('split_date')}
                         endIcon={getSortIcon('split_date')}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ textTransform: 'none', fontSize: '0.875rem' }}
                       >
                         Ngày tách
                       </Button>
@@ -400,7 +420,7 @@ const Dashboard = () => {
                       <Button
                         onClick={() => handleSort('health_status')}
                         endIcon={getSortIcon('health_status')}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ textTransform: 'none', fontSize: '0.875rem' }}
                       >
                         Sức khỏe
                       </Button>
@@ -409,7 +429,7 @@ const Dashboard = () => {
                       <Button
                         onClick={() => handleSort('status')}
                         endIcon={getSortIcon('status')}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ textTransform: 'none', fontSize: '0.875rem' }}
                       >
                         Trạng thái
                       </Button>
@@ -421,25 +441,30 @@ const Dashboard = () => {
                   {activeBeehives.map((beehive) => (
                     <TableRow key={beehive.serial_number} hover>
                       <TableCell>
-                        <Typography variant="subtitle2" fontWeight="bold">
+                        <Typography variant="subtitle2" fontWeight="bold" sx={{ fontSize: '0.875rem' }}>
                           {beehive.serial_number || 'N/A'}
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        {beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}
+                        <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
+                          {beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}
+                        </Typography>
                       </TableCell>
                       <TableCell>
-                        {beehive.split_date 
-                          ? new Date(beehive.split_date).toLocaleDateString('vi-VN')
-                          : 'Chưa tách'
-                        }
+                        <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
+                          {beehive.split_date 
+                            ? new Date(beehive.split_date).toLocaleDateString('vi-VN')
+                            : 'Chưa tách'
+                          }
+                        </Typography>
                       </TableCell>
                       <TableCell>
                         <Chip
-                          icon={<img src={getHealthStatusIcon(beehive.health_status || 'Unknown')} alt={`Tình trạng sức khỏe: ${beehive.health_status || 'Unknown'}`} style={{ width: 16, height: 16 }} />}
+                          icon={<img src={getHealthStatusIcon(beehive.health_status || 'Unknown')} alt={`Tình trạng sức khỏe: ${beehive.health_status || 'Unknown'}`} style={{ width: 14, height: 14 }} />}
                           label={beehive.health_status || 'Unknown'}
                           color={getHealthStatusColor(beehive.health_status || 'Unknown')}
                           size="small"
+                          sx={{ fontSize: '0.75rem' }}
                         />
                       </TableCell>
                       <TableCell>
@@ -447,16 +472,18 @@ const Dashboard = () => {
                           label="Đang quản lý"
                           color="success"
                           size="small"
+                          sx={{ fontSize: '0.75rem' }}
                         />
                       </TableCell>
                       <TableCell>
-                        <Stack direction="row" spacing={1}>
+                        <Stack direction="row" spacing={0.5}>
                           <AccessibleIconButton
                             ariaLabel={`Chỉnh sửa tổ ong ${beehive.serial_number || 'N/A'}`}
                             title="Chỉnh sửa"
                             onClick={() => navigate(`/edit/${beehive.serial_number || ''}`)}
                             icon={<EditIcon />}
                             size="small"
+                            sx={{ p: 0.5 }}
                           />
                           <AccessibleIconButton
                             ariaLabel={`Xem QR Code tổ ong ${beehive.serial_number || 'N/A'}`}
@@ -464,6 +491,7 @@ const Dashboard = () => {
                             onClick={() => navigate(`/beehive/${beehive.qr_token || ''}`)}
                             icon={<QrCodeIcon />}
                             size="small"
+                            sx={{ p: 0.5 }}
                           />
                           <AccessibleIconButton
                             ariaLabel={`Đánh dấu đã bán tổ ong ${beehive.serial_number || 'N/A'}`}
@@ -472,6 +500,7 @@ const Dashboard = () => {
                             icon={<MoneyIcon />}
                             color="warning"
                             size="small"
+                            sx={{ p: 0.5 }}
                           />
                           <AccessibleIconButton
                             ariaLabel={`Xóa tổ ong ${beehive.serial_number || 'N/A'}`}
@@ -480,6 +509,7 @@ const Dashboard = () => {
                             icon={<DeleteIcon />}
                             color="error"
                             size="small"
+                            sx={{ p: 0.5 }}
                           />
                         </Stack>
                       </TableCell>

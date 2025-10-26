@@ -55,6 +55,19 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(120), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
+    # Business information fields
+    farm_name = db.Column(db.String(200), nullable=True)
+    farm_address = db.Column(db.Text, nullable=True)
+    farm_phone = db.Column(db.String(20), nullable=True)
+    
+    # QR display settings
+    qr_show_farm_info = db.Column(db.Boolean, default=True)
+    qr_show_owner_contact = db.Column(db.Boolean, default=True)
+    qr_show_beehive_history = db.Column(db.Boolean, default=True)
+    qr_show_health_status = db.Column(db.Boolean, default=True)
+    qr_custom_message = db.Column(db.Text, nullable=True)
+    qr_footer_text = db.Column(db.String(500), default='Cảm ơn bạn đã tin tưởng sản phẩm của chúng tôi')
+    
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
     
@@ -191,13 +204,99 @@ def get_current_user(current_user_id):
     return jsonify({
         'id': user.id,
         'username': user.username,
-        'email': user.email
+        'email': user.email,
+        'farmName': user.farm_name,
+        'farmAddress': user.farm_address,
+        'farmPhone': user.farm_phone,
+        'qrDisplaySettings': {
+            'showFarmInfo': user.qr_show_farm_info,
+            'showOwnerContact': user.qr_show_owner_contact,
+            'showBeehiveHistory': user.qr_show_beehive_history,
+            'showHealthStatus': user.qr_show_health_status,
+            'customMessage': user.qr_custom_message,
+            'footerText': user.qr_footer_text,
+        }
     })
 
 @app.route('/api/auth/logout', methods=['POST'])
 @token_required
 def api_logout(current_user_id):
     return jsonify({'message': 'Logged out successfully'})
+
+@app.route('/api/auth/profile', methods=['PUT'])
+@token_required
+def update_profile(current_user_id):
+    user = User.query.get(current_user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    
+    data = request.get_json()
+    
+    # Update username if provided and not already taken
+    if 'username' in data and data['username']:
+        existing_user = User.query.filter(User.username == data['username'], User.id != current_user_id).first()
+        if existing_user:
+            return jsonify({'message': 'Username already taken'}), 400
+        user.username = data['username']
+    
+    # Update email if provided and not already taken
+    if 'email' in data and data['email']:
+        existing_user = User.query.filter(User.email == data['email'], User.id != current_user_id).first()
+        if existing_user:
+            return jsonify({'message': 'Email already taken'}), 400
+        user.email = data['email']
+    
+    # Update password if provided
+    if 'password' in data and data['password']:
+        if len(data['password']) < 6:
+            return jsonify({'message': 'Password must be at least 6 characters long'}), 400
+        user.set_password(data['password'])
+    
+    # Update business information
+    if 'farmName' in data:
+        user.farm_name = data['farmName']
+    if 'farmAddress' in data:
+        user.farm_address = data['farmAddress']
+    if 'farmPhone' in data:
+        user.farm_phone = data['farmPhone']
+    
+    # Update QR display settings
+    if 'qrDisplaySettings' in data:
+        qr_settings = data['qrDisplaySettings']
+        if 'showFarmInfo' in qr_settings:
+            user.qr_show_farm_info = qr_settings['showFarmInfo']
+        if 'showOwnerContact' in qr_settings:
+            user.qr_show_owner_contact = qr_settings['showOwnerContact']
+        if 'showBeehiveHistory' in qr_settings:
+            user.qr_show_beehive_history = qr_settings['showBeehiveHistory']
+        if 'showHealthStatus' in qr_settings:
+            user.qr_show_health_status = qr_settings['showHealthStatus']
+        if 'customMessage' in qr_settings:
+            user.qr_custom_message = qr_settings['customMessage']
+        if 'footerText' in qr_settings:
+            user.qr_footer_text = qr_settings['footerText']
+    
+    db.session.commit()
+    
+    return jsonify({
+        'message': 'Profile updated successfully',
+        'user': {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'farmName': user.farm_name,
+            'farmAddress': user.farm_address,
+            'farmPhone': user.farm_phone,
+            'qrDisplaySettings': {
+                'showFarmInfo': user.qr_show_farm_info,
+                'showOwnerContact': user.qr_show_owner_contact,
+                'showBeehiveHistory': user.qr_show_beehive_history,
+                'showHealthStatus': user.qr_show_health_status,
+                'customMessage': user.qr_custom_message,
+                'footerText': user.qr_footer_text,
+            }
+        }
+    })
 
 @app.route('/api/beehives', methods=['GET'])
 @token_required
@@ -436,7 +535,18 @@ def get_beehive_by_token(qr_token):
         'owner': {
             'id': owner.id,
             'username': owner.username,
-            'email': owner.email
+            'email': owner.email,
+            'farmName': owner.farm_name,
+            'farmAddress': owner.farm_address,
+            'farmPhone': owner.farm_phone,
+            'qrDisplaySettings': {
+                'showFarmInfo': owner.qr_show_farm_info,
+                'showOwnerContact': owner.qr_show_owner_contact,
+                'showBeehiveHistory': owner.qr_show_beehive_history,
+                'showHealthStatus': owner.qr_show_health_status,
+                'customMessage': owner.qr_custom_message,
+                'footerText': owner.qr_footer_text,
+            }
         } if owner else None
     })
 

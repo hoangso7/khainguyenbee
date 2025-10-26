@@ -190,36 +190,12 @@ const SoldBeehives = () => {
 
       {/* Stats Cards */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={6} sm={6} md={3}>
+        <Grid item xs={12}>
           <StatsCard
             title="Tổng số tổ đã bán"
             value={stats?.sold || 0}
             icon="💰"
             color="warning"
-          />
-        </Grid>
-        <Grid item xs={6} sm={6} md={3}>
-          <StatsCard
-            title="Tổng số tổ"
-            value={stats?.total || 0}
-            icon="🐝"
-            color="primary"
-          />
-        </Grid>
-        <Grid item xs={6} sm={6} md={3}>
-          <StatsCard
-            title="Tỷ lệ bán"
-            value={`${stats?.total ? Math.round((stats.sold / stats.total) * 100) : 0}%`}
-            icon="📊"
-            color="success"
-          />
-        </Grid>
-        <Grid item xs={6} sm={6} md={3}>
-          <StatsCard
-            title="Tổ đang quản lý"
-            value={stats?.active || 0}
-            icon="📈"
-            color="info"
           />
         </Grid>
       </Grid>
@@ -301,55 +277,55 @@ const SoldBeehives = () => {
           ) : (
             // Desktop Table View
             <TableContainer component={Paper}>
-              <Table sx={{ tableLayout: 'fixed' }}>
+              <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ width: '15%' }}>
+                    <TableCell>
                       <Button
                         onClick={() => handleSort('created_at')}
                         endIcon={getSortIcon('created_at')}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ textTransform: 'none', fontSize: '0.875rem' }}
                       >
                         Mã tổ
                       </Button>
                     </TableCell>
-                    <TableCell sx={{ width: '15%' }}>
+                    <TableCell>
                       <Button
                         onClick={() => handleSort('import_date')}
                         endIcon={getSortIcon('import_date')}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ textTransform: 'none', fontSize: '0.875rem' }}
                       >
                         Ngày nhập
                       </Button>
                     </TableCell>
-                    <TableCell sx={{ width: '15%' }}>
+                    <TableCell>
                       <Button
                         onClick={() => handleSort('split_date')}
                         endIcon={getSortIcon('split_date')}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ textTransform: 'none', fontSize: '0.875rem' }}
                       >
                         Ngày tách
                       </Button>
                     </TableCell>
-                    <TableCell sx={{ width: '15%' }}>
+                    <TableCell>
                       <Button
                         onClick={() => handleSort('health_status')}
                         endIcon={getSortIcon('health_status')}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ textTransform: 'none', fontSize: '0.875rem' }}
                       >
                         Sức khỏe
                       </Button>
                     </TableCell>
-                    <TableCell sx={{ width: '15%' }}>
+                    <TableCell>
                       <Button
                         onClick={() => handleSort('sold_date')}
                         endIcon={getSortIcon('sold_date')}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ textTransform: 'none', fontSize: '0.875rem' }}
                       >
                         Ngày bán
                       </Button>
                     </TableCell>
-                    <TableCell sx={{ width: '25%' }}>Thao tác</TableCell>
+                    <TableCell>Thao tác</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

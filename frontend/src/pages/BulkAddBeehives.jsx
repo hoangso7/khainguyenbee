@@ -30,10 +30,13 @@ import {
   Delete as DeleteIcon,
   Upload as UploadIcon,
   Download as DownloadIcon,
+  QrCode as QrCodeIcon,
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { createBeehive } from '../store/slices/beehiveSlice';
+import QRCode from 'qrcode';
+import jsPDF from 'jspdf';
 
 const BulkAddBeehives = () => {
   const dispatch = useDispatch();
@@ -51,6 +54,8 @@ const BulkAddBeehives = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [createdBeehives, setCreatedBeehives] = useState([]);
+  const [isGeneratingQR, setIsGeneratingQR] = useState(false);
 
   const healthStatusOptions = ['Tốt', 'Bình thường', 'Yếu'];
 
@@ -86,6 +91,73 @@ const BulkAddBeehives = () => {
     setBeehives(updated);
   };
 
+  const generateQRPDF = async (beehives) => {
+    setIsGeneratingQR(true);
+    try {
+      const pdf = new jsPDF();
+      const qrSize = 113; // 3cm in pixels (113px = 3cm at 96 DPI)
+      const perPage = 6;
+      const margin = 20;
+      const spacing = 10;
+      
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const qrAreaWidth = (pageWidth - 2 * margin - spacing) / 2;
+      const qrAreaHeight = (pageHeight - 2 * margin - 2 * spacing) / 3;
+      
+      let currentPage = 0;
+      let qrCount = 0;
+      
+      for (let i = 0; i < beehives.length; i++) {
+        const beehive = beehives[i];
+        
+        if (qrCount % perPage === 0 && qrCount > 0) {
+          pdf.addPage();
+          currentPage++;
+        }
+        
+        const row = Math.floor((qrCount % perPage) / 2);
+        const col = (qrCount % perPage) % 2;
+        
+        const x = margin + col * (qrAreaWidth + spacing);
+        const y = margin + row * (qrAreaHeight + spacing);
+        
+        // Generate QR code
+        const qrUrl = `${window.location.origin}/beehive/${beehive.qr_token}`;
+        const qrDataURL = await QRCode.toDataURL(qrUrl, {
+          width: qrSize,
+          margin: 1,
+          color: {
+            dark: '#000000',
+            light: '#FFFFFF'
+          }
+        });
+        
+        // Add QR code image
+        pdf.addImage(qrDataURL, 'PNG', x, y, qrSize, qrSize);
+        
+        // Add beehive information below QR code
+        const textY = y + qrSize + 5;
+        pdf.setFontSize(10);
+        pdf.text(`Mã tổ: ${beehive.serial_number}`, x, textY);
+        pdf.text(`Ngày nhập: ${beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}`, x, textY + 5);
+        
+        qrCount++;
+      }
+      
+      // Save PDF
+      const fileName = `QR_Codes_${new Date().toISOString().split('T')[0]}.pdf`;
+      pdf.save(fileName);
+      
+      setSuccess(prev => prev ? prev + ` Đã tải xuống file QR codes: ${fileName}` : `Đã tải xuống file QR codes: ${fileName}`);
+    } catch (error) {
+      console.error('Error generating QR PDF:', error);
+      setError('Có lỗi khi tạo file QR codes');
+    } finally {
+      setIsGeneratingQR(false);
+    }
+  };
+
   const handleCreateBeehives = async () => {
     if (beehives.length === 0) {
       setError('Vui lòng tạo ít nhất 1 tổ ong');
@@ -99,6 +171,7 @@ const BulkAddBeehives = () => {
     try {
       let successCount = 0;
       let errorCount = 0;
+      const createdBeehivesList = [];
 
       for (const beehive of beehives) {
         try {
@@ -109,7 +182,8 @@ const BulkAddBeehives = () => {
             notes: beehive.notes,
           };
           
-          await dispatch(createBeehive(beehiveData)).unwrap();
+          const result = await dispatch(createBeehive(beehiveData)).unwrap();
+          createdBeehivesList.push(result);
           successCount++;
         } catch (err) {
           console.error('Error creating beehive:', err);
@@ -119,8 +193,14 @@ const BulkAddBeehives = () => {
 
       if (successCount > 0) {
         setSuccess(`Đã tạo thành công ${successCount} tổ ong${errorCount > 0 ? `, ${errorCount} tổ ong gặp lỗi` : ''}`);
+        setCreatedBeehives(createdBeehivesList);
         setBeehives([]);
         setQuantity(1);
+        
+        // Automatically generate and download QR codes
+        if (createdBeehivesList.length > 0) {
+          await generateQRPDF(createdBeehivesList);
+        }
       } else {
         setError('Không thể tạo tổ ong nào. Vui lòng thử lại.');
       }
@@ -381,17 +461,30 @@ const BulkAddBeehives = () => {
         >
           Quay lại Dashboard
         </Button>
-        {beehives.length > 0 && (
-          <Button
-            variant="contained"
-            color="success"
-            onClick={handleCreateBeehives}
-            disabled={isCreating}
-            startIcon={isCreating ? <CircularProgress size={20} /> : <AddIcon />}
-          >
-            {isCreating ? 'Đang tạo...' : `Tạo ${beehives.length} tổ ong`}
-          </Button>
-        )}
+        <Stack direction="row" spacing={2}>
+          {createdBeehives.length > 0 && (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => generateQRPDF(createdBeehives)}
+              disabled={isGeneratingQR}
+              startIcon={isGeneratingQR ? <CircularProgress size={20} /> : <QrCodeIcon />}
+            >
+              {isGeneratingQR ? 'Đang tạo QR...' : `Tải QR Codes (${createdBeehives.length})`}
+            </Button>
+          )}
+          {beehives.length > 0 && (
+            <Button
+              variant="contained"
+              color="success"
+              onClick={handleCreateBeehives}
+              disabled={isCreating}
+              startIcon={isCreating ? <CircularProgress size={20} /> : <AddIcon />}
+            >
+              {isCreating ? 'Đang tạo...' : `Tạo ${beehives.length} tổ ong`}
+            </Button>
+          )}
+        </Stack>
       </Box>
     </Box>
   );
