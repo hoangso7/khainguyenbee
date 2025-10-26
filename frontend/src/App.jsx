@@ -47,7 +47,7 @@ const baseTheme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+    fontFamily: '"Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
     h4: {
       fontWeight: 600,
     },

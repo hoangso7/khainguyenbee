@@ -23,6 +23,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { createBeehive } from '../store/slices/beehiveSlice';
 import ValidatedTextField from '../components/common/ValidatedTextField';
+import DateInput from '../components/common/DateInput';
 import { VALIDATION_RULES, VALIDATION_SCHEMAS } from '../utils/formValidation';
 
 const AddBeehive = () => {
@@ -139,7 +140,7 @@ const AddBeehive = () => {
         >
           Quay lại
         </Button>
-        <Typography variant="h4" component="h1" color="primary">
+        <Typography variant="h4" component="h1">
           Thêm tổ ong mới
         </Typography>
       </Box>
@@ -169,36 +170,23 @@ const AddBeehive = () => {
             <Grid container spacing={3}>
               {/* Import Date */}
               <Grid item xs={12} sm={6}>
-                <ValidatedTextField
+                <DateInput
                   fullWidth
                   label="Ngày nhập"
-                  name="importDate"
-                  type="date"
                   value={formData.importDate}
                   onChange={(e) => handleInputChange('importDate', e.target.value)}
-                  validationRules={[VALIDATION_RULES.REQUIRED, VALIDATION_RULES.DATE]}
-                  errorMessage={fieldErrors.importDate}
-                  required
-                  InputLabelProps={{ shrink: true }}
+                  size="small"
                 />
               </Grid>
 
               {/* Split Date */}
               <Grid item xs={12} sm={6}>
-                <ValidatedTextField
+                <DateInput
                   fullWidth
                   label="Ngày tách"
-                  name="splitDate"
-                  type="date"
                   value={formData.splitDate}
                   onChange={(e) => handleInputChange('splitDate', e.target.value)}
-                  validationRules={[VALIDATION_RULES.DATE_RANGE]}
-                  validationOptions={{ minDate: formData.importDate }}
-                  errorMessage={fieldErrors.splitDate}
-                  InputLabelProps={{ shrink: true }}
-                  inputProps={{
-                    min: formData.importDate
-                  }}
+                  size="small"
                 />
               </Grid>
 
@@ -233,7 +221,7 @@ const AddBeehive = () => {
                   validationRules={[VALIDATION_RULES.MAX_LENGTH]}
                   validationOptions={{ maxLength: 500 }}
                   errorMessage={fieldErrors.notes}
-                  placeholder="Nhập ghi chú về tổ ong (tùy chọn)"
+                  placeholder="Ghi chú"
                 />
               </Grid>
 

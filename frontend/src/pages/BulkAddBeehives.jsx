@@ -35,6 +35,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { createBeehive } from '../store/slices/beehiveSlice';
+import DateInput from '../components/common/DateInput';
 import QRCode from 'qrcode';
 import jsPDF from 'jspdf';
 
@@ -256,23 +257,21 @@ const BulkAddBeehives = () => {
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6} md={3}>
-              <TextField
+              <DateInput
                 fullWidth
                 label="Ngày nhập"
-                type="date"
                 value={template.importDate}
                 onChange={(e) => setTemplate({ ...template, importDate: e.target.value })}
-                InputLabelProps={{ shrink: true }}
+                size="small"
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <TextField
+              <DateInput
                 fullWidth
                 label="Ngày tách"
-                type="date"
                 value={template.splitDate}
                 onChange={(e) => setTemplate({ ...template, splitDate: e.target.value })}
-                InputLabelProps={{ shrink: true }}
+                size="small"
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
@@ -402,21 +401,17 @@ const BulkAddBeehives = () => {
                     <TableRow key={beehive.id}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>
-                        <TextField
+                        <DateInput
                           size="small"
-                          type="date"
                           value={beehive.importDate}
                           onChange={(e) => updateBeehive(index, 'importDate', e.target.value)}
-                          InputLabelProps={{ shrink: true }}
                         />
                       </TableCell>
                       <TableCell>
-                        <TextField
+                        <DateInput
                           size="small"
-                          type="date"
                           value={beehive.splitDate || ''}
                           onChange={(e) => updateBeehive(index, 'splitDate', e.target.value)}
-                          InputLabelProps={{ shrink: true }}
                         />
                       </TableCell>
                       <TableCell>
