@@ -171,28 +171,55 @@ def token_required(f):
 
 @app.route('/api/auth/login', methods=['POST'])
 def api_login():
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
-    
-    user = User.query.filter_by(username=username).first()
-    
-    if user and user.check_password(password):
-        token = jwt.encode({
-            'user_id': user.id,
-            'exp': datetime.utcnow() + timedelta(days=30)
-        }, app.config['SECRET_KEY'], algorithm='HS256')
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'message': 'No data provided'}), 400
+            
+        username = data.get('username')
+        password = data.get('password')
         
-        return jsonify({
-            'token': token,
-            'user': {
-                'id': user.id,
-                'username': user.username,
-                'email': user.email
-            }
-        })
-    
-    return jsonify({'message': 'Invalid credentials'}), 401
+        if not username or not password:
+            return jsonify({'message': 'Username and password are required'}), 400
+        
+        # Check if database is ready
+        try:
+            user = User.query.filter_by(username=username).first()
+        except Exception as db_error:
+            app.logger.error(f'Database error during login: {str(db_error)}')
+            return jsonify({'message': 'Database not ready. Please try again.'}), 503
+        
+        if user and user.check_password(password):
+            token = jwt.encode({
+                'user_id': user.id,
+                'exp': datetime.utcnow() + timedelta(days=30)
+            }, app.config['SECRET_KEY'], algorithm='HS256')
+            
+            return jsonify({
+                'token': token,
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'farmName': user.farm_name,
+                    'farmAddress': user.farm_address,
+                    'farmPhone': user.farm_phone,
+                    'qrDisplaySettings': {
+                        'showFarmInfo': user.qr_show_farm_info,
+                        'showOwnerContact': user.qr_show_owner_contact,
+                        'showBeehiveHistory': user.qr_show_beehive_history,
+                        'showHealthStatus': user.qr_show_health_status,
+                        'customMessage': user.qr_custom_message,
+                        'footerText': user.qr_footer_text,
+                    }
+                }
+            })
+        
+        return jsonify({'message': 'Invalid credentials'}), 401
+        
+    except Exception as e:
+        app.logger.error(f'Login error: {str(e)}')
+        return jsonify({'message': 'Internal server error'}), 500
 
 @app.route('/api/auth/me', methods=['GET'])
 @token_required
@@ -611,25 +638,44 @@ def qr_code(serial_number):
 def check_setup():
     """Check if admin user exists"""
     try:
-        if User.query.first():
-            return jsonify({'setup_needed': False}), 200
-        else:
-            return jsonify({'setup_needed': True}), 200
+        # First check if database tables exist
+        try:
+            user_count = User.query.count()
+            if user_count == 0:
+                return jsonify({'setup_needed': True}), 200
+            else:
+                return jsonify({'setup_needed': False}), 200
+        except Exception as db_error:
+            # Database tables don't exist yet
+            app.logger.error(f'Database not ready for setup check: {str(db_error)}')
+            return jsonify({'setup_needed': True, 'message': 'Database not ready'}), 200
     except Exception as e:
-        return jsonify({'message': f'Error checking setup: {str(e)}'}), 500
+        app.logger.error(f'Setup check error: {str(e)}')
+        return jsonify({'setup_needed': True, 'message': f'Error checking setup: {str(e)}'}), 200
 
 # Setup endpoint to create admin user
 @app.route('/api/setup', methods=['POST'])
 def setup_admin():
     """Create admin user if no users exist - ONE TIME ONLY"""
     try:
+        # Ensure database tables exist first
+        try:
+            db.create_all()
+        except Exception as db_error:
+            app.logger.error(f'Error creating database tables: {str(db_error)}')
+            return jsonify({'message': 'Database initialization failed'}), 500
+        
         # Check if any users exist
-        existing_user = User.query.first()
-        if existing_user:
-            return jsonify({
-                'message': 'Setup already completed. Admin user already exists.',
-                'setup_completed': True
-            }), 400
+        try:
+            existing_user = User.query.first()
+            if existing_user:
+                return jsonify({
+                    'message': 'Setup already completed. Admin user already exists.',
+                    'setup_completed': True
+                }), 400
+        except Exception as db_error:
+            app.logger.error(f'Error checking existing users: {str(db_error)}')
+            return jsonify({'message': 'Database not ready for setup'}), 500
         
         data = request.get_json()
         username = data.get('username', 'admin')
@@ -666,6 +712,7 @@ def setup_admin():
         }), 201
     except Exception as e:
         db.session.rollback()
+        app.logger.error(f'Setup error: {str(e)}')
         return jsonify({'message': f'Error creating admin user: {str(e)}'}), 500
 
 # PDF export endpoint
@@ -712,10 +759,41 @@ def export_pdf(current_user_id, serial_number):
     buffer.seek(0)
     return send_file(buffer, as_attachment=True, download_name=f'{beehive.serial_number}.pdf', mimetype='application/pdf')
 
-if __name__ == '__main__':
+# Database initialization endpoint
+@app.route('/api/init-db', methods=['POST'])
+def init_database():
+    """Initialize database tables"""
+    try:
+        with app.app_context():
+            db.create_all()
+            return jsonify({'message': 'Database initialized successfully'})
+    except Exception as e:
+        return jsonify({'message': f'Database initialization failed: {str(e)}'}), 500
+
+# Initialize database when app starts
+def init_app():
+    """Initialize database and create tables"""
     with app.app_context():
-        db.create_all()
-    
+        try:
+            # Create all tables
+            db.create_all()
+            print("✓ Database tables created successfully")
+            
+            # Check if any users exist, if not, we're ready for setup
+            user_count = User.query.count()
+            if user_count == 0:
+                print("✓ Database is ready for initial setup")
+            else:
+                print(f"✓ Database initialized with {user_count} users")
+                
+        except Exception as e:
+            print(f"✗ Error creating database tables: {str(e)}")
+            # Don't exit, let the app run and handle errors gracefully
+
+# Initialize database on startup
+init_app()
+
+if __name__ == '__main__':
     # Only run in debug mode if explicitly set
     debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
     app.run(debug=debug_mode, host='0.0.0.0', port=5000)
