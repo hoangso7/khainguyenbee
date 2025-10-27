@@ -17,7 +17,7 @@ ARG VITE_DOMAIN=khainguyenbee.io.vn
 ARG VITE_APP_NAME="Quản lý tổ ong"
 ARG VITE_VERSION=2.0.0
 ARG VITE_COMPANY_NAME=KhaiNguyenBee
-ARG VITE_API_URL=http://localhost:8000/api
+ARG VITE_API_URL=/api
 
 # Set environment variables for build
 ENV VITE_DOMAIN=$VITE_DOMAIN

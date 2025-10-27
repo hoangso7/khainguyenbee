@@ -3,7 +3,7 @@
  * Handles all backend API calls
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 class ApiService {
   constructor() {
@@ -170,9 +170,12 @@ class ApiService {
   }
 
   async exportPDF(serialNumber) {
-    const response = await fetch(`${this.baseURL}/export_pdf/${serialNumber}`, {
+    const url = `${this.baseURL}/export_pdf/${serialNumber}`;
+    const token = this.getToken();
+
+    const response = await fetch(url, {
       headers: {
-        ...(this.getToken() && { 'Authorization': `Bearer ${this.getToken()}` }),
+        ...(token && { 'Authorization': `Bearer ${token}` }),
       },
     });
 
