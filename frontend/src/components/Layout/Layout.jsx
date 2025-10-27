@@ -193,6 +193,12 @@ const Layout = () => {
             </Box>
             
             {/* User Actions */}
+            <MenuItem onClick={() => { navigate('/about'); handleProfileMenuClose(); }}>
+              <ListItemIcon>
+                <InfoIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Giới thiệu</ListItemText>
+            </MenuItem>
             <MenuItem onClick={handleLogout}>
               <ListItemIcon>
                 <LogoutIcon fontSize="small" />
