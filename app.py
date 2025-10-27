@@ -48,15 +48,29 @@ def create_app(config_name=None):
          allow_headers=['Content-Type', 'Authorization'],
          supports_credentials=True)
     
-    # Initialize rate limiting with Redis storage
-    limiter = Limiter(
-        key_func=get_remote_address,
-        app=app,
-        storage_uri="redis://kbee_redis:6379",
-        default_limits=[app_config.RATE_LIMIT_DEFAULT] if app_config.RATE_LIMIT_ENABLED else [],
-        strategy="fixed-window",
-        swallow_errors=True
-    )
+    # Initialize rate limiting with Redis storage (fallback to memory if Redis unavailable)
+    try:
+        limiter = Limiter(
+            key_func=get_remote_address,
+            app=app,
+            storage_uri="redis://kbee_redis:6379",
+            default_limits=[app_config.RATE_LIMIT_DEFAULT] if app_config.RATE_LIMIT_ENABLED else [],
+            strategy="fixed-window",
+            swallow_errors=True
+        )
+        app.logger.info("Rate limiting initialized with Redis storage")
+    except Exception as e:
+        # Fallback to memory storage if Redis is unavailable
+        app.logger.warning(f"Redis unavailable for rate limiting ({e}), falling back to memory storage")
+        limiter = Limiter(
+            key_func=get_remote_address,
+            app=app,
+            storage_uri="memory://",
+            default_limits=[app_config.RATE_LIMIT_DEFAULT] if app_config.RATE_LIMIT_ENABLED else [],
+            strategy="fixed-window",
+            swallow_errors=True
+        )
+        app.logger.info("Rate limiting initialized with memory storage")
     
     # Register error handlers
     register_error_handlers(app)
