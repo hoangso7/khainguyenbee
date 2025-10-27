@@ -72,9 +72,9 @@ const UnifiedStatsCard = ({ stats }) => {
         </Box>
 
         {/* Stats Grid */}
-        <Grid container spacing={isMobile ? 1.5 : 2}>
+        <Grid container spacing={isMobile ? 1 : 2} sx={{ margin: 0 }}>
           {statsData.map((stat, index) => (
-            <Grid item xs={6} sm={3} key={index}>
+            <Grid item xs={6} sm={3} key={index} sx={{ padding: isMobile ? '4px' : '8px' }}>
               <Box
                 sx={{
                   background: `linear-gradient(135deg, ${stat.color}15 0%, ${stat.color}25 100%)`,

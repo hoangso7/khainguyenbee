@@ -163,3 +163,60 @@ body {
   }
 }
 
+/* Dashboard specific fixes */
+.MuiGrid-container {
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+.MuiGrid-item {
+  padding: 4px !important;
+  box-sizing: border-box !important;
+}
+
+/* Fix table overflow on mobile */
+.MuiTableContainer-root {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  width: 100% !important;
+}
+
+/* Fix card overflow */
+.MuiCard-root {
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* Fix button groups on mobile */
+.MuiStack-root {
+  width: 100% !important;
+  flex-wrap: wrap !important;
+}
+
+.MuiStack-root .MuiButton-root {
+  min-width: auto !important;
+  flex: 1 !important;
+}
+
+/* Fix search form on mobile */
+@media (max-width: 600px) {
+  .MuiGrid-container {
+    padding: 0 !important;
+  }
+  
+  .MuiGrid-item {
+    padding: 2px !important;
+  }
+  
+  .MuiTextField-root,
+  .MuiFormControl-root {
+    width: 100% !important;
+  }
+  
+  .MuiButton-root {
+    width: 100% !important;
+    margin: 2px 0 !important;
+  }
+}
+

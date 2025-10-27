@@ -204,8 +204,8 @@ const SoldBeehives = () => {
       </Box>
 
       {/* Stats Cards */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12}>
+      <Grid container spacing={2} sx={{ mb: 3, margin: 0 }}>
+        <Grid item xs={12} sx={{ padding: '4px' }}>
           <StatsCard
             title="Tổng số tổ đã bán"
             value={stats?.sold || 0}
@@ -225,8 +225,8 @@ const SoldBeehives = () => {
           </Box>
 
           {/* Search Form */}
-          <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid item xs={12} sm={6} md={3}>
+          <Grid container spacing={2} sx={{ mb: 3, margin: 0 }}>
+            <Grid item xs={12} sm={6} md={3} sx={{ padding: '4px' }}>
               <TextField
                 fullWidth
                 label="Tìm theo mã tổ"
@@ -236,7 +236,7 @@ const SoldBeehives = () => {
                 placeholder="VD: TO001"
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={3} sx={{ padding: '4px' }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Loại ngày</InputLabel>
                 <Select
@@ -249,7 +249,7 @@ const SoldBeehives = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={3} sx={{ padding: '4px' }}>
               <DateInput
                 fullWidth
                 label={`Tìm theo ${searchFilters.dateType === 'import_date' ? 'ngày nhập' : 'ngày bán'}`}
@@ -258,7 +258,7 @@ const SoldBeehives = () => {
                 size="small"
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={3} sx={{ padding: '4px' }}>
               <Stack direction="row" spacing={1}>
                 <Button
                   variant="contained"
@@ -276,7 +276,7 @@ const SoldBeehives = () => {
                 </Button>
               </Stack>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={3} sx={{ padding: '4px' }}>
               <Typography variant="body2" color="text.secondary" align="right">
                 Hiển thị {soldBeehives.length}/{pagination?.total || 0} tổ ong
               </Typography>

@@ -246,9 +246,9 @@ const EditBeehive = () => {
           </Typography>
 
           <form onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
+            <Grid container spacing={2} sx={{ margin: 0 }}>
               {/* Serial Number (Read-only) */}
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6} sx={{ padding: '4px' }}>
                 <TextField
                   fullWidth
                   label="Mã số tổ ong"
@@ -265,7 +265,7 @@ const EditBeehive = () => {
               </Grid>
 
               {/* Import Date */}
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6} sx={{ padding: '4px' }}>
                 <ValidatedTextField
                   fullWidth
                   label="Ngày nhập tổ"
@@ -281,7 +281,7 @@ const EditBeehive = () => {
               </Grid>
 
               {/* Split Date */}
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6} sx={{ padding: '4px' }}>
                 <ValidatedTextField
                   fullWidth
                   label="Ngày tách tổ"
@@ -300,7 +300,7 @@ const EditBeehive = () => {
               </Grid>
 
               {/* Health Status */}
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6} sx={{ padding: '4px' }}>
                 <FormControl fullWidth>
                   <InputLabel>Tình trạng</InputLabel>
                   <Select

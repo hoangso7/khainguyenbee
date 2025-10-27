@@ -249,8 +249,8 @@ const Dashboard = () => {
           </Box>
 
           {/* Search Form */}
-          <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid item xs={12} sm={6} md={3}>
+          <Grid container spacing={1} sx={{ mb: 3, margin: 0 }}>
+            <Grid item xs={12} sm={6} md={3} sx={{ padding: '4px' }}>
               <TextField
                 fullWidth
                 label="Tìm theo mã tổ"
@@ -260,7 +260,7 @@ const Dashboard = () => {
                 placeholder="VD: TO001"
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={3} sx={{ padding: '4px' }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Loại ngày</InputLabel>
                 <Select
@@ -273,7 +273,7 @@ const Dashboard = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={3} sx={{ padding: '4px' }}>
               <DateInput
                 fullWidth
                 label={`Tìm theo ${searchFilters.dateType === 'import_date' ? 'ngày nhập' : 'ngày tách'}`}
@@ -282,7 +282,7 @@ const Dashboard = () => {
                 size="small"
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={3} sx={{ padding: '4px' }}>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
                 <Button
                   variant="contained"
@@ -304,7 +304,7 @@ const Dashboard = () => {
                 </Button>
               </Stack>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={3} sx={{ padding: '4px' }}>
               <Typography 
                 variant="body2" 
                 color="text.secondary" 

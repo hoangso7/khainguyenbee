@@ -139,9 +139,9 @@ const ProfileSettings = () => {
         </Alert>
       )}
 
-      <Grid container spacing={3}>
+      <Grid container spacing={2} sx={{ margin: 0 }}>
         {/* Personal Information */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={6} sx={{ padding: '4px' }}>
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center" mb={2}>
@@ -151,8 +151,8 @@ const ProfileSettings = () => {
                 </Typography>
               </Box>
               
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
+              <Grid container spacing={2} sx={{ margin: 0 }}>
+                <Grid item xs={12} sx={{ padding: '4px' }}>
                   <TextField
                     fullWidth
                     label="Tên đăng nhập"
@@ -163,7 +163,7 @@ const ProfileSettings = () => {
                     sx={{ height: '56px' }}
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} sx={{ padding: '4px' }}>
                   <TextField
                     fullWidth
                     label="Email"
@@ -179,7 +179,7 @@ const ProfileSettings = () => {
         </Grid>
 
         {/* Farm Information */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={6} sx={{ padding: '4px' }}>
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center" mb={2}>
@@ -189,8 +189,8 @@ const ProfileSettings = () => {
                 </Typography>
               </Box>
               
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
+              <Grid container spacing={2} sx={{ margin: 0 }}>
+                <Grid item xs={12} sx={{ padding: '4px' }}>
                   <TextField
                     fullWidth
                     label="Tên trang trại"
@@ -200,7 +200,7 @@ const ProfileSettings = () => {
                     sx={{ height: '56px' }}
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} sx={{ padding: '4px' }}>
                   <TextField
                     fullWidth
                     label="Địa chỉ"
@@ -212,7 +212,7 @@ const ProfileSettings = () => {
                     sx={{ minHeight: '80px' }}
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} sx={{ padding: '4px' }}>
                   <TextField
                     fullWidth
                     label="Số điện thoại"
@@ -242,8 +242,8 @@ const ProfileSettings = () => {
                 Các cài đặt này sẽ ảnh hưởng đến cách hiển thị thông tin khi khách hàng quét QR code của tổ ong đã bán
               </Typography>
 
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+              <Grid container spacing={2} sx={{ margin: 0 }}>
+                <Grid item xs={12} md={6} sx={{ padding: '4px' }}>
                   <Paper sx={{ p: 2 }}>
                     <Typography variant="subtitle1" gutterBottom>
                       Thông tin hiển thị
@@ -289,7 +289,7 @@ const ProfileSettings = () => {
                   </Paper>
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={6} sx={{ padding: '4px' }}>
                   <Paper sx={{ p: 2 }}>
                     <Typography variant="subtitle1" gutterBottom>
                       Thông điệp tùy chỉnh

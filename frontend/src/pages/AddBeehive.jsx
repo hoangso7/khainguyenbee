@@ -167,9 +167,9 @@ const AddBeehive = () => {
           </Typography>
 
           <form onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
+            <Grid container spacing={2} sx={{ margin: 0 }}>
               {/* Import Date */}
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6} sx={{ padding: '4px' }}>
                 <DateInput
                   fullWidth
                   label="Ngày nhập"
@@ -180,7 +180,7 @@ const AddBeehive = () => {
               </Grid>
 
               {/* Split Date */}
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6} sx={{ padding: '4px' }}>
                 <DateInput
                   fullWidth
                   label="Ngày tách"
@@ -191,7 +191,7 @@ const AddBeehive = () => {
               </Grid>
 
               {/* Health Status */}
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6} sx={{ padding: '4px' }}>
                 <FormControl fullWidth>
                   <InputLabel>Tình trạng sức khỏe</InputLabel>
                   <Select
