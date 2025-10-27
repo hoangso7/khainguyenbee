@@ -23,8 +23,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Create non-root user
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+# Create logs directory and non-root user
+RUN mkdir -p /app/logs && \
+    useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app && \
+    chmod 755 /app/logs
 USER appuser
 
 # Expose port

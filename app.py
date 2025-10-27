@@ -60,45 +60,59 @@ def create_app(config_name=None):
     
     # Configure logging
     if not app.debug and not app.testing:
-        # Create logs directory if it doesn't exist
-        logs_dir = '/app/logs'
-        os.makedirs(logs_dir, exist_ok=True)
-        
-        # Configure file handler for errors
-        file_handler = RotatingFileHandler(
-            os.path.join(logs_dir, 'error.log'),
-            maxBytes=10240000,  # 10MB
-            backupCount=10
-        )
-        file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-        ))
-        file_handler.setLevel(logging.ERROR)
-        app.logger.addHandler(file_handler)
-        
-        app.logger.setLevel(logging.INFO)
-        app.logger.info('KBee Manager startup')
-    
-    # Root route for health check
-    @app.route('/')
-    def health_check():
-        return jsonify({
-            'status': 'healthy',
-            'message': 'KBee Manager API is running',
+        try:
+            # Create logs directory if it doesn't exist
+            logs_dir = '/app/logs'
+            os.makedirs(logs_dir, exist_ok=True)
+            
+            # Configure file handler for errors
+            file_handler = RotatingFileHandler(
+                os.path.join(logs_dir, 'error.log'),
+                maxBytes=10240000,  # 10MB
+                backupCount=10
+            )
+            file_handler.setFormatter(logging.Formatter(
+                '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+            ))
+            file_handler.setLevel(logging.ERROR)
+            app.logger.addHandler(file_handler)
+            
+            app.logger.setLevel(logging.INFO)
+            app.logger.info('KBee Manager startup with file logging')
+            
+        except (PermissionError, OSError) as e:
+            # Fallback to console logging if file logging fails
+            console_handler = logging.StreamHandler()
+            console_handler.setFormatter(logging.Formatter(
+                '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+            ))
+            console_handler.setLevel(logging.ERROR)
+            app.logger.addHandler(console_handler)
+            
+            app.logger.setLevel(logging.INFO)
+            app.logger.warning(f'File logging failed ({e}), using console logging')
+            app.logger.info('KBee Manager startup with console logging')
+
+# Root route for health check
+@app.route('/')
+def health_check():
+    return jsonify({
+        'status': 'healthy',
+        'message': 'KBee Manager API is running',
             'version': '2.0.0',
             'environment': app_config.FLASK_ENV
         })
     
-    # Database initialization endpoint
-    @app.route('/api/init-db', methods=['POST'])
-    def init_database():
-        """Initialize database tables"""
-        try:
-            with app.app_context():
-                db.create_all()
-                return jsonify({'message': 'Database initialized successfully'})
-        except Exception as e:
-            return jsonify({'message': f'Database initialization failed: {str(e)}'}), 500
+# Database initialization endpoint
+@app.route('/api/init-db', methods=['POST'])
+def init_database():
+    """Initialize database tables"""
+    try:
+        with app.app_context():
+            db.create_all()
+            return jsonify({'message': 'Database initialized successfully'})
+    except Exception as e:
+        return jsonify({'message': f'Database initialization failed: {str(e)}'}), 500
     
     return app
 
