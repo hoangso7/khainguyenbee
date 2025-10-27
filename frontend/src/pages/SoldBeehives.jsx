@@ -283,6 +283,18 @@ const SoldBeehives = () => {
             </Grid>
           </Grid>
 
+          {/* Mobile scroll indicator */}
+          {isMobile && (
+            <Box sx={{ 
+              textAlign: 'center', 
+              mb: 1, 
+              color: 'text.secondary',
+              fontSize: '0.75rem'
+            }}>
+              ← Vuốt ngang để xem thêm cột →
+            </Box>
+          )}
+
           {/* Beehives List - Compact Table View for all devices */}
           <TableContainer 
             component={Paper} 
@@ -292,17 +304,24 @@ const SoldBeehives = () => {
               overflowX: 'auto',
               overflowY: 'auto',
               display: 'block',
+              // Enhanced mobile scrolling
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#D2691E #f1f1f1',
               '&::-webkit-scrollbar': {
                 height: 12,
                 width: 12,
+                WebkitAppearance: 'none',
               },
               '&::-webkit-scrollbar-track': {
                 backgroundColor: '#f1f1f1',
                 borderRadius: 6,
+                WebkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.1)',
               },
               '&::-webkit-scrollbar-thumb': {
                 backgroundColor: '#D2691E',
                 borderRadius: 6,
+                WebkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.1)',
                 '&:hover': {
                   backgroundColor: '#B8860B',
                 },
@@ -312,16 +331,29 @@ const SoldBeehives = () => {
               },
             }}
           >
-            <Table stickyHeader sx={{ minWidth: 800 }}>
+            <Table stickyHeader sx={{ 
+              minWidth: { xs: 500, sm: 800 },
+              width: '100%',
+              display: 'table'
+            }}>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                  <TableCell sx={{ 
+                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                    padding: { xs: '4px 1px', sm: '16px' },
+                    minWidth: { xs: '70px', sm: '150px' },
+                    whiteSpace: 'nowrap',
+                    backgroundColor: '#f5f5f5',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 1
+                  }}>
                     <Button
                       onClick={() => handleSort('serial_number')}
                       endIcon={getSortIcon('serial_number')}
                       sx={{ 
                         textTransform: 'none', 
-                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
                         minWidth: 'auto',
                         p: { xs: 0.5, sm: 1 }
                       }}
@@ -329,13 +361,22 @@ const SoldBeehives = () => {
                       Mã tổ
                     </Button>
                   </TableCell>
-                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                  <TableCell sx={{ 
+                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                    padding: { xs: '4px 1px', sm: '16px' },
+                    minWidth: { xs: '70px', sm: '150px' },
+                    whiteSpace: 'nowrap',
+                    backgroundColor: '#f5f5f5',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 1
+                  }}>
                     <Button
                       onClick={() => handleSort('import_date')}
                       endIcon={getSortIcon('import_date')}
                       sx={{ 
                         textTransform: 'none', 
-                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
                         minWidth: 'auto',
                         p: { xs: 0.5, sm: 1 }
                       }}
@@ -343,13 +384,22 @@ const SoldBeehives = () => {
                       Ngày nhập
                     </Button>
                   </TableCell>
-                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                  <TableCell sx={{ 
+                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                    padding: { xs: '4px 1px', sm: '16px' },
+                    minWidth: { xs: '70px', sm: '150px' },
+                    whiteSpace: 'nowrap',
+                    backgroundColor: '#f5f5f5',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 1
+                  }}>
                     <Button
                       onClick={() => handleSort('split_date')}
                       endIcon={getSortIcon('split_date')}
                       sx={{ 
                         textTransform: 'none', 
-                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
                         minWidth: 'auto',
                         p: { xs: 0.5, sm: 1 }
                       }}
@@ -357,13 +407,22 @@ const SoldBeehives = () => {
                       Ngày tách
                     </Button>
                   </TableCell>
-                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                  <TableCell sx={{ 
+                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                    padding: { xs: '4px 1px', sm: '16px' },
+                    minWidth: { xs: '70px', sm: '150px' },
+                    whiteSpace: 'nowrap',
+                    backgroundColor: '#f5f5f5',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 1
+                  }}>
                     <Button
                       onClick={() => handleSort('health_status')}
                       endIcon={getSortIcon('health_status')}
                       sx={{ 
                         textTransform: 'none', 
-                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
                         minWidth: 'auto',
                         p: { xs: 0.5, sm: 1 }
                       }}
@@ -371,13 +430,22 @@ const SoldBeehives = () => {
                       Sức khỏe
                     </Button>
                   </TableCell>
-                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                  <TableCell sx={{ 
+                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                    padding: { xs: '4px 1px', sm: '16px' },
+                    minWidth: { xs: '70px', sm: '150px' },
+                    whiteSpace: 'nowrap',
+                    backgroundColor: '#f5f5f5',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 1
+                  }}>
                     <Button
                       onClick={() => handleSort('sold_date')}
                       endIcon={getSortIcon('sold_date')}
                       sx={{ 
                         textTransform: 'none', 
-                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
                         minWidth: 'auto',
                         p: { xs: 0.5, sm: 1 }
                       }}
@@ -385,23 +453,50 @@ const SoldBeehives = () => {
                       Ngày bán
                     </Button>
                   </TableCell>
-                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Thao tác</TableCell>
+                  <TableCell sx={{ 
+                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                    padding: { xs: '4px 1px', sm: '16px' },
+                    minWidth: { xs: '70px', sm: '150px' },
+                    whiteSpace: 'nowrap',
+                    backgroundColor: '#f5f5f5',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 1
+                  }}>Thao tác</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {soldBeehives.map((beehive) => (
                   <TableRow key={beehive.serial_number} hover>
-                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                    <TableCell sx={{ 
+                      py: { xs: 0.5, sm: 1 },
+                      px: { xs: '1px', sm: '16px' },
+                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                      whiteSpace: 'nowrap',
+                      minWidth: { xs: '70px', sm: '150px' }
+                    }}>
                       <Typography variant="subtitle2" fontWeight="bold" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                         {beehive.serial_number || 'N/A'}
                       </Typography>
                     </TableCell>
-                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                    <TableCell sx={{ 
+                      py: { xs: 0.5, sm: 1 },
+                      px: { xs: '1px', sm: '16px' },
+                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                      whiteSpace: 'nowrap',
+                      minWidth: { xs: '70px', sm: '150px' }
+                    }}>
                       <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                         {beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}
                       </Typography>
                     </TableCell>
-                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                    <TableCell sx={{ 
+                      py: { xs: 0.5, sm: 1 },
+                      px: { xs: '1px', sm: '16px' },
+                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                      whiteSpace: 'nowrap',
+                      minWidth: { xs: '70px', sm: '150px' }
+                    }}>
                       <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                         {beehive.split_date 
                           ? new Date(beehive.split_date).toLocaleDateString('vi-VN')
@@ -409,7 +504,13 @@ const SoldBeehives = () => {
                         }
                       </Typography>
                     </TableCell>
-                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                    <TableCell sx={{ 
+                      py: { xs: 0.5, sm: 1 },
+                      px: { xs: '1px', sm: '16px' },
+                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                      whiteSpace: 'nowrap',
+                      minWidth: { xs: '70px', sm: '150px' }
+                    }}>
                       <Chip
                         icon={<img src={getHealthStatusIcon(beehive.health_status || 'Unknown')} alt={beehive.health_status || 'Unknown'} style={{ width: 12, height: 12 }} />}
                         label={beehive.health_status || 'Unknown'}
@@ -418,7 +519,13 @@ const SoldBeehives = () => {
                         sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
                       />
                     </TableCell>
-                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                    <TableCell sx={{ 
+                      py: { xs: 0.5, sm: 1 },
+                      px: { xs: '1px', sm: '16px' },
+                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                      whiteSpace: 'nowrap',
+                      minWidth: { xs: '70px', sm: '150px' }
+                    }}>
                       <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                         {beehive.sold_date 
                           ? new Date(beehive.sold_date).toLocaleDateString('vi-VN')
@@ -426,7 +533,13 @@ const SoldBeehives = () => {
                         }
                       </Typography>
                     </TableCell>
-                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                    <TableCell sx={{ 
+                      py: { xs: 0.5, sm: 1 },
+                      px: { xs: '1px', sm: '16px' },
+                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                      whiteSpace: 'nowrap',
+                      minWidth: { xs: '70px', sm: '150px' }
+                    }}>
                       <Stack direction="row" spacing={0.25}>
                         <IconButton
                           size="small"

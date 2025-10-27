@@ -394,6 +394,18 @@ const BulkAddBeehives = () => {
               </Stack>
             </Box>
 
+            {/* Mobile scroll indicator */}
+            {isMobile && (
+              <Box sx={{ 
+                textAlign: 'center', 
+                mb: 1, 
+                color: 'text.secondary',
+                fontSize: '0.75rem'
+              }}>
+                ← Vuốt ngang để xem thêm cột →
+              </Box>
+            )}
+
             <TableContainer 
               component={Paper} 
               sx={{ 
@@ -402,17 +414,24 @@ const BulkAddBeehives = () => {
                 overflowX: 'auto',
                 overflowY: 'auto',
                 display: 'block',
+                // Enhanced mobile scrolling
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#D2691E #f1f1f1',
                 '&::-webkit-scrollbar': {
                   height: 12,
                   width: 12,
+                  WebkitAppearance: 'none',
                 },
                 '&::-webkit-scrollbar-track': {
                   backgroundColor: '#f1f1f1',
                   borderRadius: 6,
+                  WebkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.1)',
                 },
                 '&::-webkit-scrollbar-thumb': {
                   backgroundColor: '#D2691E',
                   borderRadius: 6,
+                  WebkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.1)',
                   '&:hover': {
                     backgroundColor: '#B8860B',
                   },
@@ -422,37 +441,119 @@ const BulkAddBeehives = () => {
                 },
               }}
             >
-              <Table stickyHeader sx={{ minWidth: 800 }}>
+              <Table stickyHeader sx={{ 
+                minWidth: { xs: 500, sm: 800 },
+                width: '100%',
+                display: 'table'
+              }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell>STT</TableCell>
-                    <TableCell>Ngày nhập</TableCell>
-                    <TableCell>Ngày tách</TableCell>
-                    <TableCell>Sức khỏe</TableCell>
-                    <TableCell>Ghi chú</TableCell>
-                    <TableCell>Thao tác</TableCell>
+                    <TableCell sx={{ 
+                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                      padding: { xs: '4px 1px', sm: '16px' },
+                      minWidth: { xs: '70px', sm: '150px' },
+                      whiteSpace: 'nowrap',
+                      backgroundColor: '#f5f5f5',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1
+                    }}>STT</TableCell>
+                    <TableCell sx={{ 
+                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                      padding: { xs: '4px 1px', sm: '16px' },
+                      minWidth: { xs: '70px', sm: '150px' },
+                      whiteSpace: 'nowrap',
+                      backgroundColor: '#f5f5f5',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1
+                    }}>Ngày nhập</TableCell>
+                    <TableCell sx={{ 
+                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                      padding: { xs: '4px 1px', sm: '16px' },
+                      minWidth: { xs: '70px', sm: '150px' },
+                      whiteSpace: 'nowrap',
+                      backgroundColor: '#f5f5f5',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1
+                    }}>Ngày tách</TableCell>
+                    <TableCell sx={{ 
+                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                      padding: { xs: '4px 1px', sm: '16px' },
+                      minWidth: { xs: '70px', sm: '150px' },
+                      whiteSpace: 'nowrap',
+                      backgroundColor: '#f5f5f5',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1
+                    }}>Sức khỏe</TableCell>
+                    <TableCell sx={{ 
+                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                      padding: { xs: '4px 1px', sm: '16px' },
+                      minWidth: { xs: '70px', sm: '150px' },
+                      whiteSpace: 'nowrap',
+                      backgroundColor: '#f5f5f5',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1
+                    }}>Ghi chú</TableCell>
+                    <TableCell sx={{ 
+                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                      padding: { xs: '4px 1px', sm: '16px' },
+                      minWidth: { xs: '70px', sm: '150px' },
+                      whiteSpace: 'nowrap',
+                      backgroundColor: '#f5f5f5',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1
+                    }}>Thao tác</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {beehives.map((beehive, index) => (
                     <TableRow key={beehive.id}>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell>
+                      <TableCell sx={{ 
+                        py: { xs: 0.5, sm: 1 },
+                        px: { xs: '1px', sm: '16px' },
+                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                        whiteSpace: 'nowrap',
+                        minWidth: { xs: '70px', sm: '150px' }
+                      }}>{index + 1}</TableCell>
+                      <TableCell sx={{ 
+                        py: { xs: 0.5, sm: 1 },
+                        px: { xs: '1px', sm: '16px' },
+                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                        whiteSpace: 'nowrap',
+                        minWidth: { xs: '70px', sm: '150px' }
+                      }}>
                         <DateInput
                           size="small"
                           value={beehive.importDate}
                           onChange={(e) => updateBeehive(index, 'importDate', e.target.value)}
                         />
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ 
+                        py: { xs: 0.5, sm: 1 },
+                        px: { xs: '1px', sm: '16px' },
+                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                        whiteSpace: 'nowrap',
+                        minWidth: { xs: '70px', sm: '150px' }
+                      }}>
                         <DateInput
                           size="small"
                           value={beehive.splitDate || ''}
                           onChange={(e) => updateBeehive(index, 'splitDate', e.target.value)}
                         />
                       </TableCell>
-                      <TableCell>
-                        <FormControl size="small" sx={{ minWidth: 120 }}>
+                      <TableCell sx={{ 
+                        py: { xs: 0.5, sm: 1 },
+                        px: { xs: '1px', sm: '16px' },
+                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                        whiteSpace: 'nowrap',
+                        minWidth: { xs: '70px', sm: '150px' }
+                      }}>
+                        <FormControl size="small" sx={{ minWidth: { xs: 80, sm: 120 } }}>
                           <Select
                             value={beehive.healthStatus}
                             onChange={(e) => updateBeehive(index, 'healthStatus', e.target.value)}
@@ -465,17 +566,29 @@ const BulkAddBeehives = () => {
                           </Select>
                         </FormControl>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ 
+                        py: { xs: 0.5, sm: 1 },
+                        px: { xs: '1px', sm: '16px' },
+                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                        whiteSpace: 'nowrap',
+                        minWidth: { xs: '70px', sm: '150px' }
+                      }}>
                         <TextField
                           size="small"
                           value={beehive.notes || ''}
                           onChange={(e) => updateBeehive(index, 'notes', e.target.value)}
                           multiline
                           rows={1}
-                          sx={{ minWidth: 150 }}
+                          sx={{ minWidth: { xs: 80, sm: 150 } }}
                         />
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ 
+                        py: { xs: 0.5, sm: 1 },
+                        px: { xs: '1px', sm: '16px' },
+                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                        whiteSpace: 'nowrap',
+                        minWidth: { xs: '70px', sm: '150px' }
+                      }}>
                         <IconButton
                           size="small"
                           onClick={() => removeBeehive(index)}

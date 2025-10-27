@@ -22,6 +22,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import {
   Download as DownloadIcon,
@@ -39,6 +41,8 @@ import QRCode from 'qrcode';
 const ExportQR = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { activeBeehives, loading } = useSelector((state) => state.beehives);
 
   const [selectedBeehives, setSelectedBeehives] = useState([]);
@@ -295,6 +299,19 @@ const ExportQR = () => {
               </Typography>
             </Box>
           ) : (
+            <>
+            {/* Mobile scroll indicator */}
+            {isMobile && (
+              <Box sx={{ 
+                textAlign: 'center', 
+                mb: 1, 
+                color: 'text.secondary',
+                fontSize: '0.75rem'
+              }}>
+                ← Vuốt ngang để xem thêm cột →
+              </Box>
+            )}
+
             <TableContainer 
               component={Paper} 
               sx={{ 
@@ -303,17 +320,24 @@ const ExportQR = () => {
                 overflowX: 'auto',
                 overflowY: 'auto',
                 display: 'block',
+                // Enhanced mobile scrolling
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#D2691E #f1f1f1',
                 '&::-webkit-scrollbar': {
                   height: 12,
                   width: 12,
+                  WebkitAppearance: 'none',
                 },
                 '&::-webkit-scrollbar-track': {
                   backgroundColor: '#f1f1f1',
                   borderRadius: 6,
+                  WebkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.1)',
                 },
                 '&::-webkit-scrollbar-thumb': {
                   backgroundColor: '#D2691E',
                   borderRadius: 6,
+                  WebkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.1)',
                   '&:hover': {
                     backgroundColor: '#B8860B',
                   },
@@ -323,51 +347,134 @@ const ExportQR = () => {
                 },
               }}
             >
-              <Table stickyHeader sx={{ minWidth: 800 }}>
+              <Table stickyHeader sx={{ 
+                minWidth: { xs: 500, sm: 800 },
+                width: '100%',
+                display: 'table'
+              }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell padding="checkbox">
+                    <TableCell padding="checkbox" sx={{ 
+                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                      padding: { xs: '4px 1px', sm: '16px' },
+                      minWidth: { xs: '50px', sm: '80px' },
+                      whiteSpace: 'nowrap',
+                      backgroundColor: '#f5f5f5',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1
+                    }}>
                       <Checkbox
                         indeterminate={selectedBeehives.length > 0 && selectedBeehives.length < activeBeehives.length}
                         checked={selectedBeehives.length === activeBeehives.length}
                         onChange={handleSelectAll}
+                        size="small"
                       />
                     </TableCell>
-                    <TableCell>Mã tổ</TableCell>
-                    <TableCell>Ngày nhập</TableCell>
-                    <TableCell>Sức khỏe</TableCell>
-                    <TableCell>Thao tác</TableCell>
+                    <TableCell sx={{ 
+                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                      padding: { xs: '4px 1px', sm: '16px' },
+                      minWidth: { xs: '70px', sm: '150px' },
+                      whiteSpace: 'nowrap',
+                      backgroundColor: '#f5f5f5',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1
+                    }}>Mã tổ</TableCell>
+                    <TableCell sx={{ 
+                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                      padding: { xs: '4px 1px', sm: '16px' },
+                      minWidth: { xs: '70px', sm: '150px' },
+                      whiteSpace: 'nowrap',
+                      backgroundColor: '#f5f5f5',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1
+                    }}>Ngày nhập</TableCell>
+                    <TableCell sx={{ 
+                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                      padding: { xs: '4px 1px', sm: '16px' },
+                      minWidth: { xs: '70px', sm: '150px' },
+                      whiteSpace: 'nowrap',
+                      backgroundColor: '#f5f5f5',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1
+                    }}>Sức khỏe</TableCell>
+                    <TableCell sx={{ 
+                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                      padding: { xs: '4px 1px', sm: '16px' },
+                      minWidth: { xs: '70px', sm: '150px' },
+                      whiteSpace: 'nowrap',
+                      backgroundColor: '#f5f5f5',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1
+                    }}>Thao tác</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {activeBeehives.map((beehive) => (
                     <TableRow key={beehive.serial_number}>
-                      <TableCell padding="checkbox">
+                      <TableCell padding="checkbox" sx={{ 
+                        py: { xs: 0.5, sm: 1 },
+                        px: { xs: '1px', sm: '16px' },
+                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                        whiteSpace: 'nowrap',
+                        minWidth: { xs: '50px', sm: '80px' }
+                      }}>
                         <Checkbox
                           checked={selectedBeehives.includes(beehive.serial_number)}
                           onChange={(e) => handleSelectBeehive(beehive.serial_number, e.target.checked)}
+                          size="small"
                         />
                       </TableCell>
-                      <TableCell>
-                        <Typography variant="subtitle2" fontWeight="bold">
+                      <TableCell sx={{ 
+                        py: { xs: 0.5, sm: 1 },
+                        px: { xs: '1px', sm: '16px' },
+                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                        whiteSpace: 'nowrap',
+                        minWidth: { xs: '70px', sm: '150px' }
+                      }}>
+                        <Typography variant="subtitle2" fontWeight="bold" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>
                           {beehive.serial_number || 'N/A'}
                         </Typography>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ 
+                        py: { xs: 0.5, sm: 1 },
+                        px: { xs: '1px', sm: '16px' },
+                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                        whiteSpace: 'nowrap',
+                        minWidth: { xs: '70px', sm: '150px' }
+                      }}>
                         {beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ 
+                        py: { xs: 0.5, sm: 1 },
+                        px: { xs: '1px', sm: '16px' },
+                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                        whiteSpace: 'nowrap',
+                        minWidth: { xs: '70px', sm: '150px' }
+                      }}>
                         <Chip
                           label={beehive.health_status || 'Unknown'}
                           color={getHealthStatusColor(beehive.health_status || 'Unknown')}
                           size="small"
+                          sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
                         />
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ 
+                        py: { xs: 0.5, sm: 1 },
+                        px: { xs: '1px', sm: '16px' },
+                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                        whiteSpace: 'nowrap',
+                        minWidth: { xs: '70px', sm: '150px' }
+                      }}>
                         <Button
                           size="small"
                           startIcon={<QrCodeIcon />}
                           onClick={() => handleViewQR(beehive)}
+                          sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
                         >
                           Xem QR
                         </Button>
@@ -377,6 +484,7 @@ const ExportQR = () => {
                 </TableBody>
               </Table>
             </TableContainer>
+            </>
           )}
         </CardContent>
       </Card>
