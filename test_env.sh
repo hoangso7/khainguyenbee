@@ -6,6 +6,11 @@ echo ""
 echo "1. Checking .env file exists:"
 if [ -f ".env" ]; then
     echo "✅ .env file exists"
+    echo "Loading environment variables from .env file..."
+    # Use export to handle spaces and special characters
+    set -a
+    source .env
+    set +a
 else
     echo "❌ .env file not found"
     echo "Run: cp env.example .env"
@@ -16,7 +21,7 @@ echo ""
 echo "2. Frontend Environment Variables:"
 echo "REACT_APP_DOMAIN: ${REACT_APP_DOMAIN:-khainguyenbee.io.vn}"
 echo "REACT_APP_NAME: ${REACT_APP_NAME:-Quản lý tổ ong}"
-echo "REACT_APP_VERSION: ${REACT_APP_VERSION:-2.0.0}"
+echo "REACT_APP_VERSION: ${REACT_APP_VERSION:-1.0.0}"
 echo "REACT_APP_COMPANY_NAME: ${REACT_APP_COMPANY_NAME:-KhaiNguyenBee}"
 
 echo ""
@@ -31,7 +36,14 @@ echo "MYSQL_DATABASE: ${MYSQL_DATABASE:-kbee_manager}"
 echo "MYSQL_USER: ${MYSQL_USER:-kbee_user}"
 
 echo ""
-echo "5. To update website information:"
+echo "5. Port Configuration:"
+echo "FRONTEND_PORT: ${FRONTEND_PORT:-80}"
+echo "FRONTEND_SSL_PORT: ${FRONTEND_SSL_PORT:-443}"
+echo "DB_PORT: ${DB_PORT:-3306}"
+echo "REDIS_PORT: ${REDIS_PORT:-6379}"
+
+echo ""
+echo "6. To update website information:"
 echo "Edit .env file and change these values:"
 echo "REACT_APP_DOMAIN=your-domain.com"
 echo "REACT_APP_NAME=Your App Name"

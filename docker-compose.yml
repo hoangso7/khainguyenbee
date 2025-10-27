@@ -60,7 +60,7 @@ services:
       args:
         REACT_APP_DOMAIN: ${REACT_APP_DOMAIN:-khainguyenbee.io.vn}
         REACT_APP_NAME: ${REACT_APP_NAME:-Quản lý tổ ong}
-        REACT_APP_VERSION: ${REACT_APP_VERSION:-2.0.0}
+        REACT_APP_VERSION: ${REACT_APP_VERSION:-1.0.0}
         REACT_APP_COMPANY_NAME: ${REACT_APP_COMPANY_NAME:-KhaiNguyenBee}
     container_name: kbee_frontend
     restart: unless-stopped
