@@ -7,6 +7,7 @@ import { Badge } from '../components/ui/badge';
 import { toast } from 'sonner';
 import { ArrowLeft, QrCode, Calendar, Edit, Download } from 'lucide-react';
 import QRCodeLib from 'qrcode';
+import { formatDate } from '../utils/dateUtils';
 
 const BeehiveDetail = () => {
   const navigate = useNavigate();
@@ -76,15 +77,15 @@ const BeehiveDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white">
+      <header className="bg-gradient-to-r from-amber-500 to-yellow-500 border-b border-amber-400 shadow-md">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Button variant="ghost" onClick={() => navigate('/')}>
+            <Button variant="ghost" onClick={() => navigate('/')} className="text-white hover:bg-white/20">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Quay lại
             </Button>
-            <Button onClick={() => navigate(`/edit-beehive/${serialNumber}`)}>
+            <Button onClick={() => navigate(`/edit-beehive/${serialNumber}`)} className="bg-white text-amber-700 hover:bg-amber-50">
               <Edit className="w-4 h-4 mr-2" />
               Chỉnh sửa
             </Button>
@@ -113,7 +114,7 @@ const BeehiveDetail = () => {
                 <p className="text-sm text-gray-500">Ngày nhập</p>
                 <p className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  {beehive.import_date}
+                  {formatDate(beehive.import_date)}
                 </p>
               </div>
               {beehive.split_date && (
@@ -121,7 +122,7 @@ const BeehiveDetail = () => {
                   <p className="text-sm text-gray-500">Ngày tách đàn</p>
                   <p className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
-                    {beehive.split_date}
+                    {formatDate(beehive.split_date)}
                   </p>
                 </div>
               )}
@@ -130,7 +131,7 @@ const BeehiveDetail = () => {
                   <p className="text-sm text-gray-500">Ngày bán</p>
                   <p className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
-                    {beehive.sold_date}
+                    {formatDate(beehive.sold_date)}
                   </p>
                 </div>
               )}
@@ -161,7 +162,7 @@ const BeehiveDetail = () => {
               <p className="text-sm text-gray-500 text-center">
                 Quét mã QR để xem thông tin công khai của tổ ong
               </p>
-              <Button onClick={downloadQR} variant="outline">
+              <Button onClick={downloadQR} variant="outline" className="border-amber-500 text-amber-700 hover:bg-amber-50">
                 <Download className="w-4 h-4 mr-2" />
                 Tải mã QR
               </Button>

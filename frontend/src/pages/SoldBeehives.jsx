@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../lib/api.js';
+import { formatDate } from '../utils/dateUtils';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -19,8 +20,22 @@ const SoldBeehives = () => {
 
   const loadSoldBeehives = async () => {
     try {
-      const response = await apiService.getSoldBeehives(1, 1000); // Get all sold beehives
-      setBeehives(response.beehives || []);
+      let allBeehives = [];
+      let page = 1;
+      let hasMore = true;
+      const perPage = 100; // Maximum allowed by backend
+
+      while (hasMore) {
+        const response = await apiService.getSoldBeehives(page, perPage);
+        const beehives = response.beehives || [];
+        allBeehives = [...allBeehives, ...beehives];
+        
+        // Check if there are more pages
+        hasMore = beehives.length === perPage;
+        page++;
+      }
+
+      setBeehives(allBeehives);
     } catch (error) {
       console.error('Error loading sold beehives:', error);
     }
@@ -46,10 +61,10 @@ const SoldBeehives = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white">
+      <header className="bg-gradient-to-r from-amber-500 to-yellow-500 border-b border-amber-400 shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <Button variant="ghost" onClick={() => navigate('/')}>
+          <Button variant="ghost" onClick={() => navigate('/')} className="text-white hover:bg-white/20">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Quay lại
           </Button>
@@ -101,8 +116,8 @@ const SoldBeehives = () => {
                     filteredBeehives.map((beehive) => (
                       <TableRow key={beehive.serial_number}>
                         <TableCell>{beehive.serial_number}</TableCell>
-                        <TableCell>{beehive.import_date}</TableCell>
-                        <TableCell>{beehive.sold_date || '-'}</TableCell>
+                        <TableCell>{formatDate(beehive.import_date)}</TableCell>
+                        <TableCell>{beehive.sold_date ? formatDate(beehive.sold_date) : '-'}</TableCell>
                         <TableCell>
                           <Badge variant={getHealthBadgeVariant(beehive.health_status)}>
                             {beehive.health_status}
@@ -136,7 +151,7 @@ const SoldBeehives = () => {
                       <div className="flex justify-between items-start">
                         <div>
                           <CardTitle className="text-base">{beehive.serial_number}</CardTitle>
-                          <p className="text-sm text-gray-500">Ngày bán: {beehive.sold_date || '-'}</p>
+                          <p className="text-sm text-gray-500">Ngày bán: {beehive.sold_date ? formatDate(beehive.sold_date) : '-'}</p>
                         </div>
                         <Badge variant={getHealthBadgeVariant(beehive.health_status)}>
                           {beehive.health_status}
@@ -144,7 +159,7 @@ const SoldBeehives = () => {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-2">
-                      <p className="text-sm text-gray-600">Ngày nhập: {beehive.import_date}</p>
+                      <p className="text-sm text-gray-600">Ngày nhập: {formatDate(beehive.import_date)}</p>
                       {beehive.notes && (
                         <p className="text-sm text-gray-600">{beehive.notes}</p>
                       )}

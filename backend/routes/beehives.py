@@ -9,7 +9,7 @@ import logging
 import io
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image as RLImage, KeepTogether
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 
@@ -38,6 +38,7 @@ def get_beehives():
             'serialNumber': request.args.get('serialNumber', ''),
             'import_date': request.args.get('import_date', ''),
             'split_date': request.args.get('split_date', ''),
+            'notes': request.args.get('notes', ''),
         }
         
         # Validate pagination
@@ -50,9 +51,19 @@ def get_beehives():
         # Build query for active beehives
         query = Beehive.query.filter_by(user_id=current_user_id, is_sold=False)
         
-        # Apply serial number filter
-        if query_params['serialNumber']:
+        # Apply filters with OR logic for general search
+        from sqlalchemy import or_
+        
+        # If both serialNumber and notes are provided, use OR logic
+        if query_params['serialNumber'] and query_params['notes']:
+            query = query.filter(or_(
+                Beehive.serial_number.like(f'%{query_params["serialNumber"]}%'),
+                Beehive.notes.like(f'%{query_params["notes"]}%')
+            ))
+        elif query_params['serialNumber']:
             query = query.filter(Beehive.serial_number.like(f'%{query_params["serialNumber"]}%'))
+        elif query_params['notes']:
+            query = query.filter(Beehive.notes.like(f'%{query_params["notes"]}%'))
         
         # Apply date filters
         if query_params['import_date']:
@@ -133,6 +144,7 @@ def get_sold_beehives():
             'serialNumber': request.args.get('serialNumber', ''),
             'import_date': request.args.get('import_date', ''),
             'sold_date': request.args.get('sold_date', ''),
+            'notes': request.args.get('notes', ''),
         }
         
         # Validate pagination
@@ -145,9 +157,19 @@ def get_sold_beehives():
         # Build query for sold beehives
         query = Beehive.query.filter_by(user_id=current_user_id, is_sold=True)
         
-        # Apply filters
-        if query_params['serialNumber']:
+        # Apply filters with OR logic for general search
+        from sqlalchemy import or_
+        
+        # If both serialNumber and notes are provided, use OR logic
+        if query_params['serialNumber'] and query_params['notes']:
+            query = query.filter(or_(
+                Beehive.serial_number.like(f'%{query_params["serialNumber"]}%'),
+                Beehive.notes.like(f'%{query_params["notes"]}%')
+            ))
+        elif query_params['serialNumber']:
             query = query.filter(Beehive.serial_number.like(f'%{query_params["serialNumber"]}%'))
+        elif query_params['notes']:
+            query = query.filter(Beehive.notes.like(f'%{query_params["notes"]}%'))
         
         if query_params['import_date']:
             try:
@@ -524,3 +546,114 @@ def export_pdf(serial_number):
     except Exception as e:
         logger.error(f'PDF export error: {str(e)}')
         raise DatabaseError('Failed to export PDF')
+
+@beehives_bp.route('/export_bulk_qr_pdf', methods=['POST'])
+@jwt_required()
+def export_bulk_qr_pdf():
+    """Export multiple beehives with QR codes as PDF in 5x5 grid layout"""
+    try:
+        current_user_id = get_jwt_identity()
+        data = request.get_json()
+        
+        if not data or 'serial_numbers' not in data:
+            raise ValidationError('Serial numbers required')
+        
+        serial_numbers = data['serial_numbers']
+        
+        # Get all beehives for the user
+        beehives = Beehive.query.filter_by(user_id=current_user_id).filter(
+            Beehive.serial_number.in_(serial_numbers)
+        ).all()
+        
+        if not beehives:
+            raise NotFoundError('No beehives found')
+        
+        # Create PDF with QR codes
+        buffer = io.BytesIO()
+        # Set margins to 1.5cm on all sides
+        doc = SimpleDocTemplate(buffer, pagesize=A4, 
+                               leftMargin=1.5*cm, rightMargin=1.5*cm,
+                               topMargin=1.5*cm, bottomMargin=1.5*cm)
+        styles = getSampleStyleSheet()
+        
+        # QR code dimensions for 5x5 grid on A4
+        # A4 is 210mm x 297mm, usable area: 180mm x 267mm with margins
+        qr_size = 3.0*cm  # 3cm for QR code
+        cell_width = 3.6*cm  # Each cell is 3.6cm wide
+        cell_height = 5.3*cm  # Each cell is 5.3cm tall
+        
+        # Process beehives in batches of 25
+        elements = []
+        page_count = (len(beehives) + 24) // 25  # Ceiling division
+        
+        for page_idx in range(page_count):
+            # Get 25 beehives for this page
+            start_idx = page_idx * 25
+            end_idx = min(start_idx + 25, len(beehives))
+            page_beehives = beehives[start_idx:end_idx]
+            
+            # Generate QR codes for this page
+            qr_cells = []
+            for beehive in page_beehives:
+                try:
+                    # Get QR code image
+                    qr_buffer = QRCodeGenerator.generate_qr_image(beehive.qr_token)
+                    qr_img = RLImage(qr_buffer, width=qr_size, height=qr_size)
+                    
+                    # Create cell with QR code centered and serial number below
+                    cell_elements = [
+                        qr_img,
+                        Spacer(1, 0.05*cm),
+                        Paragraph(f'<para align="center"><font size="8"><b>{beehive.serial_number}</b></font></para>', styles['Normal'])
+                    ]
+                    
+                    qr_cells.append(KeepTogether(cell_elements))
+                except Exception as e:
+                    logger.error(f'Error generating QR for {beehive.serial_number}: {str(e)}')
+                    # Fallback: just show serial number
+                    qr_cells.append(Paragraph(f'<para align="center"><b>{beehive.serial_number}</b></para>', styles['Normal']))
+            
+            # Fill remaining slots with empty cells if needed
+            while len(qr_cells) < 25:
+                empty_para = Paragraph('<para align="center"></para>', styles['Normal'])
+                qr_cells.append(empty_para)
+            
+            # Create 5x5 grid table
+            grid_data = []
+            for row in range(5):
+                row_data = []
+                for col in range(5):
+                    idx = row * 5 + col
+                    row_data.append(qr_cells[idx])
+                grid_data.append(row_data)
+            
+            # Create the 5x5 grid table
+            grid_table = Table(grid_data, colWidths=[cell_width]*5, rowHeights=[cell_height]*5)
+            grid_table.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('GRID', (0, 0), (-1, -1), 0.3, colors.grey),
+                ('LEFTPADDING', (0, 0), (-1, -1), 1),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 1),
+                ('TOPPADDING', (0, 0), (-1, -1), 1),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
+            ]))
+            
+            elements.append(grid_table)
+        
+        doc.build(elements)
+        buffer.seek(0)
+        
+        filename = f'QR_to_ong_{datetime.utcnow().strftime("%Y%m%d_%H%M%S")}.pdf'
+        
+        logger.info(f'Bulk QR PDF exported for {len(beehives)} beehives by user {current_user_id}')
+        
+        return send_file(buffer, as_attachment=True, download_name=filename, mimetype='application/pdf')
+        
+    except ValidationError:
+        raise
+    except NotFoundError:
+        raise
+    except Exception as e:
+        logger.error(f'Bulk QR PDF export error: {str(e)}')
+        raise DatabaseError('Failed to export bulk QR PDF')

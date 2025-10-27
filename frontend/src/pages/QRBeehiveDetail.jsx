@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import apiService from '../lib/api.js';
+import { formatDate } from '../utils/dateUtils';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Hexagon, Calendar, MapPin, Phone } from 'lucide-react';
@@ -102,7 +103,7 @@ const QRBeehiveDetail = () => {
                 <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
                 <div>
                   <p className="text-sm text-gray-500">Ngày nhập</p>
-                  <p>{beehive.import_date}</p>
+                  <p>{formatDate(beehive.import_date)}</p>
                 </div>
               </div>
 
@@ -111,7 +112,7 @@ const QRBeehiveDetail = () => {
                   <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
                     <p className="text-sm text-gray-500">Ngày tách đàn</p>
-                    <p>{beehive.split_date}</p>
+                    <p>{formatDate(beehive.split_date)}</p>
                   </div>
                 </div>
               )}
@@ -127,7 +128,7 @@ const QRBeehiveDetail = () => {
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                   <p className="text-sm text-yellow-800">
                     Tổ ong này đã được bán
-                    {beehive.sold_date && ` vào ngày ${beehive.sold_date}`}
+                    {beehive.sold_date && ` vào ngày ${formatDate(beehive.sold_date)}`}
                   </p>
                 </div>
               )}

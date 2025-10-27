@@ -10,7 +10,6 @@ import BulkAddBeehives from './pages/BulkAddBeehives';
 import EditBeehive from './pages/EditBeehive';
 import BeehiveDetail from './pages/BeehiveDetail';
 import QRBeehiveDetail from './pages/QRBeehiveDetail';
-import ExportQR from './pages/ExportQR';
 import ExportPDF from './pages/ExportPDF';
 import SoldBeehives from './pages/SoldBeehives';
 import ProfileSettings from './pages/ProfileSettings';
@@ -71,14 +70,6 @@ function App() {
           element={
             <ProtectedRoute>
               <BeehiveDetail />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/export-qr"
-          element={
-            <ProtectedRoute>
-              <ExportQR />
             </ProtectedRoute>
           }
         />

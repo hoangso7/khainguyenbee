@@ -100,21 +100,27 @@ class ApiService {
   }
 
   // Beehives API
-  async getBeehives(page = 1, per_page = 10, serialNumber = '') {
+  async getBeehives(page = 1, per_page = 10, searchParams = {}) {
     const params = new URLSearchParams({
       page: page.toString(),
       per_page: per_page.toString(),
-      ...(serialNumber && { serialNumber }),
+      ...(searchParams.serialNumber && { serialNumber: searchParams.serialNumber }),
+      ...(searchParams.import_date && { import_date: searchParams.import_date }),
+      ...(searchParams.split_date && { split_date: searchParams.split_date }),
+      ...(searchParams.notes && { notes: searchParams.notes }),
     });
     
     return await this.request(`/beehives?${params}`);
   }
 
-  async getSoldBeehives(page = 1, per_page = 10, serialNumber = '') {
+  async getSoldBeehives(page = 1, per_page = 10, searchParams = {}) {
     const params = new URLSearchParams({
       page: page.toString(),
       per_page: per_page.toString(),
-      ...(serialNumber && { serialNumber }),
+      ...(searchParams.serialNumber && { serialNumber: searchParams.serialNumber }),
+      ...(searchParams.import_date && { import_date: searchParams.import_date }),
+      ...(searchParams.sold_date && { sold_date: searchParams.sold_date }),
+      ...(searchParams.notes && { notes: searchParams.notes }),
     });
     
     return await this.request(`/sold-beehives?${params}`);
@@ -177,6 +183,26 @@ class ApiService {
       headers: {
         ...(token && { 'Authorization': `Bearer ${token}` }),
       },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.blob();
+  }
+
+  async exportBulkQRPDF(serialNumbers) {
+    const url = `${this.baseURL}/export_bulk_qr_pdf`;
+    const token = this.getToken();
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+      },
+      body: JSON.stringify({ serial_numbers: serialNumbers }),
     });
 
     if (!response.ok) {

@@ -92,10 +92,10 @@ const Layout = () => {
 
   const drawer = (
     <Box>
-      <Toolbar>
+      <Toolbar sx={{ background: 'linear-gradient(to right, #F59E0B, #EAB308)' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <img src={beeIcon} alt="KhaiNguyenBee" style={{ height: 32, width: 32 }} />
-          <Typography variant="h6" noWrap component="div">
+          <Typography variant="h6" noWrap component="div" sx={{ color: 'white', fontWeight: 600 }}>
             KhaiNguyenBee
           </Typography>
         </Box>
@@ -107,6 +107,18 @@ const Layout = () => {
             <ListItemButton
               selected={location.pathname === item.path}
               aria-current={location.pathname === item.path ? 'page' : undefined}
+              sx={{
+                '&.Mui-selected': {
+                  backgroundColor: '#FEF3C7',
+                  color: '#92400E',
+                  '&:hover': {
+                    backgroundColor: '#FDE68A',
+                  },
+                },
+                '&:hover': {
+                  backgroundColor: '#FFFBEB',
+                },
+              }}
               onClick={() => {
                 navigate(item.path);
                 if (isMobile) {
@@ -114,7 +126,9 @@ const Layout = () => {
                 }
               }}
             >
-              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemIcon sx={{ color: location.pathname === item.path ? '#92400E' : 'inherit' }}>
+                {item.icon}
+              </ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>
           </ListItem>
@@ -131,6 +145,8 @@ const Layout = () => {
           width: { md: `calc(100% - ${drawerWidth}px)` },
           ml: { md: `${drawerWidth}px` },
           zIndex: (theme) => theme.zIndex.drawer + 1,
+          background: 'linear-gradient(to right, #F59E0B, #EAB308)',
+          boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)',
         }}
       >
         <Toolbar>
@@ -158,7 +174,7 @@ const Layout = () => {
             onClick={handleProfileMenuOpen}
             color="inherit"
           >
-            <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>
+            <Avatar sx={{ width: 32, height: 32, bgcolor: '#D97706' }}>
               {user?.username?.charAt(0)?.toUpperCase() || 'U'}
             </Avatar>
           </IconButton>

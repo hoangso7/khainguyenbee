@@ -38,9 +38,45 @@ const BulkAddBeehives = () => {
         });
       }
 
-      await apiService.createMultipleBeehives(beehives);
-      toast.success(`Đã thêm ${formData.quantity} tổ ong`);
-      navigate('/');
+      // Create beehives sequentially to avoid race conditions
+      const results = [];
+      for (const beehiveData of beehives) {
+        try {
+          const result = await apiService.createBeehive(beehiveData);
+          results.push(result);
+        } catch (error) {
+          console.error('Failed to create beehive:', error);
+          // Continue with next beehive even if one fails
+        }
+      }
+
+      if (results.length > 0) {
+        toast.success(`Đã thêm ${results.length}/${formData.quantity} tổ ong`);
+        
+        // Automatically download PDF with QR codes
+        try {
+          const serialNumbers = results.map(r => r.serial_number);
+          const blob = await apiService.exportBulkQRPDF(serialNumbers);
+          
+          // Create download link
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          const timestamp = new Date().toISOString().split('T')[0];
+          link.download = `QR_to_ong_${timestamp}.pdf`;
+          link.click();
+          URL.revokeObjectURL(url);
+          
+          toast.success('Đã tải xuống file PDF chứa mã QR');
+        } catch (pdfError) {
+          console.error('PDF download error:', pdfError);
+          // Don't show error to user, as beehives were successfully created
+        }
+        
+        navigate('/');
+      } else {
+        toast.error('Không thể thêm tổ ong nào');
+      }
     } catch (error) {
       toast.error(error.message || 'Không thể thêm tổ ong');
     } finally {
@@ -49,10 +85,10 @@ const BulkAddBeehives = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white">
+      <header className="bg-gradient-to-r from-amber-500 to-yellow-500 border-b border-amber-400 shadow-md">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <Button variant="ghost" onClick={() => navigate('/')}>
+          <Button variant="ghost" onClick={() => navigate('/')} className="text-white hover:bg-white/20">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Quay lại
           </Button>
@@ -111,18 +147,21 @@ const BulkAddBeehives = () => {
                 </Select>
               </div>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-800">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
+                <p className="text-sm text-blue-800 font-medium">
                   Hệ thống sẽ tự động tạo mã tổ ong và mã QR cho {formData.quantity} tổ ong.
+                </p>
+                <p className="text-sm text-blue-800">
+                  ⬇️ Sau khi thêm thành công, file PDF chứa mã QR của các tổ ong sẽ được tự động tải xuống.
                   Bạn có thể cập nhật thông tin chi tiết cho từng tổ sau khi thêm.
                 </p>
               </div>
 
               <div className="flex gap-3 pt-4">
-                <Button type="submit" disabled={loading} className="flex-1">
+                <Button type="submit" disabled={loading} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white">
                   {loading ? 'Đang thêm...' : `Thêm ${formData.quantity} tổ ong`}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => navigate('/')}>
+                <Button type="button" variant="outline" onClick={() => navigate('/')} className="border-amber-500 text-amber-700 hover:bg-amber-50">
                   Hủy
                 </Button>
               </div>

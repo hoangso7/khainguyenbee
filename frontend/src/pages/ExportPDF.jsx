@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../lib/api.js';
+import { formatDate } from '../utils/dateUtils';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Checkbox } from '../components/ui/checkbox';
@@ -19,8 +20,22 @@ const ExportPDF = () => {
 
   const loadBeehives = async () => {
     try {
-      const response = await apiService.getBeehives(1, 1000); // Get all beehives
-      setBeehives(response.beehives || []);
+      let allBeehives = [];
+      let page = 1;
+      let hasMore = true;
+      const perPage = 100; // Maximum allowed by backend
+
+      while (hasMore) {
+        const response = await apiService.getBeehives(page, perPage);
+        const beehives = response.beehives || [];
+        allBeehives = [...allBeehives, ...beehives];
+        
+        // Check if there are more pages
+        hasMore = beehives.length === perPage;
+        page++;
+      }
+
+      setBeehives(allBeehives);
     } catch {
       toast.error('Không thể tải danh sách tổ ong');
     }
@@ -71,7 +86,7 @@ const ExportPDF = () => {
           <body>
             <div class="header">
               <h1>Danh sách tổ ong</h1>
-              <p>Ngày xuất: ${new Date().toLocaleDateString('vi-VN')}</p>
+              <p>Ngày xuất: ${new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
             </div>
             <table>
               <thead>
@@ -86,7 +101,7 @@ const ExportPDF = () => {
                 ${selectedBeehives.map(beehive => `
                   <tr>
                     <td>${beehive.serial_number}</td>
-                    <td>${beehive.import_date}</td>
+                    <td>${formatDate(beehive.import_date)}</td>
                     <td>${beehive.health_status}</td>
                     <td>${beehive.notes || '-'}</td>
                   </tr>
@@ -116,10 +131,10 @@ const ExportPDF = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white">
+      <header className="bg-gradient-to-r from-amber-500 to-yellow-500 border-b border-amber-400 shadow-md">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <Button variant="ghost" onClick={() => navigate('/')}>
+          <Button variant="ghost" onClick={() => navigate('/')} className="text-white hover:bg-white/20">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Quay lại
           </Button>
@@ -177,7 +192,7 @@ const ExportPDF = () => {
                             <p>{beehive.serial_number}</p>
                             <p className="text-sm text-gray-500">{beehive.health_status}</p>
                           </div>
-                          <p className="text-sm text-gray-500">{beehive.import_date}</p>
+                          <p className="text-sm text-gray-500">{formatDate(beehive.import_date)}</p>
                         </div>
                       </label>
                     </div>
@@ -188,12 +203,12 @@ const ExportPDF = () => {
                   <Button
                     onClick={generateAndDownloadPDF}
                     disabled={generating || selectedIds.size === 0}
-                    className="flex-1"
+                    className="flex-1 bg-amber-500 hover:bg-amber-600 text-white"
                   >
                     <Download className="w-4 h-4 mr-2" />
                     {generating ? 'Đang tạo...' : `Xuất ${selectedIds.size} tổ ong`}
                   </Button>
-                  <Button variant="outline" onClick={() => navigate('/')}>
+                  <Button variant="outline" onClick={() => navigate('/')} className="border-amber-500 text-amber-700 hover:bg-amber-50">
                     Hủy
                   </Button>
                 </div>

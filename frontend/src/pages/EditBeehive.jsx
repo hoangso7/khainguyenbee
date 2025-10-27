@@ -80,10 +80,10 @@ const EditBeehive = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white">
+      <header className="bg-gradient-to-r from-amber-500 to-yellow-500 border-b border-amber-400 shadow-md">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <Button variant="ghost" onClick={() => navigate('/')}>
+          <Button variant="ghost" onClick={() => navigate('/')} className="text-white hover:bg-white/20">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Quay lại
           </Button>
@@ -176,10 +176,10 @@ const EditBeehive = () => {
               </div>
 
               <div className="flex gap-3 pt-4">
-                <Button type="submit" disabled={loading} className="flex-1">
+                <Button type="submit" disabled={loading} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white">
                   {loading ? 'Đang cập nhật...' : 'Cập nhật'}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => navigate('/')}>
+                <Button type="button" variant="outline" onClick={() => navigate('/')} className="border-amber-500 text-amber-700 hover:bg-amber-50">
                   Hủy
                 </Button>
               </div>
