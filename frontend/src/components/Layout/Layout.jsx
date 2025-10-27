@@ -34,7 +34,15 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../store/slices/authSlice';
 import beeIcon from '../../assets/bee-icon.png';
-import { getAppConfig } from '../../services/config.js';
+// Inline config instead of import
+const getAppConfig = () => {
+  return {
+    domain: process.env.REACT_APP_DOMAIN || 'khainguyenbee.io.vn',
+    appName: process.env.REACT_APP_NAME || 'Quản lý tổ ong',
+    version: process.env.REACT_APP_VERSION || '2.0.0',
+    companyName: process.env.REACT_APP_COMPANY_NAME || 'KhaiNguyenBee'
+  };
+};
 
 const drawerWidth = 240;
 

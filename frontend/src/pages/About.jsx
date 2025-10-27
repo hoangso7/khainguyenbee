@@ -19,7 +19,15 @@ import {
   Support as SupportIcon,
   CheckCircle as CheckIcon,
 } from '@mui/icons-material';
-import { getAppConfig } from '../../services/config.js';
+// Inline config instead of import
+const getAppConfig = () => {
+  return {
+    domain: process.env.REACT_APP_DOMAIN || 'khainguyenbee.io.vn',
+    appName: process.env.REACT_APP_NAME || 'Quản lý tổ ong',
+    version: process.env.REACT_APP_VERSION || '2.0.0',
+    companyName: process.env.REACT_APP_COMPANY_NAME || 'KhaiNguyenBee'
+  };
+};
 
 const About = () => {
   const appConfig = getAppConfig();
