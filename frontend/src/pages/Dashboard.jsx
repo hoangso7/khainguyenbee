@@ -49,7 +49,7 @@ import {
   setSort,
   setPage,
 } from '../store/slices/beehiveSlice';
-import StatsCard from '../components/Dashboard/StatsCard';
+import UnifiedStatsCard from '../components/Dashboard/UnifiedStatsCard';
 import BeehiveCard from '../components/Dashboard/BeehiveCard';
 import HealthChart from '../components/Dashboard/HealthChart';
 import AccessibleIconButton from '../components/common/AccessibleIconButton';
@@ -205,42 +205,9 @@ const Dashboard = () => {
         </Alert>
       )}
 
-      {/* Stats Cards */}
+      {/* Unified Stats Card */}
       <Box sx={{ mb: 3 }}>
-        <Grid container spacing={1.5}>
-          <Grid item xs={6} sm={3}>
-            <StatsCard
-              title="Tổng số tổ ong"
-              value={stats?.total || 0}
-              icon="🐝"
-              color="primary"
-            />
-          </Grid>
-          <Grid item xs={6} sm={3}>
-            <StatsCard
-              title="Tổ đang quản lý"
-              value={stats?.active || 0}
-              icon="📊"
-              color="info"
-            />
-          </Grid>
-          <Grid item xs={6} sm={3}>
-            <StatsCard
-              title="Tổ đã bán"
-              value={stats?.sold || 0}
-              icon="💰"
-              color="warning"
-            />
-          </Grid>
-          <Grid item xs={6} sm={3}>
-            <StatsCard
-              title="Tổ khỏe mạnh"
-              value={stats?.healthy || 0}
-              icon="💚"
-              color="success"
-            />
-          </Grid>
-        </Grid>
+        <UnifiedStatsCard stats={stats} />
       </Box>
 
 
