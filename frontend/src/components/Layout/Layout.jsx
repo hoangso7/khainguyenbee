@@ -18,6 +18,8 @@ import {
   Menu,
   MenuItem,
   Divider,
+  ListItemSecondaryAction,
+  Chip,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -27,10 +29,12 @@ import {
   Download as DownloadIcon,
   Logout as LogoutIcon,
   Person as PersonIcon,
+  Info as InfoIcon,
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../store/slices/authSlice';
 import beeIcon from '../../assets/bee-icon.png';
+import getAppConfig from '../../services/config';
 
 const drawerWidth = 240;
 
@@ -41,6 +45,7 @@ const Layout = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const appConfig = getAppConfig();
   
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -132,7 +137,7 @@ const Layout = () => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            KhaiNguyenBee - Quản lý tổ ong
+            {appConfig.companyName} - {appConfig.appName}
           </Typography>
           <IconButton
             size="large"
@@ -158,6 +163,36 @@ const Layout = () => {
               'aria-labelledby': 'user-menu-button',
             }}
           >
+            {/* App Information */}
+            <Box sx={{ px: 2, py: 1, borderBottom: 1, borderColor: 'divider' }}>
+              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                Thông tin ứng dụng
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" color="text.primary">
+                    Domain:
+                  </Typography>
+                  <Chip label={appConfig.domain} size="small" variant="outlined" />
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" color="text.primary">
+                    Tên phần mềm:
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {appConfig.appName}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" color="text.primary">
+                    Phiên bản:
+                  </Typography>
+                  <Chip label={appConfig.version} size="small" color="primary" />
+                </Box>
+              </Box>
+            </Box>
+            
+            {/* User Actions */}
             <MenuItem onClick={handleLogout}>
               <ListItemIcon>
                 <LogoutIcon fontSize="small" />

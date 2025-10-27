@@ -29,7 +29,6 @@ import {
   Add as AddIcon,
   Delete as DeleteIcon,
   Upload as UploadIcon,
-  Download as DownloadIcon,
   QrCode as QrCodeIcon,
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
@@ -220,22 +219,6 @@ const BulkAddBeehives = () => {
     }
   };
 
-  const downloadTemplate = () => {
-    const csvContent = [
-      'import_date,split_date,health_status,notes',
-      `${template.importDate},${template.splitDate || ''},${template.healthStatus},${template.notes}`
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'beehive_template.csv');
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
 
   return (
     <Box p={3}>
@@ -304,11 +287,35 @@ const BulkAddBeehives = () => {
         </CardContent>
       </Card>
 
+      {/* Instructions */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Hướng dẫn
+          </Typography>
+          <Typography variant="body2" color="text.secondary" paragraph>
+            1. Cấu hình thông tin mẫu cho tổ ong ở phần trên
+          </Typography>
+          <Typography variant="body2" color="text.secondary" paragraph>
+            2. Nhập số lượng tổ ong cần tạo (tối đa 100 tổ)
+          </Typography>
+          <Typography variant="body2" color="text.secondary" paragraph>
+            3. Nhấn "Tạo danh sách" để tạo danh sách tổ ong
+          </Typography>
+          <Typography variant="body2" color="text.secondary" paragraph>
+            4. Kiểm tra và chỉnh sửa thông tin từng tổ ong nếu cần
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            5. Nhấn "Tạo N tổ ong" để tạo tất cả tổ ong trong danh sách
+          </Typography>
+        </CardContent>
+      </Card>
+
       {/* Quantity and Generate */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={6}>
               <TextField
                 fullWidth
                 label="Số lượng tổ ong"
@@ -319,7 +326,7 @@ const BulkAddBeehives = () => {
                 helperText="Tối đa 100 tổ ong mỗi lần"
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={6}>
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
@@ -328,16 +335,6 @@ const BulkAddBeehives = () => {
                 fullWidth
               >
                 Tạo danh sách
-              </Button>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <Button
-                variant="outlined"
-                startIcon={<DownloadIcon />}
-                onClick={downloadTemplate}
-                fullWidth
-              >
-                Tải mẫu CSV
               </Button>
             </Grid>
           </Grid>
@@ -372,7 +369,7 @@ const BulkAddBeehives = () => {
                   disabled={isCreating}
                   startIcon={isCreating ? <CircularProgress size={20} /> : <AddIcon />}
                 >
-                  {isCreating ? 'Đang tạo...' : 'Tạo tất cả'}
+                  {isCreating ? 'Đang tạo...' : `Tạo ${beehives.length} tổ ong`}
                 </Button>
                 <Button
                   variant="outlined"
@@ -457,13 +454,7 @@ const BulkAddBeehives = () => {
       )}
 
       {/* Actions */}
-      <Box mt={3} display="flex" justifyContent="space-between">
-        <Button
-          variant="outlined"
-          onClick={() => navigate('/dashboard')}
-        >
-          Quay lại Dashboard
-        </Button>
+      <Box mt={3} display="flex" justifyContent="flex-end">
         <Stack direction="row" spacing={2}>
           {createdBeehives.length > 0 && (
             <Button
@@ -474,17 +465,6 @@ const BulkAddBeehives = () => {
               startIcon={isGeneratingQR ? <CircularProgress size={20} /> : <QrCodeIcon />}
             >
               {isGeneratingQR ? 'Đang tạo QR...' : `Tải QR Codes (${createdBeehives.length})`}
-            </Button>
-          )}
-          {beehives.length > 0 && (
-            <Button
-              variant="contained"
-              color="success"
-              onClick={handleCreateBeehives}
-              disabled={isCreating}
-              startIcon={isCreating ? <CircularProgress size={20} /> : <AddIcon />}
-            >
-              {isCreating ? 'Đang tạo...' : `Tạo ${beehives.length} tổ ong`}
             </Button>
           )}
         </Stack>
