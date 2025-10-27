@@ -12,6 +12,18 @@ RUN npm ci
 # Copy source code
 COPY . .
 
+# Build arguments for environment variables
+ARG REACT_APP_DOMAIN=khainguyenbee.io.vn
+ARG REACT_APP_NAME="Quản lý tổ ong"
+ARG REACT_APP_VERSION=2.0.0
+ARG REACT_APP_COMPANY_NAME=KhaiNguyenBee
+
+# Set environment variables for build
+ENV REACT_APP_DOMAIN=$REACT_APP_DOMAIN
+ENV REACT_APP_NAME=$REACT_APP_NAME
+ENV REACT_APP_VERSION=$REACT_APP_VERSION
+ENV REACT_APP_COMPANY_NAME=$REACT_APP_COMPANY_NAME
+
 # Build the app
 RUN npm run build
 
