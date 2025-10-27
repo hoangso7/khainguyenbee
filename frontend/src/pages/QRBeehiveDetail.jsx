@@ -556,7 +556,7 @@ const QRBeehiveDetail = () => {
           <Typography variant="body2" color="text.secondary">
             {beehive.is_sold 
               ? (businessInfo?.qr_footer_text || 'Cảm ơn bạn đã tin tưởng sản phẩm của chúng tôi')
-              : 'Quét mã QR để xem thông tin tổ ong'
+              : 'Phần mêm quản lý tỏ ong KBee'
             }
           </Typography>
         </Box>
