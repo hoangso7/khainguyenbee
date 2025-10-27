@@ -92,6 +92,7 @@ const BulkAddBeehives = () => {
   };
 
   const generateQRPDF = async (beehives) => {
+    console.log('generateQRPDF called with:', beehives);
     setIsGeneratingQR(true);
     try {
       const pdf = new jsPDF();
@@ -118,6 +119,7 @@ const BulkAddBeehives = () => {
       
       for (let i = 0; i < beehives.length; i++) {
         const beehive = beehives[i];
+        console.log(`Processing beehive ${i + 1}:`, beehive);
         
         if (qrCount % perPage === 0 && qrCount > 0) {
           pdf.addPage();
@@ -133,6 +135,8 @@ const BulkAddBeehives = () => {
         
         // Generate QR code
         const qrUrl = `${window.location.origin}/beehive/${beehive.qr_token}`;
+        console.log(`Generating QR for URL: ${qrUrl}`);
+        
         const qrDataURL = await QRCode.toDataURL(qrUrl, {
           width: qrSize,
           margin: 1,
@@ -155,7 +159,9 @@ const BulkAddBeehives = () => {
       
       // Save PDF
       const fileName = `QR_Codes_${new Date().toISOString().split('T')[0]}.pdf`;
+      console.log(`Saving PDF with filename: ${fileName}`);
       pdf.save(fileName);
+      console.log('PDF saved successfully');
       
       setSuccess(prev => prev ? prev + ` Đã tải xuống file QR codes: ${fileName}` : `Đã tải xuống file QR codes: ${fileName}`);
     } catch (error) {
@@ -207,7 +213,14 @@ const BulkAddBeehives = () => {
         
         // Automatically generate and download QR codes
         if (createdBeehivesList.length > 0) {
-          await generateQRPDF(createdBeehivesList);
+          console.log('Auto-generating QR codes for:', createdBeehivesList);
+          try {
+            await generateQRPDF(createdBeehivesList);
+            console.log('QR codes generated successfully');
+          } catch (qrError) {
+            console.error('Error auto-generating QR codes:', qrError);
+            setError(prev => prev ? prev + ' Lưu ý: Có lỗi khi tự động tạo QR codes.' : 'Có lỗi khi tự động tạo QR codes.');
+          }
         }
       } else {
         setError('Không thể tạo tổ ong nào. Vui lòng thử lại.');
