@@ -24,7 +24,6 @@ beehives_bp = Blueprint('beehives', __name__, url_prefix='/api')
 
 @beehives_bp.route('/beehives', methods=['GET'])
 @jwt_required()
-@handle_database_error
 def get_beehives():
     """Get paginated list of active beehives"""
     try:
@@ -120,7 +119,6 @@ def get_beehives():
 
 @beehives_bp.route('/sold-beehives', methods=['GET'])
 @jwt_required()
-@handle_database_error
 def get_sold_beehives():
     """Get paginated list of sold beehives"""
     try:
@@ -207,7 +205,6 @@ def get_sold_beehives():
 
 @beehives_bp.route('/stats', methods=['GET'])
 @jwt_required()
-@handle_database_error
 def get_stats():
     """Get beehive statistics"""
     try:
@@ -235,8 +232,6 @@ def get_stats():
 
 @beehives_bp.route('/beehives', methods=['POST'])
 @jwt_required()
-@validation_error_handler
-@handle_database_error
 def create_beehive():
     """Create a new beehive"""
     try:
@@ -280,7 +275,6 @@ def create_beehive():
 
 @beehives_bp.route('/beehives/<serial_number>', methods=['GET'])
 @jwt_required()
-@handle_database_error
 def get_beehive(serial_number):
     """Get specific beehive details"""
     try:
@@ -300,8 +294,6 @@ def get_beehive(serial_number):
 
 @beehives_bp.route('/beehives/<serial_number>', methods=['PUT'])
 @jwt_required()
-@validation_error_handler
-@handle_database_error
 def update_beehive(serial_number):
     """Update beehive information"""
     try:
@@ -345,7 +337,6 @@ def update_beehive(serial_number):
 
 @beehives_bp.route('/beehives/<serial_number>', methods=['DELETE'])
 @jwt_required()
-@handle_database_error
 def delete_beehive(serial_number):
     """Delete beehive"""
     try:
@@ -371,7 +362,6 @@ def delete_beehive(serial_number):
 
 @beehives_bp.route('/beehives/<serial_number>/sell', methods=['POST'])
 @jwt_required()
-@handle_database_error
 def sell_beehive(serial_number):
     """Mark beehive as sold"""
     try:
@@ -399,7 +389,6 @@ def sell_beehive(serial_number):
 
 @beehives_bp.route('/beehives/<serial_number>/unsell', methods=['POST'])
 @jwt_required()
-@handle_database_error
 def unsell_beehive(serial_number):
     """Mark beehive as not sold"""
     try:
@@ -426,7 +415,6 @@ def unsell_beehive(serial_number):
         raise DatabaseError('Failed to unsell beehive')
 
 @beehives_bp.route('/beehive/<qr_token>', methods=['GET'])
-@handle_database_error
 def get_beehive_by_token(qr_token):
     """Get beehive by QR token (public endpoint)"""
     try:
@@ -483,7 +471,6 @@ def qr_code(serial_number):
 
 @beehives_bp.route('/export_pdf/<serial_number>')
 @jwt_required()
-@handle_database_error
 def export_pdf(serial_number):
     """Export beehive information as PDF"""
     try:

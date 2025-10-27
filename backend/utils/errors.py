@@ -172,17 +172,17 @@ def register_error_handlers(app):
 
 def handle_database_error(func):
     """Decorator to handle database errors"""
-    def wrapper(*args, **kwargs):
+    def db_wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except Exception as e:
             logger.error(f"Database error in {func.__name__}: {str(e)}")
             raise DatabaseError("Database operation failed")
-    return wrapper
+    return db_wrapper
 
 def validation_error_handler(func):
     """Decorator to handle validation errors"""
-    def wrapper(*args, **kwargs):
+    def validation_wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except ValueError as e:
@@ -191,4 +191,4 @@ def validation_error_handler(func):
         except TypeError as e:
             logger.warning(f"Type error in {func.__name__}: {str(e)}")
             raise ValidationError("Invalid data type")
-    return wrapper
+    return validation_wrapper
