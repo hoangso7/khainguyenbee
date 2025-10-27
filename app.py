@@ -32,7 +32,7 @@ def create_app(config_name=None):
     app_config = config.get(config_name, config['default'])
     
     # Create Flask app
-    app = Flask(__name__)
+app = Flask(__name__)
     app.config.from_object(app_config)
     
     # Initialize extensions
@@ -42,7 +42,11 @@ def create_app(config_name=None):
     jwt = JWTManager(app)
     
     # Initialize CORS with improved security
-    CORS(app, origins=app_config.CORS_ORIGINS)
+    CORS(app, 
+         origins=app_config.CORS_ORIGINS,
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+         allow_headers=['Content-Type', 'Authorization'],
+         supports_credentials=True)
     
     # Initialize rate limiting
     limiter = Limiter(
@@ -93,27 +97,27 @@ def create_app(config_name=None):
             app.logger.warning(f'File logging failed ({e}), using console logging')
             app.logger.info('KBee Manager startup with console logging')
 
-    # Root route for health check
-    @app.route('/')
-    def health_check():
-        return jsonify({
-            'status': 'healthy',
-            'message': 'KBee Manager API is running',
+# Root route for health check
+@app.route('/')
+def health_check():
+    return jsonify({
+        'status': 'healthy',
+        'message': 'KBee Manager API is running',
             'version': '2.0.0',
             'environment': app_config.FLASK_ENV
         })
     
-    # Database initialization endpoint
-    @app.route('/api/init-db', methods=['POST'])
-    def init_database():
-        """Initialize database tables"""
-        try:
-            with app.app_context():
-                db.create_all()
-                return jsonify({'message': 'Database initialized successfully'})
-        except Exception as e:
-            return jsonify({'message': f'Database initialization failed: {str(e)}'}), 500
-    
+# Database initialization endpoint
+@app.route('/api/init-db', methods=['POST'])
+def init_database():
+    """Initialize database tables"""
+    try:
+        with app.app_context():
+            db.create_all()
+            return jsonify({'message': 'Database initialized successfully'})
+    except Exception as e:
+        return jsonify({'message': f'Database initialization failed: {str(e)}'}), 500
+
     return app
 
 def init_db_on_startup(app):
