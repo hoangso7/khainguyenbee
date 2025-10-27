@@ -21,6 +21,7 @@ import About from './pages/About';
 import SetupGuard from './components/SetupGuard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { createMobileTheme } from './theme/mobileTheme';
+import './mobile-responsive.css';
 
 // Honey-themed Material-UI theme
 const baseTheme = createTheme({

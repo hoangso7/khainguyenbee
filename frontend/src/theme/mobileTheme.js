@@ -192,6 +192,41 @@ export const createMobileTheme = (baseTheme) => {
           },
         },
       },
+      
+      // Mobile-optimized Container overrides
+      MuiContainer: {
+        ...baseTheme.components?.MuiContainer,
+        styleOverrides: {
+          ...baseTheme.components?.MuiContainer?.styleOverrides,
+          root: {
+            ...baseTheme.components?.MuiContainer?.styleOverrides?.root,
+            paddingLeft: 8,
+            paddingRight: 8,
+            '@media (min-width: 600px)': {
+              paddingLeft: 16,
+              paddingRight: 16,
+            },
+            '@media (min-width: 900px)': {
+              paddingLeft: 24,
+              paddingRight: 24,
+            },
+          },
+        },
+      },
+      
+      // Mobile-optimized Box overrides
+      MuiBox: {
+        ...baseTheme.components?.MuiBox,
+        styleOverrides: {
+          ...baseTheme.components?.MuiBox?.styleOverrides,
+          root: {
+            ...baseTheme.components?.MuiBox?.styleOverrides?.root,
+            // Prevent horizontal overflow
+            maxWidth: '100%',
+            boxSizing: 'border-box',
+          },
+        },
+      },
     },
     
     // Mobile-specific breakpoints
