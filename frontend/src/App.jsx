@@ -24,54 +24,9 @@ function ProtectedRoute({ children }) {
   return <>{children}</>;
 }
 
-function AppContent() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [isChecking, setIsChecking] = useState(true);
-
-  useEffect(() => {
-    const checkSetupAndRedirect = async () => {
-      // Don't check on /setup or /qr routes
-      if (location.pathname === '/setup' || location.pathname.startsWith('/qr/')) {
-        setIsChecking(false);
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/auth/setup/check');
-        const data = await response.json();
-        
-        if (data.setup_needed && location.pathname !== '/setup' && location.pathname !== '/login') {
-          navigate('/setup', { replace: true });
-        }
-      } catch (error) {
-        console.error('Setup check failed:', error);
-      } finally {
-        setIsChecking(false);
-      }
-    };
-
-    checkSetupAndRedirect();
-  }, [location.pathname, navigate]);
-
-  if (isChecking && location.pathname !== '/setup' && location.pathname !== '/login' && !location.pathname.startsWith('/qr/')) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 to-yellow-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Đang kiểm tra...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
-}
-
 function App() {
   return (
     <BrowserRouter>
-      <AppContent />
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />

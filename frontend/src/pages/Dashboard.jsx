@@ -16,10 +16,6 @@ const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    loadData();
-  }, [searchTerm, loadData]);
-
   const loadData = useCallback(async () => {
     try {
       const [beehivesResponse, statsResponse, userResponse] = await Promise.all([
@@ -42,6 +38,10 @@ const Dashboard = () => {
       console.error('Error loading data:', error);
     }
   }, [searchTerm]);
+
+  useEffect(() => {
+    loadData();
+  }, [searchTerm, loadData]);
 
   const handleDelete = async (serialNumber) => {
     if (confirm('Bạn có chắc muốn xóa tổ ong này?')) {
