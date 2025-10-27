@@ -324,7 +324,7 @@ const ProfileSettings = () => {
       <Box mt={3} display="flex" justifyContent="space-between">
         <Button
           variant="outlined"
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/')}
         >
           Quay lại Dashboard
         </Button>

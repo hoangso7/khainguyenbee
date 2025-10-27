@@ -449,7 +449,7 @@ const SoldBeehives = () => {
               </Typography>
               <Button
                 variant="contained"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/')}
                 sx={{ mt: 2 }}
               >
                 Quay lại Dashboard
