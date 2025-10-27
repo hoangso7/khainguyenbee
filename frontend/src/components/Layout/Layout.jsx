@@ -34,7 +34,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../store/slices/authSlice';
 import beeIcon from '../../assets/bee-icon.png';
-import getAppConfig from '../../services/config';
+import getAppConfig from '../../services/config.js';
 
 const drawerWidth = 240;
 
