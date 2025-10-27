@@ -290,23 +290,29 @@ const SoldBeehives = () => {
               maxHeight: 400,
               width: '100%',
               overflowX: 'auto',
+              overflowY: 'auto',
+              display: 'block',
               '&::-webkit-scrollbar': {
-                height: 8,
+                height: 12,
+                width: 12,
               },
               '&::-webkit-scrollbar-track': {
                 backgroundColor: '#f1f1f1',
-                borderRadius: 4,
+                borderRadius: 6,
               },
               '&::-webkit-scrollbar-thumb': {
-                backgroundColor: '#c1c1c1',
-                borderRadius: 4,
+                backgroundColor: '#D2691E',
+                borderRadius: 6,
                 '&:hover': {
-                  backgroundColor: '#a8a8a8',
+                  backgroundColor: '#B8860B',
                 },
+              },
+              '&::-webkit-scrollbar-corner': {
+                backgroundColor: '#f1f1f1',
               },
             }}
           >
-            <Table stickyHeader sx={{ minWidth: 600 }}>
+            <Table stickyHeader sx={{ minWidth: 800 }}>
               <TableHead>
                 <TableRow>
                   <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
