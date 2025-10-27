@@ -22,13 +22,7 @@ const Login = () => {
       await apiService.login(username, password);
       toast.success('Đăng nhập thành công!');
       
-      // Check if user needs setup
-      const setupStatus = await apiService.checkSetupStatus();
-      if (!setupStatus.is_setup_complete) {
-        navigate('/setup');
-      } else {
-        navigate('/');
-      }
+      navigate('/');
     } catch (error) {
       toast.error(error.message || 'Tên đăng nhập hoặc mật khẩu không đúng');
     } finally {

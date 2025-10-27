@@ -238,6 +238,12 @@ def setup_admin():
         )
         admin.set_password(validated_data['password'])
         
+        # Add farm information if provided
+        if 'farmName' in data and data['farmName']:
+            admin.farm_name = data['farmName']
+        if 'farmPhone' in data and data['farmPhone']:
+            admin.farm_phone = data['farmPhone']
+        
         db.session.add(admin)
         db.session.commit()
         
