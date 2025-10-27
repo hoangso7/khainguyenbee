@@ -7,6 +7,7 @@ import { fileURLToPath, URL } from 'node:url'
 export default defineConfig({
   plugins: [react()],
   resolve: {
+    extensions: ['.js', '.jsx', '.json'],
     alias: {
       '@': path.resolve(fileURLToPath(new URL('./src', import.meta.url))),
     },
