@@ -15,7 +15,7 @@ from reportlab.lib import colors
 
 from ..models import Beehive, User, db
 from ..utils.validators import BeehiveValidator, QueryValidator
-from ..utils.errors import NotFoundError, DatabaseError, ValidationError, handle_database_error, handle_validation_error
+from ..utils.errors import NotFoundError, DatabaseError, ValidationError, handle_database_error, validation_error_handler
 from ..utils.qr_generator import QRCodeGenerator
 
 logger = logging.getLogger(__name__)
@@ -235,7 +235,7 @@ def get_stats():
 
 @beehives_bp.route('/beehives', methods=['POST'])
 @jwt_required()
-@handle_validation_error
+@validation_error_handler
 @handle_database_error
 def create_beehive():
     """Create a new beehive"""
@@ -300,7 +300,7 @@ def get_beehive(serial_number):
 
 @beehives_bp.route('/beehives/<serial_number>', methods=['PUT'])
 @jwt_required()
-@handle_validation_error
+@validation_error_handler
 @handle_database_error
 def update_beehive(serial_number):
     """Update beehive information"""

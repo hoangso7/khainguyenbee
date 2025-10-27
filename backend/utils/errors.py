@@ -180,7 +180,7 @@ def handle_database_error(func):
             raise DatabaseError("Database operation failed")
     return wrapper
 
-def handle_validation_error(func):
+def validation_error_handler(func):
     """Decorator to handle validation errors"""
     def wrapper(*args, **kwargs):
         try:

@@ -10,14 +10,14 @@ import logging
 
 from ..models.user import User, db
 from ..utils.validators import UserValidator
-from ..utils.errors import AuthenticationError, ValidationError, NotFoundError, DatabaseError, handle_database_error, handle_validation_error
+from ..utils.errors import AuthenticationError, ValidationError, NotFoundError, DatabaseError, handle_database_error, validation_error_handler
 
 logger = logging.getLogger(__name__)
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
 @auth_bp.route('/login', methods=['POST'])
-@handle_validation_error
+@validation_error_handler
 def login():
     """User login endpoint"""
     try:
@@ -98,7 +98,7 @@ def logout():
 
 @auth_bp.route('/profile', methods=['PUT'])
 @jwt_required()
-@handle_validation_error
+@validation_error_handler
 def update_profile():
     """Update user profile"""
     try:
@@ -205,7 +205,7 @@ def check_setup():
         return jsonify({'setup_needed': True, 'message': f'Error checking setup: {str(e)}'}), 200
 
 @auth_bp.route('/setup', methods=['POST'])
-@handle_validation_error
+@validation_error_handler
 @handle_database_error
 def setup_admin():
     """Create admin user if no users exist - ONE TIME ONLY"""
