@@ -193,8 +193,8 @@ class UserValidator:
         
         if 'farmPhone' in data:
             phone = Validator.validate_string(data, 'farmPhone', min_length=1, max_length=20)
-            # Basic phone validation
-            if not re.match(r'^[\+]?[0-9\s\-\(\)]+$', phone):
+            # Basic phone validation - allow dots, spaces, dashes, parentheses
+            if not re.match(r'^[\+]?[0-9\s\-\(\)\.]+$', phone):
                 raise ValidationError("Phone number contains invalid characters", field='farmPhone')
             validated_data['farmPhone'] = phone
         
