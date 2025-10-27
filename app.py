@@ -32,7 +32,7 @@ def create_app(config_name=None):
     app_config = config.get(config_name, config['default'])
     
     # Create Flask app
-    app = Flask(__name__)
+app = Flask(__name__)
     app.config.from_object(app_config)
     
     # Initialize extensions
@@ -70,7 +70,6 @@ def create_app(config_name=None):
             strategy="fixed-window",
             swallow_errors=True
         )
-        app.logger.info("Rate limiting initialized with memory storage")
     
     # Register error handlers
     register_error_handlers(app)
@@ -81,14 +80,22 @@ def create_app(config_name=None):
     
     # Configure logging
     if not app.debug and not app.testing:
+        # Clear existing handlers to avoid duplicates
+        app.logger.handlers.clear()
+        
         try:
             # Create logs directory if it doesn't exist
             logs_dir = '/app/logs'
             os.makedirs(logs_dir, exist_ok=True)
             
+            # Ensure the log file is writable
+            log_file_path = os.path.join(logs_dir, 'error.log')
+            if os.path.exists(log_file_path):
+                os.chmod(log_file_path, 0o644)
+            
             # Configure file handler for errors
             file_handler = RotatingFileHandler(
-                os.path.join(logs_dir, 'error.log'),
+                log_file_path,
                 maxBytes=10240000,  # 10MB
                 backupCount=10
             )
@@ -114,27 +121,27 @@ def create_app(config_name=None):
             app.logger.warning(f'File logging failed ({e}), using console logging')
             app.logger.info('KBee Manager startup with console logging')
 
-    # Root route for health check
-    @app.route('/')
-    def health_check():
-        return jsonify({
-            'status': 'healthy',
-            'message': 'KBee Manager API is running',
+# Root route for health check
+@app.route('/')
+def health_check():
+    return jsonify({
+        'status': 'healthy',
+        'message': 'KBee Manager API is running',
             'version': '2.0.0',
             'environment': app_config.FLASK_ENV
         })
     
-    # Database initialization endpoint
-    @app.route('/api/init-db', methods=['POST'])
-    def init_database():
-        """Initialize database tables"""
-        try:
-            with app.app_context():
-                db.create_all()
-                return jsonify({'message': 'Database initialized successfully'})
-        except Exception as e:
-            return jsonify({'message': f'Database initialization failed: {str(e)}'}), 500
-    
+# Database initialization endpoint
+@app.route('/api/init-db', methods=['POST'])
+def init_database():
+    """Initialize database tables"""
+    try:
+        with app.app_context():
+            db.create_all()
+            return jsonify({'message': 'Database initialized successfully'})
+    except Exception as e:
+        return jsonify({'message': f'Database initialization failed: {str(e)}'}), 500
+
     return app
 
 def init_db_on_startup(app):
