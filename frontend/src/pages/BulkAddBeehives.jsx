@@ -234,7 +234,7 @@ const BulkAddBeehives = () => {
 
 
   return (
-    <Box p={3}>
+    <Box p={{ xs: 1, sm: 2 }}>
       {/* Header */}
       <Box mb={3}>
         <Typography variant="h4" component="h1" gutterBottom>
@@ -369,7 +369,7 @@ const BulkAddBeehives = () => {
       {/* Beehives List */}
       {beehives.length > 0 && (
         <Card>
-          <CardContent sx={{ p: { xs: 1, sm: 3 } }}>
+          <CardContent sx={{ p: { xs: 0.5, sm: 2 } }}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
               <Typography variant="h6">
                 Danh sách tổ ong ({beehives.length} tổ)

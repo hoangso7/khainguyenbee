@@ -26,13 +26,36 @@ body {
   padding-right: 4px !important;
 }
 
-/* Reduce card padding on mobile */
+/* Optimize all CardContent padding */
 .MuiCardContent-root {
   padding: 8px !important;
 }
 
 @media (min-width: 600px) {
   .MuiCardContent-root {
+    padding: 16px !important;
+  }
+}
+
+@media (min-width: 900px) {
+  .MuiCardContent-root {
+    padding: 24px !important;
+  }
+}
+
+/* Reduce main content padding */
+.MuiBox-root[role="main"] {
+  padding: 8px !important;
+}
+
+@media (min-width: 600px) {
+  .MuiBox-root[role="main"] {
+    padding: 16px !important;
+  }
+}
+
+@media (min-width: 900px) {
+  .MuiBox-root[role="main"] {
     padding: 16px !important;
   }
 }
@@ -295,11 +318,18 @@ body {
   }
 }
 
-/* Fix card overflow */
-.MuiCard-root {
-  max-width: 100% !important;
-  overflow: hidden !important;
-  box-sizing: border-box !important;
+/* Fix drawer z-index on desktop */
+.MuiDrawer-root {
+  z-index: 1200 !important;
+}
+
+.MuiDrawer-paper {
+  z-index: 1200 !important;
+}
+
+/* Ensure AppBar is above drawer */
+.MuiAppBar-root {
+  z-index: 1300 !important;
 }
 
 /* Fix button groups on mobile */

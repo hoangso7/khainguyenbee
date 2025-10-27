@@ -213,7 +213,7 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <Card>
-        <CardContent sx={{ p: { xs: 1, sm: 3 } }}>
+        <CardContent sx={{ p: { xs: 0.5, sm: 2 } }}>
           <Box 
             display="flex" 
             justifyContent="space-between" 

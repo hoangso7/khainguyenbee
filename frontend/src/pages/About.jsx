@@ -51,7 +51,7 @@ const About = () => {
   ];
 
   return (
-    <Box p={3}>
+    <Box p={{ xs: 1, sm: 2 }}>
       {/* Header */}
       <Box mb={3}>
         <Typography variant="h4" component="h1" gutterBottom>

@@ -120,7 +120,7 @@ const Setup = () => {
   // Show loading while checking setup status
   if (checkingSetup) {
     return (
-      <Container maxWidth="sm">
+      <Container maxWidth="sm" sx={{ px: { xs: 1, sm: 2 } }}>
         <StyledPaper elevation={3}>
           <Box 
             textAlign="center" 

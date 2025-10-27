@@ -44,7 +44,7 @@ const getAppConfig = () => {
   };
 };
 
-const drawerWidth = 240;
+const drawerWidth = 200;
 
 const Layout = () => {
   const theme = useTheme();
@@ -130,6 +130,7 @@ const Layout = () => {
         sx={{
           width: { md: `calc(100% - ${drawerWidth}px)` },
           ml: { md: `${drawerWidth}px` },
+          zIndex: (theme) => theme.zIndex.drawer + 1,
         }}
       >
         <Toolbar>
@@ -254,7 +255,7 @@ const Layout = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: { xs: 1, sm: 2, md: 2 },
           width: { md: `calc(100% - ${drawerWidth}px)` },
           minHeight: '100vh',
           backgroundColor: theme.palette.background.default,

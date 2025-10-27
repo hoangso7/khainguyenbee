@@ -191,7 +191,7 @@ const QRBeehiveDetail = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+      <Container maxWidth="md" sx={{ mt: { xs: 2, sm: 4 }, mb: { xs: 2, sm: 4 }, px: { xs: 1, sm: 2 } }}>
         <Box 
           display="flex" 
           justifyContent="center" 
@@ -230,7 +230,7 @@ const QRBeehiveDetail = () => {
 
   if (error) {
     return (
-      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+      <Container maxWidth="md" sx={{ mt: { xs: 2, sm: 4 }, mb: { xs: 2, sm: 4 }, px: { xs: 1, sm: 2 } }}>
         <Alert severity="error">{error}</Alert>
       </Container>
     );

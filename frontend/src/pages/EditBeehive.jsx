@@ -176,7 +176,7 @@ const EditBeehive = () => {
 
   if (error) {
     return (
-      <Box p={3}>
+      <Box p={{ xs: 1, sm: 2 }}>
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
@@ -193,7 +193,7 @@ const EditBeehive = () => {
 
   if (!currentBeehive) {
     return (
-      <Box p={3}>
+      <Box p={{ xs: 1, sm: 2 }}>
         <Alert severity="warning" sx={{ mb: 2 }}>
           Không tìm thấy tổ ong với mã số: {serialNumber}
         </Alert>
@@ -240,7 +240,7 @@ const EditBeehive = () => {
 
       {/* Form */}
       <Card sx={{ maxWidth: 800, mx: 'auto' }}>
-        <CardContent sx={{ p: 4 }}>
+        <CardContent sx={{ p: { xs: 1, sm: 3 } }}>
           <Typography variant="h5" gutterBottom sx={{ mb: 4, textAlign: 'center', color: 'primary.main' }}>
             Chỉnh sửa thông tin tổ ong
           </Typography>

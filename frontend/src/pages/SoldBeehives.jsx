@@ -185,14 +185,14 @@ const SoldBeehives = () => {
 
   if (error) {
     return (
-      <Box p={3}>
+      <Box p={{ xs: 1, sm: 2 }}>
         <Alert severity="error">{error}</Alert>
       </Box>
     );
   }
 
   return (
-    <Box p={3}>
+    <Box p={{ xs: 1, sm: 2 }}>
       {/* Header */}
       <Box mb={3}>
         <Typography variant="h4" component="h1" gutterBottom>
@@ -217,7 +217,7 @@ const SoldBeehives = () => {
 
       {/* Main Content */}
       <Card>
-        <CardContent sx={{ p: { xs: 1, sm: 3 } }}>
+        <CardContent sx={{ p: { xs: 0.5, sm: 2 } }}>
           <Box mb={3}>
             <Typography variant="h5" component="h1">
               Danh sách tổ ong đã bán

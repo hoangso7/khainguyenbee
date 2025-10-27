@@ -115,7 +115,7 @@ const Login = () => {
           transition: 'all 0.3s ease-in-out',
         }}
       >
-          <CardContent sx={{ p: 4 }}>
+          <CardContent sx={{ p: { xs: 1, sm: 3 } }}>
             <Box
               sx={{
                 display: 'flex',

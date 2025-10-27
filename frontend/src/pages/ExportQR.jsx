@@ -215,7 +215,7 @@ const ExportQR = () => {
   };
 
   return (
-    <Box p={3}>
+    <Box p={{ xs: 1, sm: 2 }}>
       {/* Header */}
       <Box mb={3}>
         <Typography variant="h4" component="h1" gutterBottom>
@@ -241,7 +241,7 @@ const ExportQR = () => {
 
       {/* Beehives Selection */}
       <Card>
-        <CardContent sx={{ p: { xs: 1, sm: 3 } }}>
+        <CardContent sx={{ p: { xs: 0.5, sm: 2 } }}>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
             <Typography variant="h6">
               Chọn tổ ong để xuất ({selectedBeehives.length}/{activeBeehives.length})
