@@ -116,7 +116,7 @@ const ProfileSettings = () => {
   };
 
   return (
-    <Box p={{ xs: 1, sm: 2 }}>
+    <Box p={0}>
       {/* Header */}
       <Box mb={3}>
         <Typography variant="h4" component="h1" gutterBottom>

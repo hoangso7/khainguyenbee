@@ -1,63 +1,64 @@
-/* Mobile Responsive Fixes */
-/* Ensure proper viewport handling and prevent horizontal scroll */
-
+/* AGGRESSIVE MOBILE FIXES - Remove ALL padding/margins */
 * {
   box-sizing: border-box;
 }
 
-html {
+html, body, #root {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
   overflow-x: hidden;
 }
 
-body {
-  overflow-x: hidden;
-  width: 100%;
-}
-
-#root {
-  width: 100%;
-  overflow-x: hidden;
-}
-
-/* Fix for Material-UI components on mobile */
-.MuiContainer-root {
-  max-width: 100% !important;
-  padding-left: 4px !important;
-  padding-right: 4px !important;
-}
-
-/* Optimize all CardContent padding */
-.MuiCardContent-root {
-  padding: 8px !important;
-}
-
-@media (min-width: 600px) {
-  .MuiCardContent-root {
-    padding: 16px !important;
-  }
-}
-
-@media (min-width: 900px) {
-  .MuiCardContent-root {
-    padding: 24px !important;
-  }
-}
-
-/* Reduce main content padding */
+/* Force main content to have NO padding */
 .MuiBox-root[role="main"] {
-  padding: 8px !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
-@media (min-width: 600px) {
-  .MuiBox-root[role="main"] {
-    padding: 16px !important;
-  }
+/* Force ALL containers to have minimal padding */
+.MuiContainer-root {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin: 0 !important;
 }
 
-@media (min-width: 900px) {
-  .MuiBox-root[role="main"] {
-    padding: 16px !important;
-  }
+/* Force ALL cards to have minimal padding */
+.MuiCard-root {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.MuiCardContent-root {
+  padding: 4px !important;
+}
+
+/* Force table container to be full width */
+.MuiTableContainer-root {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  overflow-x: scroll !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* Force table to be wider than viewport */
+.MuiTable-root {
+  min-width: 100vw !important;
+  width: max-content !important;
+  table-layout: fixed !important;
+}
+
+/* Force cells to not shrink */
+.MuiTableCell-root {
+  white-space: nowrap !important;
+  overflow: visible !important;
+  padding: 2px 1px !important;
+  min-width: 60px !important;
 }
 
 @media (min-width: 600px) {
@@ -289,20 +290,35 @@ body {
   z-index: 1 !important;
 }
 
+/* FORCE HORIZONTAL SCROLL TO WORK */
 @media (max-width: 600px) {
-  .MuiTableCell-root {
-    padding: 4px 1px !important;
-    font-size: 0.7rem !important;
-    min-width: 70px !important;
+  .MuiTableContainer-root {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    overflow-x: scroll !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #D2691E #f1f1f1 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    position: relative !important;
   }
   
   .MuiTable-root {
-    min-width: 500px !important;
+    min-width: 100vw !important;
+    width: max-content !important;
+    table-layout: fixed !important;
   }
   
-  .MuiTableContainer-root {
-    border: 1px solid #ddd !important;
-    border-radius: 8px !important;
+  .MuiTableCell-root {
+    padding: 2px 1px !important;
+    font-size: 0.7rem !important;
+    min-width: 60px !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
   }
 }
 
@@ -332,10 +348,20 @@ body {
   z-index: 1300 !important;
 }
 
-/* Fix button groups on mobile */
-.MuiStack-root {
-  width: 100% !important;
-  flex-wrap: wrap !important;
+/* PREVENT ANY ELEMENT FROM BLOCKING SCROLL */
+.MuiCard-root,
+.MuiPaper-root,
+.MuiBox-root,
+.MuiContainer-root {
+  overflow-x: visible !important;
+}
+
+/* Ensure table can scroll beyond container */
+.MuiTableContainer-root {
+  overflow-x: scroll !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  scroll-behavior: smooth !important;
 }
 
 .MuiStack-root .MuiButton-root {

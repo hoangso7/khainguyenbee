@@ -176,7 +176,7 @@ const EditBeehive = () => {
 
   if (error) {
     return (
-      <Box p={{ xs: 1, sm: 2 }}>
+      <Box p={0}>
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
@@ -193,7 +193,7 @@ const EditBeehive = () => {
 
   if (!currentBeehive) {
     return (
-      <Box p={{ xs: 1, sm: 2 }}>
+      <Box p={0}>
         <Alert severity="warning" sx={{ mb: 2 }}>
           Không tìm thấy tổ ong với mã số: {serialNumber}
         </Alert>

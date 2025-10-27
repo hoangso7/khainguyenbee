@@ -213,7 +213,7 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <Card>
-        <CardContent sx={{ p: { xs: 0.5, sm: 2 } }}>
+        <CardContent sx={{ p: 0 }}>
           <Box 
             display="flex" 
             justifyContent="space-between" 
@@ -333,15 +333,18 @@ const Dashboard = () => {
             component={Paper} 
             sx={{ 
               maxHeight: 400,
-              width: '100%',
-              overflowX: 'auto',
+              width: '100vw',
+              overflowX: 'scroll',
               overflowY: 'auto',
               display: 'block',
-              // Enhanced mobile scrolling
               WebkitOverflowScrolling: 'touch',
               scrollbarWidth: 'thin',
               scrollbarColor: '#D2691E #f1f1f1',
               position: 'relative',
+              marginLeft: 0,
+              marginRight: 0,
+              paddingLeft: 0,
+              paddingRight: 0,
               '&::-webkit-scrollbar': {
                 height: 12,
                 width: 12,
@@ -366,7 +369,7 @@ const Dashboard = () => {
             }}
           >
             <Table stickyHeader sx={{ 
-              minWidth: { xs: 500, sm: 800 },
+              minWidth: '100vw',
               width: 'max-content',
               display: 'table',
               tableLayout: 'fixed'
@@ -375,8 +378,8 @@ const Dashboard = () => {
                 <TableRow>
                   <TableCell sx={{ 
                     fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '4px 1px', sm: '16px' },
-                    minWidth: { xs: '70px', sm: '150px' },
+                    padding: { xs: '2px 1px', sm: '16px' },
+                    minWidth: { xs: '60px', sm: '150px' },
                     whiteSpace: 'nowrap',
                     backgroundColor: '#f5f5f5',
                     position: 'sticky',
@@ -398,8 +401,8 @@ const Dashboard = () => {
                   </TableCell>
                   <TableCell sx={{ 
                     fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '4px 1px', sm: '16px' },
-                    minWidth: { xs: '70px', sm: '150px' },
+                    padding: { xs: '2px 1px', sm: '16px' },
+                    minWidth: { xs: '60px', sm: '150px' },
                     whiteSpace: 'nowrap',
                     backgroundColor: '#f5f5f5',
                     position: 'sticky',
@@ -421,8 +424,8 @@ const Dashboard = () => {
                   </TableCell>
                   <TableCell sx={{ 
                     fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '4px 1px', sm: '16px' },
-                    minWidth: { xs: '70px', sm: '150px' },
+                    padding: { xs: '2px 1px', sm: '16px' },
+                    minWidth: { xs: '60px', sm: '150px' },
                     whiteSpace: 'nowrap',
                     backgroundColor: '#f5f5f5',
                     position: 'sticky',
@@ -444,8 +447,8 @@ const Dashboard = () => {
                   </TableCell>
                   <TableCell sx={{ 
                     fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '4px 1px', sm: '16px' },
-                    minWidth: { xs: '70px', sm: '150px' },
+                    padding: { xs: '2px 1px', sm: '16px' },
+                    minWidth: { xs: '60px', sm: '150px' },
                     whiteSpace: 'nowrap',
                     backgroundColor: '#f5f5f5',
                     position: 'sticky',
@@ -467,8 +470,8 @@ const Dashboard = () => {
                   </TableCell>
                   <TableCell sx={{ 
                     fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '4px 1px', sm: '16px' },
-                    minWidth: { xs: '70px', sm: '150px' },
+                    padding: { xs: '2px 1px', sm: '16px' },
+                    minWidth: { xs: '60px', sm: '150px' },
                     whiteSpace: 'nowrap',
                     backgroundColor: '#f5f5f5',
                     position: 'sticky',
@@ -490,8 +493,8 @@ const Dashboard = () => {
                   </TableCell>
                   <TableCell sx={{ 
                     fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '4px 1px', sm: '16px' },
-                    minWidth: { xs: '70px', sm: '150px' },
+                    padding: { xs: '2px 1px', sm: '16px' },
+                    minWidth: { xs: '60px', sm: '150px' },
                     whiteSpace: 'nowrap',
                     backgroundColor: '#f5f5f5',
                     position: 'sticky',
@@ -519,7 +522,7 @@ const Dashboard = () => {
                       px: { xs: '1px', sm: '16px' },
                       fontSize: { xs: '0.7rem', sm: '0.875rem' },
                       whiteSpace: 'nowrap',
-                      minWidth: { xs: '70px', sm: '150px' }
+                      minWidth: { xs: '60px', sm: '150px' }
                     }}>
                       <Typography variant="subtitle2" fontWeight="bold" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                         {beehive.serial_number || 'N/A'}
@@ -530,7 +533,7 @@ const Dashboard = () => {
                       px: { xs: '1px', sm: '16px' },
                       fontSize: { xs: '0.7rem', sm: '0.875rem' },
                       whiteSpace: 'nowrap',
-                      minWidth: { xs: '70px', sm: '150px' }
+                      minWidth: { xs: '60px', sm: '150px' }
                     }}>
                       <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                         {beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}
@@ -541,7 +544,7 @@ const Dashboard = () => {
                       px: { xs: '1px', sm: '16px' },
                       fontSize: { xs: '0.7rem', sm: '0.875rem' },
                       whiteSpace: 'nowrap',
-                      minWidth: { xs: '70px', sm: '150px' }
+                      minWidth: { xs: '60px', sm: '150px' }
                     }}>
                       <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                         {beehive.split_date 
@@ -555,7 +558,7 @@ const Dashboard = () => {
                       px: { xs: '1px', sm: '16px' },
                       fontSize: { xs: '0.7rem', sm: '0.875rem' },
                       whiteSpace: 'nowrap',
-                      minWidth: { xs: '70px', sm: '150px' }
+                      minWidth: { xs: '60px', sm: '150px' }
                     }}>
                       <Chip
                         icon={<img src={getHealthStatusIcon(beehive.health_status || 'Unknown')} alt={`Tình trạng sức khỏe: ${beehive.health_status || 'Unknown'}`} style={{ width: 12, height: 12 }} />}
@@ -570,7 +573,7 @@ const Dashboard = () => {
                       px: { xs: '1px', sm: '16px' },
                       fontSize: { xs: '0.7rem', sm: '0.875rem' },
                       whiteSpace: 'nowrap',
-                      minWidth: { xs: '70px', sm: '150px' }
+                      minWidth: { xs: '60px', sm: '150px' }
                     }}>
                       <Chip
                         label="Đang quản lý"
@@ -584,7 +587,7 @@ const Dashboard = () => {
                       px: { xs: '1px', sm: '16px' },
                       fontSize: { xs: '0.7rem', sm: '0.875rem' },
                       whiteSpace: 'nowrap',
-                      minWidth: { xs: '70px', sm: '150px' }
+                      minWidth: { xs: '60px', sm: '150px' }
                     }}>
                       <Stack direction="row" spacing={0.25}>
                         <AccessibleIconButton

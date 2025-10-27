@@ -185,14 +185,14 @@ const SoldBeehives = () => {
 
   if (error) {
     return (
-      <Box p={{ xs: 1, sm: 2 }}>
+      <Box p={0}>
         <Alert severity="error">{error}</Alert>
       </Box>
     );
   }
 
   return (
-    <Box p={{ xs: 1, sm: 2 }}>
+    <Box p={0}>
       {/* Header */}
       <Box mb={3}>
         <Typography variant="h4" component="h1" gutterBottom>
@@ -217,7 +217,7 @@ const SoldBeehives = () => {
 
       {/* Main Content */}
       <Card>
-        <CardContent sx={{ p: { xs: 0.5, sm: 2 } }}>
+        <CardContent sx={{ p: 0 }}>
           <Box mb={3}>
             <Typography variant="h5" component="h1">
               Danh sách tổ ong đã bán
@@ -300,15 +300,18 @@ const SoldBeehives = () => {
             component={Paper} 
             sx={{ 
               maxHeight: 400,
-              width: '100%',
-              overflowX: 'auto',
+              width: '100vw',
+              overflowX: 'scroll',
               overflowY: 'auto',
               display: 'block',
-              // Enhanced mobile scrolling
               WebkitOverflowScrolling: 'touch',
               scrollbarWidth: 'thin',
               scrollbarColor: '#D2691E #f1f1f1',
               position: 'relative',
+              marginLeft: 0,
+              marginRight: 0,
+              paddingLeft: 0,
+              paddingRight: 0,
               '&::-webkit-scrollbar': {
                 height: 12,
                 width: 12,
@@ -333,7 +336,7 @@ const SoldBeehives = () => {
             }}
           >
             <Table stickyHeader sx={{ 
-              minWidth: { xs: 500, sm: 800 },
+              minWidth: '100vw',
               width: 'max-content',
               display: 'table',
               tableLayout: 'fixed'
@@ -342,8 +345,8 @@ const SoldBeehives = () => {
                 <TableRow>
                   <TableCell sx={{ 
                     fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '4px 1px', sm: '16px' },
-                    minWidth: { xs: '70px', sm: '150px' },
+                    padding: { xs: '2px 1px', sm: '16px' },
+                    minWidth: { xs: '60px', sm: '150px' },
                     whiteSpace: 'nowrap',
                     backgroundColor: '#f5f5f5',
                     position: 'sticky',
@@ -365,8 +368,8 @@ const SoldBeehives = () => {
                   </TableCell>
                   <TableCell sx={{ 
                     fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '4px 1px', sm: '16px' },
-                    minWidth: { xs: '70px', sm: '150px' },
+                    padding: { xs: '2px 1px', sm: '16px' },
+                    minWidth: { xs: '60px', sm: '150px' },
                     whiteSpace: 'nowrap',
                     backgroundColor: '#f5f5f5',
                     position: 'sticky',
@@ -388,8 +391,8 @@ const SoldBeehives = () => {
                   </TableCell>
                   <TableCell sx={{ 
                     fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '4px 1px', sm: '16px' },
-                    minWidth: { xs: '70px', sm: '150px' },
+                    padding: { xs: '2px 1px', sm: '16px' },
+                    minWidth: { xs: '60px', sm: '150px' },
                     whiteSpace: 'nowrap',
                     backgroundColor: '#f5f5f5',
                     position: 'sticky',
@@ -411,8 +414,8 @@ const SoldBeehives = () => {
                   </TableCell>
                   <TableCell sx={{ 
                     fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '4px 1px', sm: '16px' },
-                    minWidth: { xs: '70px', sm: '150px' },
+                    padding: { xs: '2px 1px', sm: '16px' },
+                    minWidth: { xs: '60px', sm: '150px' },
                     whiteSpace: 'nowrap',
                     backgroundColor: '#f5f5f5',
                     position: 'sticky',
@@ -434,8 +437,8 @@ const SoldBeehives = () => {
                   </TableCell>
                   <TableCell sx={{ 
                     fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '4px 1px', sm: '16px' },
-                    minWidth: { xs: '70px', sm: '150px' },
+                    padding: { xs: '2px 1px', sm: '16px' },
+                    minWidth: { xs: '60px', sm: '150px' },
                     whiteSpace: 'nowrap',
                     backgroundColor: '#f5f5f5',
                     position: 'sticky',
@@ -457,8 +460,8 @@ const SoldBeehives = () => {
                   </TableCell>
                   <TableCell sx={{ 
                     fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '4px 1px', sm: '16px' },
-                    minWidth: { xs: '70px', sm: '150px' },
+                    padding: { xs: '2px 1px', sm: '16px' },
+                    minWidth: { xs: '60px', sm: '150px' },
                     whiteSpace: 'nowrap',
                     backgroundColor: '#f5f5f5',
                     position: 'sticky',
