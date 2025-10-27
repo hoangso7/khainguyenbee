@@ -87,7 +87,7 @@ const Setup = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/setup', {
+      const response = await fetch('/api/auth/setup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
