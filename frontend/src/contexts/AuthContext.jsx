@@ -1,16 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { checkAuth } from '../store/slices/authSlice';
-
-const AuthContext = createContext();
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+import { AuthContext } from './AuthContext';
 
 export const AuthProvider = ({ children }) => {
   const dispatch = useDispatch();
@@ -23,7 +14,7 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           await dispatch(checkAuth()).unwrap();
-        } catch (error) {
+        } catch {
           localStorage.removeItem('token');
         }
       }

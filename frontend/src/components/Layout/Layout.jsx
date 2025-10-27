@@ -37,10 +37,10 @@ import beeIcon from '../../assets/bee-icon.png';
 // Inline config instead of import
 const getAppConfig = () => {
   return {
-    domain: process.env.REACT_APP_DOMAIN || 'khainguyenbee.io.vn',
-    appName: process.env.REACT_APP_NAME || 'Quản lý tổ ong',
-    version: process.env.REACT_APP_VERSION || '2.0.0',
-    companyName: process.env.REACT_APP_COMPANY_NAME || 'KhaiNguyenBee'
+    domain: import.meta.env.VITE_DOMAIN || 'khainguyenbee.io.vn',
+    appName: import.meta.env.VITE_APP_NAME || 'Quản lý tổ ong',
+    version: import.meta.env.VITE_VERSION || '2.0.0',
+    companyName: import.meta.env.VITE_COMPANY_NAME || 'KhaiNguyenBee'
   };
 };
 

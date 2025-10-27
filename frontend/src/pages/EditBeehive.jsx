@@ -1,395 +1,193 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  Button,
-  Grid,
-  Alert,
-  CircularProgress,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Stack,
-} from '@mui/material';
-import {
-  Edit as EditIcon,
-  ArrowBack as ArrowBackIcon,
-} from '@mui/icons-material';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { fetchBeehive, updateBeehive } from '../store/slices/beehiveSlice';
-import ValidatedTextField from '../components/common/ValidatedTextField';
-import { VALIDATION_RULES } from '../utils/formValidation';
+import apiService from '../lib/api';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Textarea } from '../components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Switch } from '../components/ui/switch';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { toast } from 'sonner';
+import { ArrowLeft } from 'lucide-react';
 
 const EditBeehive = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { serialNumber } = useParams();
-  const { currentBeehive, loading, error } = useSelector((state) => state.beehives);
+  const [loading, setLoading] = useState(false);
+  const [beehive, setBeehive] = useState(null);
 
   const [formData, setFormData] = useState({
-    importDate: '',
-    splitDate: '',
-    healthStatus: 'Tốt',
+    import_date: '',
+    split_date: '',
+    health_status: 'Bình thường',
     notes: '',
+    is_sold: false,
+    sold_date: '',
   });
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [updateError, setUpdateError] = useState(null);
-  const [success, setSuccess] = useState(null);
-  const [fieldErrors, setFieldErrors] = useState({});
-
-  const healthStatusOptions = ['Tốt', 'Bình thường', 'Yếu'];
 
   useEffect(() => {
     if (serialNumber) {
-      dispatch(fetchBeehive(serialNumber));
+      loadBeehive();
     }
-  }, [dispatch, serialNumber]);
+  }, [serialNumber, loadBeehive]);
 
-  useEffect(() => {
-    if (currentBeehive) {
+  const loadBeehive = useCallback(async () => {
+    try {
+      const data = await apiService.getBeehive(serialNumber);
+      setBeehive(data);
       setFormData({
-        importDate: currentBeehive.import_date ? new Date(currentBeehive.import_date).toISOString().split('T')[0] : '',
-        splitDate: currentBeehive.split_date ? new Date(currentBeehive.split_date).toISOString().split('T')[0] : '',
-        healthStatus: currentBeehive.health_status || 'Tốt',
-        notes: currentBeehive.notes || '',
+        import_date: data.import_date,
+        split_date: data.split_date || '',
+        health_status: data.health_status,
+        notes: data.notes || '',
+        is_sold: data.is_sold,
+        sold_date: data.sold_date || '',
       });
-    }
-  }, [currentBeehive]);
-
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-    // Clear errors when user starts typing
-    if (updateError) setUpdateError(null);
-    // Clear field-specific errors
-    if (fieldErrors[field]) {
-      setFieldErrors(prev => ({
-        ...prev,
-        [field]: null
-      }));
-    }
-  };
+        } catch {
+          toast.error('Không tìm thấy tổ ong');
+          navigate('/');
+        }
+  }, [serialNumber, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Clear previous errors
-    setUpdateError(null);
-    setFieldErrors({});
-    
-    // Validation
-    const errors = {};
-    let hasErrors = false;
-    
-    // Validate import date
-    if (!formData.importDate) {
-      errors.importDate = 'Ngày nhập là bắt buộc';
-      hasErrors = true;
-    }
-    
-    // Validate split date if provided
-    if (formData.splitDate && formData.splitDate < formData.importDate) {
-      errors.splitDate = 'Ngày tách không thể sớm hơn ngày nhập';
-      hasErrors = true;
-    }
-    
-    if (hasErrors) {
-      setFieldErrors(errors);
-      return;
-    }
+    if (!serialNumber) return;
 
-    setIsUpdating(true);
-    setUpdateError(null);
+    setLoading(true);
 
     try {
-      const beehiveData = {
-        import_date: formData.importDate,
-        split_date: formData.splitDate || null,
-        health_status: formData.healthStatus,
-        notes: formData.notes,
-      };
+      await apiService.updateBeehive(serialNumber, {
+        import_date: formData.import_date,
+        split_date: formData.split_date || undefined,
+        health_status: formData.health_status,
+        notes: formData.notes || undefined,
+        is_sold: formData.is_sold,
+        sold_date: formData.sold_date || undefined,
+      });
 
-      await dispatch(updateBeehive({ serialNumber, data: beehiveData })).unwrap();
-      
-      setSuccess('Cập nhật tổ ong thành công!');
-
-      // Navigate back to dashboard after 2 seconds
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
-
+      toast.success('Đã cập nhật thông tin tổ ong');
+      navigate('/');
     } catch (error) {
-      console.error('Failed to update beehive:', error);
-      setUpdateError(error.message || 'Có lỗi xảy ra khi cập nhật tổ ong');
+      toast.error(error.message || 'Không thể cập nhật tổ ong');
     } finally {
-      setIsUpdating(false);
+      setLoading(false);
     }
   };
 
-  const handleBack = () => {
-    navigate('/');
-  };
-
-  if (loading) {
-    return (
-      <Box 
-        display="flex" 
-        justifyContent="center" 
-        alignItems="center" 
-        minHeight="400px"
-        sx={{ 
-          flexDirection: 'column',
-          gap: 2,
-          py: 4
-        }}
-      >
-        <img 
-          src="/bee.gif" 
-          alt="Đang tải dữ liệu..." 
-          style={{ 
-            width: '80px', 
-            height: '80px',
-            borderRadius: '50%',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
-          }} 
-        />
-        <Typography 
-          variant="body1" 
-          color="primary" 
-          sx={{ 
-            fontWeight: 500,
-            opacity: 0.8
-          }}
-        >
-          Đang tải thông tin tổ ong...
-        </Typography>
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box p={0}>
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-        <Button
-          variant="outlined"
-          startIcon={<ArrowBackIcon />}
-          onClick={handleBack}
-        >
-          Quay lại Dashboard
-        </Button>
-      </Box>
-    );
-  }
-
-  if (!currentBeehive) {
-    return (
-      <Box p={0}>
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          Không tìm thấy tổ ong với mã số: {serialNumber}
-        </Alert>
-        <Button
-          variant="outlined"
-          startIcon={<ArrowBackIcon />}
-          onClick={handleBack}
-        >
-          Quay lại Dashboard
-        </Button>
-      </Box>
-    );
+  if (!beehive) {
+    return null;
   }
 
   return (
-    <Box>
-      {/* Header */}
-      <Box display="flex" alignItems="center" mb={3}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={handleBack}
-          sx={{ mr: 2 }}
-        >
-          Quay lại
-        </Button>
-        <Typography variant="h4" component="h1" color="primary">
-          Chỉnh sửa tổ ong #{currentBeehive.serial_number}
-        </Typography>
-      </Box>
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white border-b">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <Button variant="ghost" onClick={() => navigate('/')}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Quay lại
+          </Button>
+        </div>
+      </header>
 
-      {/* Success Message */}
-      {success && (
-        <Alert severity="success" sx={{ mb: 3 }}>
-          {success}
-        </Alert>
-      )}
+      <div className="max-w-4xl mx-auto p-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Chỉnh sửa tổ ong {serialNumber}</CardTitle>
+            <CardDescription>Cập nhật thông tin tổ ong</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="import_date">Ngày nhập <span className="text-red-500">*</span></Label>
+                  <Input
+                    id="import_date"
+                    type="date"
+                    value={formData.import_date}
+                    onChange={(e) => setFormData({ ...formData, import_date: e.target.value })}
+                    required
+                  />
+                </div>
 
-      {/* Error Message */}
-      {updateError && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {updateError}
-        </Alert>
-      )}
+                <div className="space-y-2">
+                  <Label htmlFor="split_date">Ngày tách đàn</Label>
+                  <Input
+                    id="split_date"
+                    type="date"
+                    value={formData.split_date}
+                    onChange={(e) => setFormData({ ...formData, split_date: e.target.value })}
+                  />
+                </div>
+              </div>
 
-      {/* Form */}
-      <Card sx={{ maxWidth: 800, mx: 'auto' }}>
-        <CardContent sx={{ p: { xs: 1, sm: 3 } }}>
-          <Typography variant="h5" gutterBottom sx={{ mb: 4, textAlign: 'center', color: 'primary.main' }}>
-            Chỉnh sửa thông tin tổ ong
-          </Typography>
+              <div className="space-y-2">
+                <Label htmlFor="health_status">Tình trạng sức khỏe <span className="text-red-500">*</span></Label>
+                <Select
+                  value={formData.health_status}
+                  onValueChange={(value) => setFormData({ ...formData, health_status: value })}
+                >
+                  <SelectTrigger id="health_status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Tốt">Tốt</SelectItem>
+                    <SelectItem value="Bình thường">Bình thường</SelectItem>
+                    <SelectItem value="Yếu">Yếu</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <form onSubmit={handleSubmit}>
-            <Grid container spacing={2} sx={{ margin: 0 }}>
-              {/* Serial Number (Read-only) */}
-              <Grid item xs={12} sm={6} sx={{ padding: '4px' }}>
-                <TextField
-                  fullWidth
-                  label="Mã số tổ ong"
-                  value={currentBeehive.serial_number || 'N/A'}
-                  disabled
-                  InputLabelProps={{ shrink: true }}
-                  sx={{ 
-                    '& .MuiInputBase-input': { 
-                      fontWeight: 'bold',
-                      color: 'primary.main'
-                    }
-                  }}
-                />
-              </Grid>
-
-              {/* Import Date */}
-              <Grid item xs={12} sm={6} sx={{ padding: '4px' }}>
-                <ValidatedTextField
-                  fullWidth
-                  label="Ngày nhập tổ"
-                  name="importDate"
-                  type="date"
-                  value={formData.importDate}
-                  onChange={(e) => handleInputChange('importDate', e.target.value)}
-                  validationRules={[VALIDATION_RULES.REQUIRED, VALIDATION_RULES.DATE]}
-                  errorMessage={fieldErrors.importDate}
-                  required
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-
-              {/* Split Date */}
-              <Grid item xs={12} sm={6} sx={{ padding: '4px' }}>
-                <ValidatedTextField
-                  fullWidth
-                  label="Ngày tách tổ"
-                  name="splitDate"
-                  type="date"
-                  value={formData.splitDate}
-                  onChange={(e) => handleInputChange('splitDate', e.target.value)}
-                  validationRules={[VALIDATION_RULES.DATE_RANGE]}
-                  validationOptions={{ minDate: formData.importDate }}
-                  errorMessage={fieldErrors.splitDate}
-                  InputLabelProps={{ shrink: true }}
-                  inputProps={{
-                    min: formData.importDate
-                  }}
-                />
-              </Grid>
-
-              {/* Health Status */}
-              <Grid item xs={12} sm={6} sx={{ padding: '4px' }}>
-                <FormControl fullWidth>
-                  <InputLabel>Tình trạng</InputLabel>
-                  <Select
-                    value={formData.healthStatus}
-                    onChange={(e) => handleInputChange('healthStatus', e.target.value)}
-                    label="Tình trạng"
-                  >
-                    {healthStatusOptions.map((status) => (
-                      <MenuItem key={status} value={status}>
-                        {status}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              {/* Notes */}
-              <Grid item xs={12}>
-                <ValidatedTextField
-                  fullWidth
-                  label="Nhập ghi chú"
-                  name="notes"
-                  multiline
-                  rows={3}
+              <div className="space-y-2">
+                <Label htmlFor="notes">Ghi chú</Label>
+                <Textarea
+                  id="notes"
                   value={formData.notes}
-                  onChange={(e) => handleInputChange('notes', e.target.value)}
-                  validationRules={[VALIDATION_RULES.MAX_LENGTH]}
-                  validationOptions={{ maxLength: 500 }}
-                  errorMessage={fieldErrors.notes}
-                  placeholder="Nhập ghi chú"
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  placeholder="Nhập ghi chú về tổ ong"
+                  rows={4}
                 />
-              </Grid>
+              </div>
 
-              {/* Submit Buttons */}
-              <Grid item xs={12}>
-                <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 2 }}>
-                  <Button
-                    variant="outlined"
-                    onClick={handleBack}
-                    disabled={isUpdating}
-                    size="large"
-                    sx={{ minWidth: 120 }}
-                  >
-                    Hủy
-                  </Button>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    startIcon={isUpdating ? <CircularProgress size={20} /> : <EditIcon />}
-                    disabled={isUpdating || Object.values(fieldErrors).some(error => error)}
-                    size="large"
-                    sx={{ minWidth: 150 }}
-                  >
-                    {isUpdating ? 'Đang cập nhật...' : 'Cập nhật tổ ong'}
-                  </Button>
-                </Stack>
-              </Grid>
-            </Grid>
-          </form>
-        </CardContent>
-      </Card>
+              <div className="border rounded-lg p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="is_sold">Đã bán</Label>
+                    <p className="text-sm text-gray-500">Đánh dấu tổ ong này đã được bán</p>
+                  </div>
+                  <Switch
+                    id="is_sold"
+                    checked={formData.is_sold}
+                    onCheckedChange={(checked) => setFormData({ ...formData, is_sold: checked })}
+                  />
+                </div>
 
-      {/* Help Text */}
-      <Card sx={{ mt: 3, bgcolor: 'background.paper' }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom color="primary">
-            💡 Hướng dẫn chỉnh sửa
-          </Typography>
-          <Typography variant="body2" color="text.secondary" paragraph>
-            • <strong>Mã số tổ ong:</strong> Không thể thay đổi (tự động tạo)
-          </Typography>
-          <Typography variant="body2" color="text.secondary" paragraph>
-            • <strong>QR Token:</strong> Không thể thay đổi (tự động tạo)
-          </Typography>
-          <Typography variant="body2" color="text.secondary" paragraph>
-            • <strong>Ngày nhập:</strong> Ngày bạn nhập tổ ong vào trang trại (bắt buộc)
-          </Typography>
-          <Typography variant="body2" color="text.secondary" paragraph>
-            • <strong>Ngày tách:</strong> Ngày bạn tách tổ ong thành nhiều tổ nhỏ (tùy chọn)
-          </Typography>
-          <Typography variant="body2" color="text.secondary" paragraph>
-            • <strong>Tình trạng sức khỏe:</strong> Đánh giá sức khỏe hiện tại của tổ ong
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            • <strong>Ghi chú:</strong> Thông tin bổ sung về tổ ong (tùy chọn)
-          </Typography>
-        </CardContent>
-      </Card>
-    </Box>
+                {formData.is_sold && (
+                  <div className="space-y-2">
+                    <Label htmlFor="sold_date">Ngày bán</Label>
+                    <Input
+                      id="sold_date"
+                      type="date"
+                      value={formData.sold_date}
+                      onChange={(e) => setFormData({ ...formData, sold_date: e.target.value })}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button type="submit" disabled={loading} className="flex-1">
+                  {loading ? 'Đang cập nhật...' : 'Cập nhật'}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => navigate('/')}>
+                  Hủy
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };
 

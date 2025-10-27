@@ -24,21 +24,18 @@ const ValidatedTextField = ({
   const [internalError, setInternalError] = useState(null);
   const [isTouched, setIsTouched] = useState(false);
 
-  // Combine validation rules with required if needed
-  const allRules = required 
-    ? [VALIDATION_RULES.REQUIRED, ...validationRules]
-    : validationRules;
-
   // Validate on value change
   useEffect(() => {
     if (isTouched || value) {
+      const allRules = required 
+        ? [VALIDATION_RULES.REQUIRED, ...validationRules]
+        : validationRules;
       const error = validateField(value, allRules, validationOptions);
       setInternalError(error);
     }
-  }, [value, isTouched, allRules, validationOptions]);
+  }, [value, isTouched, required, validationRules, validationOptions]);
 
   const handleChange = (event) => {
-    const newValue = event.target.value;
     onChange(event);
     
     // Mark as touched on first interaction

@@ -1,671 +1,303 @@
-import React, { useEffect, useState } from 'react';
-import {
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  Button,
-  IconButton,
-  Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Pagination,
-  Stack,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  CircularProgress,
-  Alert,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material';
-import {
-  Search as SearchIcon,
-  Clear as ClearIcon,
-  Edit as EditIcon,
-  QrCode as QrCodeIcon,
-  AttachMoney as MoneyIcon,
-  Delete as DeleteIcon,
-  ArrowUpward as ArrowUpIcon,
-  ArrowDownward as ArrowDownIcon,
-  Add as AddIcon,
-} from '@mui/icons-material';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  fetchBeehives,
-  fetchBeehiveStats,
-  sellBeehive,
-  deleteBeehive,
-  setFilters,
-  setSort,
-  setPage,
-} from '../store/slices/beehiveSlice';
-import UnifiedStatsCard from '../components/Dashboard/UnifiedStatsCard';
-import BeehiveCard from '../components/Dashboard/BeehiveCard';
-import HealthChart from '../components/Dashboard/HealthChart';
-import AccessibleIconButton from '../components/common/AccessibleIconButton';
-import DateInput from '../components/common/DateInput';
+import apiService from '../lib/api';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Badge } from '../components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
+import { Plus, Search, QrCode, FileDown, ShoppingCart, Settings, LogOut, Eye, Edit, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const Dashboard = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  
-  const {
-    activeBeehives,
-    stats,
-    healthStats,
-    pagination,
-    filters,
-    sort,
-    loading,
-    error,
-  } = useSelector((state) => state.beehives);
-
-  const [searchFilters, setSearchFilters] = useState({
-    serialNumber: '',
-    dateType: 'import_date',
-    date: '',
-  });
+  const [beehives, setBeehives] = useState([]);
+  const [stats, setStats] = useState({ total: 0, good: 0, normal: 0, weak: 0 });
+  const [user, setUser] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    dispatch(fetchBeehives({ 
-      ...filters, 
-      sort_field: sort.field,
-      sort_order: sort.order,
-      page: pagination.page 
-    }));
-    dispatch(fetchBeehiveStats());
-  }, [dispatch, filters, sort, pagination.page]);
+    loadData();
+  }, [searchTerm, loadData]);
 
-  const handleSearch = () => {
-    const newFilters = {
-      serialNumber: searchFilters.serialNumber,
-      [searchFilters.dateType]: searchFilters.date,
-    };
-    dispatch(setFilters(newFilters));
-    dispatch(setPage(1));
-  };
+  const loadData = useCallback(async () => {
+    try {
+      const [beehivesResponse, statsResponse, userResponse] = await Promise.all([
+        apiService.getBeehives(1, 10, searchTerm),
+        apiService.getStats(),
+        apiService.getCurrentUser()
+      ]);
+      
+      setBeehives(beehivesResponse.beehives || []);
+      // Map backend stats to frontend format
+      setStats({
+        total: statsResponse.total || 0,
+        good: statsResponse.healthy || 0,
+        normal: statsResponse.active - statsResponse.healthy || 0,
+        weak: 0, // Backend doesn't track weak separately
+      });
+      setUser(userResponse);
+    } catch (error) {
+      toast.error('Không thể tải dữ liệu');
+      console.error('Error loading data:', error);
+    }
+  }, [searchTerm]);
 
-  const handleClearSearch = () => {
-    const clearedFilters = { serialNumber: '', dateType: 'import_date', date: '' };
-    setSearchFilters(clearedFilters);
-    dispatch(setFilters({ serialNumber: '', import_date: '', split_date: '' }));
-    dispatch(setPage(1));
-  };
-
-  const handleSort = (field) => {
-    const newOrder = sort.field === field && sort.order === 'asc' ? 'desc' : 'asc';
-    dispatch(setSort({ field, order: newOrder }));
-    dispatch(setPage(1));
-  };
-
-  const handlePageChange = (event, page) => {
-    dispatch(setPage(page));
-  };
-
-  const handleSellBeehive = async (serialNumber) => {
-    if (window.confirm('Bạn có chắc muốn đánh dấu tổ này đã bán?')) {
+  const handleDelete = async (serialNumber) => {
+    if (confirm('Bạn có chắc muốn xóa tổ ong này?')) {
       try {
-        await dispatch(sellBeehive(serialNumber)).unwrap();
-      } catch (error) {
-        console.error('Failed to sell beehive:', error);
+        await apiService.deleteBeehive(serialNumber);
+        toast.success('Đã xóa tổ ong');
+        loadData();
+      } catch {
+        toast.error('Không thể xóa tổ ong');
       }
     }
   };
 
-  const handleDeleteBeehive = async (serialNumber) => {
-    if (window.confirm('Bạn có chắc muốn xóa tổ ong này?')) {
-      try {
-        await dispatch(deleteBeehive(serialNumber)).unwrap();
-      } catch (error) {
-        console.error('Failed to delete beehive:', error);
-      }
+  const handleLogout = async () => {
+    try {
+      await apiService.logout();
+      toast.success('Đã đăng xuất');
+      navigate('/login');
+    } catch {
+      // Even if logout fails on server, clear local token
+      apiService.setToken(null);
+      navigate('/login');
     }
   };
 
-  const getSortIcon = (field) => {
-    if (sort.field !== field) return null;
-    return sort.order === 'asc' ? <ArrowUpIcon /> : <ArrowDownIcon />;
-  };
-
-  const getHealthStatusColor = (status) => {
+  const getHealthBadgeVariant = (status) => {
     switch (status) {
-      case 'Tốt': return 'success';
-      case 'Bình thường': return 'warning';
-      case 'Yếu': return 'error';
-      default: return 'default';
+      case 'Tốt':
+        return 'default';
+      case 'Bình thường':
+        return 'secondary';
+      case 'Yếu':
+        return 'destructive';
+      default:
+        return 'outline';
     }
   };
-
-  const getHealthStatusIcon = (status) => {
-    switch (status) {
-      case 'Tốt': return '/static/icons/health/good.png';
-      case 'Bình thường': return '/static/icons/health/normal.png';
-      case 'Yếu': return '/static/icons/health/weak.png';
-      default: return '/static/icons/health/normal.png';
-    }
-  };
-
-  if (loading && activeBeehives.length === 0) {
-    return (
-      <Box 
-        role="status"
-        aria-live="polite"
-        aria-label="Đang tải dữ liệu tổ ong"
-        display="flex" 
-        justifyContent="center" 
-        alignItems="center" 
-        minHeight="400px"
-        sx={{ 
-          flexDirection: 'column',
-          gap: 2,
-          py: 4
-        }}
-      >
-        <img 
-          src="/bee.gif" 
-          alt="Đang tải dữ liệu..." 
-          style={{ 
-            width: '80px', 
-            height: '80px',
-            borderRadius: '50%',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
-          }} 
-        />
-        <Typography 
-          variant="body1" 
-          color="primary" 
-          sx={{ 
-            fontWeight: 500,
-            opacity: 0.8
-          }}
-        >
-          Đang tải dữ liệu tổ ong...
-        </Typography>
-      </Box>
-    );
-  }
 
   return (
-    <Box>
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-
-      {/* Unified Stats Card */}
-      <Box sx={{ mb: 3 }}>
-        <UnifiedStatsCard stats={stats} />
-      </Box>
-
-
-      {/* Main Content */}
-      <Card>
-        <CardContent sx={{ p: 0 }}>
-          <Box 
-            display="flex" 
-            justifyContent="space-between" 
-            alignItems="center" 
-            mb={3}
-            flexDirection={{ xs: 'column', sm: 'row' }}
-            gap={{ xs: 2, sm: 0 }}
-          >
-            <Typography variant="h5" component="h1" sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
-              Danh Sách Tổ Ong
-            </Typography>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} width={{ xs: '100%', sm: 'auto' }}>
-              <Button
-                variant="contained"
-                color="warning"
-                startIcon={<MoneyIcon />}
-                onClick={() => navigate('/sold')}
-                fullWidth={isMobile ? true : false}
-                size="small"
-              >
-                Tổ đã bán
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-amber-600">KBee Manager</h1>
+              <p className="text-sm text-gray-600">{user?.business_name}</p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => navigate('/profile')}>
+                <Settings className="w-4 h-4 mr-2" />
+                Cài đặt
               </Button>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => navigate('/add')}
-                fullWidth={isMobile ? true : false}
-                size="small"
-              >
-                Thêm tổ ong
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Đăng xuất
               </Button>
-            </Stack>
-          </Box>
+            </div>
+          </div>
+        </div>
+      </header>
 
-          {/* Search Form */}
-          <Grid container spacing={1} sx={{ mb: 3, margin: 0 }}>
-            <Grid item xs={12} sm={6} md={3} sx={{ padding: '4px' }}>
-              <TextField
-                fullWidth
-                label="Tìm theo mã tổ"
-                value={searchFilters.serialNumber}
-                onChange={(e) => setSearchFilters({ ...searchFilters, serialNumber: e.target.value })}
-                size="small"
-                placeholder="VD: TO001"
+      <div className="max-w-7xl mx-auto p-4 space-y-6">
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardDescription>Tổng số tổ</CardDescription>
+              <CardTitle>{stats.total}</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardDescription>Tổ khỏe</CardDescription>
+              <CardTitle className="text-green-600">{stats.healthy}</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardDescription>Tổ bình thường</CardDescription>
+              <CardTitle className="text-blue-600">{stats.normal}</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardDescription>Tổ yếu</CardDescription>
+              <CardTitle className="text-red-600">{stats.weak}</CardTitle>
+            </CardHeader>
+          </Card>
+        </div>
+
+        {/* Actions */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <Button onClick={() => navigate('/add-beehive')} className="w-full">
+            <Plus className="w-4 h-4 mr-2" />
+            Thêm tổ ong
+          </Button>
+          <Button onClick={() => navigate('/bulk-add')} variant="outline" className="w-full">
+            <Plus className="w-4 h-4 mr-2" />
+            Thêm hàng loạt
+          </Button>
+          <Button onClick={() => navigate('/export-qr')} variant="outline" className="w-full">
+            <QrCode className="w-4 h-4 mr-2" />
+            Xuất QR
+          </Button>
+          <Button onClick={() => navigate('/export-pdf')} variant="outline" className="w-full">
+            <FileDown className="w-4 h-4 mr-2" />
+            Xuất PDF
+          </Button>
+          <Button onClick={() => navigate('/sold')} variant="outline" className="w-full">
+            <ShoppingCart className="w-4 h-4 mr-2" />
+            Đã bán
+          </Button>
+        </div>
+
+        {/* Search */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Danh sách tổ ong</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                placeholder="Tìm kiếm theo mã tổ, ngày nhập, ngày tách hoặc ghi chú..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
               />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3} sx={{ padding: '4px' }}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Loại ngày</InputLabel>
-                <Select
-                  value={searchFilters.dateType}
-                  onChange={(e) => setSearchFilters({ ...searchFilters, dateType: e.target.value })}
-                  label="Loại ngày"
-                >
-                  <MenuItem value="import_date">Ngày nhập</MenuItem>
-                  <MenuItem value="split_date">Ngày tách</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3} sx={{ padding: '4px' }}>
-              <DateInput
-                fullWidth
-                label={`Tìm theo ${searchFilters.dateType === 'import_date' ? 'ngày nhập' : 'ngày tách'}`}
-                value={searchFilters.date}
-                onChange={(e) => setSearchFilters({ ...searchFilters, date: e.target.value })}
-                size="small"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3} sx={{ padding: '4px' }}>
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
-                <Button
-                  variant="contained"
-                  startIcon={<SearchIcon />}
-                  onClick={handleSearch}
-                  fullWidth={isMobile ? true : false}
-                  size="small"
-                >
-                  Tìm kiếm
-                </Button>
-                <Button
-                  variant="outlined"
-                  startIcon={<ClearIcon />}
-                  onClick={handleClearSearch}
-                  fullWidth={isMobile ? true : false}
-                  size="small"
-                >
-                  Xóa
-                </Button>
-              </Stack>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3} sx={{ padding: '4px' }}>
-              <Typography 
-                variant="body2" 
-                color="text.secondary" 
-                align="right"
-                sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
-              >
-                Hiển thị {activeBeehives.length}/{pagination?.total || 0} tổ ong
-              </Typography>
-            </Grid>
-          </Grid>
+            </div>
 
-          {/* Mobile scroll indicator */}
-          {isMobile && (
-            <Box sx={{ 
-              textAlign: 'center', 
-              mb: 1, 
-              color: 'text.secondary',
-              fontSize: '0.75rem'
-            }}>
-              ← Vuốt ngang để xem thêm cột →
-            </Box>
-          )}
-
-          {/* Beehives List - Compact Table View for all devices */}
-          <TableContainer 
-            component={Paper} 
-            sx={{ 
-              maxHeight: 400,
-              width: '100vw',
-              overflowX: 'scroll',
-              overflowY: 'auto',
-              display: 'block',
-              WebkitOverflowScrolling: 'touch',
-              scrollbarWidth: 'thin',
-              scrollbarColor: '#D2691E #f1f1f1',
-              position: 'relative',
-              marginLeft: 0,
-              marginRight: 0,
-              paddingLeft: 0,
-              paddingRight: 0,
-              '&::-webkit-scrollbar': {
-                height: 12,
-                width: 12,
-                WebkitAppearance: 'none',
-              },
-              '&::-webkit-scrollbar-track': {
-                backgroundColor: '#f1f1f1',
-                borderRadius: 6,
-                WebkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.1)',
-              },
-              '&::-webkit-scrollbar-thumb': {
-                backgroundColor: '#D2691E',
-                borderRadius: 6,
-                WebkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.1)',
-                '&:hover': {
-                  backgroundColor: '#B8860B',
-                },
-              },
-              '&::-webkit-scrollbar-corner': {
-                backgroundColor: '#f1f1f1',
-              },
-            }}
-          >
-            <Table stickyHeader sx={{ 
-              minWidth: '100vw',
-              width: 'max-content',
-              display: 'table',
-              tableLayout: 'fixed'
-            }}>
-              <TableHead>
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Mã tổ</TableHead>
+                    <TableHead>Ngày nhập</TableHead>
+                    <TableHead>Ngày tách</TableHead>
+                    <TableHead>Tình trạng</TableHead>
+                    <TableHead>Ghi chú</TableHead>
+                    <TableHead className="text-right">Thao tác</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {beehives.length === 0 ? (
                 <TableRow>
-                  <TableCell sx={{ 
-                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '2px 1px', sm: '16px' },
-                    minWidth: { xs: '60px', sm: '150px' },
-                    whiteSpace: 'nowrap',
-                    backgroundColor: '#f5f5f5',
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 1
-                  }}>
-                    <Button
-                      onClick={() => handleSort('serial_number')}
-                      endIcon={getSortIcon('serial_number')}
-                      sx={{ 
-                        textTransform: 'none', 
-                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                        minWidth: 'auto',
-                        p: { xs: 0.5, sm: 1 }
-                      }}
-                    >
-                      Mã tổ
-                    </Button>
+                      <TableCell colSpan={6} className="text-center text-gray-500">
+                        Không có dữ liệu
                   </TableCell>
-                  <TableCell sx={{ 
-                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '2px 1px', sm: '16px' },
-                    minWidth: { xs: '60px', sm: '150px' },
-                    whiteSpace: 'nowrap',
-                    backgroundColor: '#f5f5f5',
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 1
-                  }}>
-                    <Button
-                      onClick={() => handleSort('import_date')}
-                      endIcon={getSortIcon('import_date')}
-                      sx={{ 
-                        textTransform: 'none', 
-                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                        minWidth: 'auto',
-                        p: { xs: 0.5, sm: 1 }
-                      }}
-                    >
-                      Ngày nhập
-                    </Button>
+                    </TableRow>
+                  ) : (
+                    beehives.map((beehive) => (
+                      <TableRow key={beehive.serial_number}>
+                        <TableCell>{beehive.serial_number}</TableCell>
+                        <TableCell>{beehive.import_date}</TableCell>
+                        <TableCell>{beehive.split_date || '-'}</TableCell>
+                        <TableCell>
+                          <Badge variant={getHealthBadgeVariant(beehive.health_status)}>
+                            {beehive.health_status}
+                          </Badge>
                   </TableCell>
-                  <TableCell sx={{ 
-                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '2px 1px', sm: '16px' },
-                    minWidth: { xs: '60px', sm: '150px' },
-                    whiteSpace: 'nowrap',
-                    backgroundColor: '#f5f5f5',
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 1
-                  }}>
+                        <TableCell className="max-w-xs truncate">{beehive.notes || '-'}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex gap-2 justify-end">
                     <Button
-                      onClick={() => handleSort('split_date')}
-                      endIcon={getSortIcon('split_date')}
-                      sx={{ 
-                        textTransform: 'none', 
-                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                        minWidth: 'auto',
-                        p: { xs: 0.5, sm: 1 }
-                      }}
-                    >
-                      Ngày tách
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => navigate(`/beehive/${beehive.serial_number}`)}
+                            >
+                              <Eye className="w-4 h-4" />
                     </Button>
-                  </TableCell>
-                  <TableCell sx={{ 
-                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '2px 1px', sm: '16px' },
-                    minWidth: { xs: '60px', sm: '150px' },
-                    whiteSpace: 'nowrap',
-                    backgroundColor: '#f5f5f5',
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 1
-                  }}>
                     <Button
-                      onClick={() => handleSort('health_status')}
-                      endIcon={getSortIcon('health_status')}
-                      sx={{ 
-                        textTransform: 'none', 
-                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                        minWidth: 'auto',
-                        p: { xs: 0.5, sm: 1 }
-                      }}
-                    >
-                      Sức khỏe
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => navigate(`/edit-beehive/${beehive.serial_number}`)}
+                            >
+                              <Edit className="w-4 h-4" />
                     </Button>
-                  </TableCell>
-                  <TableCell sx={{ 
-                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '2px 1px', sm: '16px' },
-                    minWidth: { xs: '60px', sm: '150px' },
-                    whiteSpace: 'nowrap',
-                    backgroundColor: '#f5f5f5',
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 1
-                  }}>
                     <Button
-                      onClick={() => handleSort('status')}
-                      endIcon={getSortIcon('status')}
-                      sx={{ 
-                        textTransform: 'none', 
-                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                        minWidth: 'auto',
-                        p: { xs: 0.5, sm: 1 }
-                      }}
-                    >
-                      Trạng thái
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDelete(beehive.serial_number)}
+                            >
+                              <Trash2 className="w-4 h-4" />
                     </Button>
-                  </TableCell>
-                  <TableCell sx={{ 
-                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    padding: { xs: '2px 1px', sm: '16px' },
-                    minWidth: { xs: '60px', sm: '150px' },
-                    whiteSpace: 'nowrap',
-                    backgroundColor: '#f5f5f5',
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 1
-                  }}>
-                    <Typography 
-                      variant="body2" 
-                      fontWeight="bold"
-                      sx={{ 
-                        fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                        color: 'text.primary'
-                      }}
-                    >
-                      Thao tác
-                    </Typography>
+                          </div>
                   </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {activeBeehives.map((beehive) => (
-                  <TableRow key={beehive.serial_number} hover>
-                    <TableCell sx={{ 
-                      py: { xs: 0.5, sm: 1 },
-                      px: { xs: '1px', sm: '16px' },
-                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                      whiteSpace: 'nowrap',
-                      minWidth: { xs: '60px', sm: '150px' }
-                    }}>
-                      <Typography variant="subtitle2" fontWeight="bold" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                        {beehive.serial_number || 'N/A'}
-                      </Typography>
-                    </TableCell>
-                    <TableCell sx={{ 
-                      py: { xs: 0.5, sm: 1 },
-                      px: { xs: '1px', sm: '16px' },
-                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                      whiteSpace: 'nowrap',
-                      minWidth: { xs: '60px', sm: '150px' }
-                    }}>
-                      <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                        {beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}
-                      </Typography>
-                    </TableCell>
-                    <TableCell sx={{ 
-                      py: { xs: 0.5, sm: 1 },
-                      px: { xs: '1px', sm: '16px' },
-                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                      whiteSpace: 'nowrap',
-                      minWidth: { xs: '60px', sm: '150px' }
-                    }}>
-                      <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                        {beehive.split_date 
-                          ? new Date(beehive.split_date).toLocaleDateString('vi-VN')
-                          : 'Chưa tách'
-                        }
-                      </Typography>
-                    </TableCell>
-                    <TableCell sx={{ 
-                      py: { xs: 0.5, sm: 1 },
-                      px: { xs: '1px', sm: '16px' },
-                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                      whiteSpace: 'nowrap',
-                      minWidth: { xs: '60px', sm: '150px' }
-                    }}>
-                      <Chip
-                        icon={<img src={getHealthStatusIcon(beehive.health_status || 'Unknown')} alt={`Tình trạng sức khỏe: ${beehive.health_status || 'Unknown'}`} style={{ width: 12, height: 12 }} />}
-                        label={beehive.health_status || 'Unknown'}
-                        color={getHealthStatusColor(beehive.health_status || 'Unknown')}
-                        size="small"
-                        sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
-                      />
-                    </TableCell>
-                    <TableCell sx={{ 
-                      py: { xs: 0.5, sm: 1 },
-                      px: { xs: '1px', sm: '16px' },
-                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                      whiteSpace: 'nowrap',
-                      minWidth: { xs: '60px', sm: '150px' }
-                    }}>
-                      <Chip
-                        label="Đang quản lý"
-                        color="success"
-                        size="small"
-                        sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
-                      />
-                    </TableCell>
-                    <TableCell sx={{ 
-                      py: { xs: 0.5, sm: 1 },
-                      px: { xs: '1px', sm: '16px' },
-                      fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                      whiteSpace: 'nowrap',
-                      minWidth: { xs: '60px', sm: '150px' }
-                    }}>
-                      <Stack direction="row" spacing={0.25}>
-                        <AccessibleIconButton
-                          ariaLabel={`Chỉnh sửa tổ ong ${beehive.serial_number || 'N/A'}`}
-                          title="Chỉnh sửa"
-                          onClick={() => navigate(`/edit/${beehive.serial_number || ''}`)}
-                          icon={<EditIcon />}
-                          size="small"
-                          sx={{ p: { xs: 0.25, sm: 0.5 } }}
-                        />
-                        <AccessibleIconButton
-                          ariaLabel={`Xem QR Code tổ ong ${beehive.serial_number || 'N/A'}`}
-                          title="Xem QR Code"
-                          onClick={() => navigate(`/beehive/${beehive.qr_token || ''}`)}
-                          icon={<QrCodeIcon />}
-                          size="small"
-                          sx={{ p: { xs: 0.25, sm: 0.5 } }}
-                        />
-                        <AccessibleIconButton
-                          ariaLabel={`Đánh dấu đã bán tổ ong ${beehive.serial_number || 'N/A'}`}
-                          title="Đánh dấu đã bán"
-                          onClick={() => handleSellBeehive(beehive.serial_number)}
-                          icon={<MoneyIcon />}
-                          color="warning"
-                          size="small"
-                          sx={{ p: { xs: 0.25, sm: 0.5 } }}
-                        />
-                        <AccessibleIconButton
-                          ariaLabel={`Xóa tổ ong ${beehive.serial_number || 'N/A'}`}
-                          title="Xóa"
-                          onClick={() => handleDeleteBeehive(beehive.serial_number)}
-                          icon={<DeleteIcon />}
-                          color="error"
-                          size="small"
-                          sx={{ p: { xs: 0.25, sm: 0.5 } }}
-                        />
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                    ))
+                  )}
               </TableBody>
             </Table>
-          </TableContainer>
+            </div>
 
-          {/* Pagination */}
-          {pagination?.totalPages > 1 && (
-            <Box display="flex" justifyContent="center" mt={3}>
-              <Pagination
-                count={pagination?.totalPages || 1}
-                page={pagination?.page || 1}
-                onChange={handlePageChange}
-                color="primary"
-                size="large"
-              />
-            </Box>
-          )}
-
-          {activeBeehives.length === 0 && !loading && (
-            <Box textAlign="center" py={4}>
-              <Typography variant="h6" color="text.secondary" gutterBottom>
-                Chưa có tổ ong nào
-              </Typography>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                Hãy thêm tổ ong đầu tiên để bắt đầu quản lý!
-              </Typography>
+            {/* Mobile Cards */}
+            <div className="md:hidden space-y-3">
+              {beehives.length === 0 ? (
+                <p className="text-center text-gray-500 py-8">Không có dữ liệu</p>
+              ) : (
+                beehives.map((beehive) => (
+                  <Card key={beehive.serial_number}>
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-base">{beehive.serial_number}</CardTitle>
+                          <CardDescription>{beehive.import_date}</CardDescription>
+                        </div>
+                        <Badge variant={getHealthBadgeVariant(beehive.health_status)}>
+                          {beehive.health_status}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {beehive.split_date && (
+                        <p className="text-sm text-gray-600">Ngày tách: {beehive.split_date}</p>
+                      )}
+                      {beehive.notes && (
+                        <p className="text-sm text-gray-600">{beehive.notes}</p>
+                      )}
+                      <div className="flex gap-2 pt-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => navigate(`/beehive/${beehive.serial_number}`)}
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          Xem
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => navigate(`/edit-beehive/${beehive.serial_number}`)}
+                        >
+                          <Edit className="w-4 h-4 mr-1" />
+                          Sửa
+                        </Button>
               <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => navigate('/add')}
-                sx={{ mt: 2 }}
-              >
-                Thêm tổ ong đầu tiên
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDelete(beehive.serial_number)}
+                        >
+                          <Trash2 className="w-4 h-4" />
               </Button>
-            </Box>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
           )}
+            </div>
         </CardContent>
       </Card>
-    </Box>
+      </div>
+    </div>
   );
 };
 
