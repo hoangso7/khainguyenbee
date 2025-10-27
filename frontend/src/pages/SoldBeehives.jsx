@@ -284,8 +284,29 @@ const SoldBeehives = () => {
           </Grid>
 
           {/* Beehives List - Compact Table View for all devices */}
-          <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
-            <Table stickyHeader>
+          <TableContainer 
+            component={Paper} 
+            sx={{ 
+              maxHeight: 400,
+              width: '100%',
+              overflowX: 'auto',
+              '&::-webkit-scrollbar': {
+                height: 8,
+              },
+              '&::-webkit-scrollbar-track': {
+                backgroundColor: '#f1f1f1',
+                borderRadius: 4,
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: '#c1c1c1',
+                borderRadius: 4,
+                '&:hover': {
+                  backgroundColor: '#a8a8a8',
+                },
+              },
+            }}
+          >
+            <Table stickyHeader sx={{ minWidth: 600 }}>
               <TableHead>
                 <TableRow>
                   <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>

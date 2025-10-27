@@ -317,11 +317,37 @@ const Dashboard = () => {
           </Grid>
 
           {/* Beehives List - Compact Table View for all devices */}
-          <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
-            <Table stickyHeader>
+          <TableContainer 
+            component={Paper} 
+            sx={{ 
+              maxHeight: 400,
+              width: '100%',
+              overflowX: 'auto',
+              '&::-webkit-scrollbar': {
+                height: 8,
+              },
+              '&::-webkit-scrollbar-track': {
+                backgroundColor: '#f1f1f1',
+                borderRadius: 4,
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: '#c1c1c1',
+                borderRadius: 4,
+                '&:hover': {
+                  backgroundColor: '#a8a8a8',
+                },
+              },
+            }}
+          >
+            <Table stickyHeader sx={{ minWidth: 600 }}>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                  <TableCell sx={{ 
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    padding: { xs: '8px 4px', sm: '16px' },
+                    minWidth: { xs: '80px', sm: '100px' },
+                    whiteSpace: 'nowrap'
+                  }}>
                     <Button
                       onClick={() => handleSort('serial_number')}
                       endIcon={getSortIcon('serial_number')}
@@ -335,7 +361,12 @@ const Dashboard = () => {
                       Mã tổ
                     </Button>
                   </TableCell>
-                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                  <TableCell sx={{ 
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    padding: { xs: '8px 4px', sm: '16px' },
+                    minWidth: { xs: '80px', sm: '100px' },
+                    whiteSpace: 'nowrap'
+                  }}>
                     <Button
                       onClick={() => handleSort('import_date')}
                       endIcon={getSortIcon('import_date')}
@@ -349,7 +380,12 @@ const Dashboard = () => {
                       Ngày nhập
                     </Button>
                   </TableCell>
-                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                  <TableCell sx={{ 
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    padding: { xs: '8px 4px', sm: '16px' },
+                    minWidth: { xs: '80px', sm: '100px' },
+                    whiteSpace: 'nowrap'
+                  }}>
                     <Button
                       onClick={() => handleSort('split_date')}
                       endIcon={getSortIcon('split_date')}
@@ -363,7 +399,12 @@ const Dashboard = () => {
                       Ngày tách
                     </Button>
                   </TableCell>
-                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                  <TableCell sx={{ 
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    padding: { xs: '8px 4px', sm: '16px' },
+                    minWidth: { xs: '80px', sm: '100px' },
+                    whiteSpace: 'nowrap'
+                  }}>
                     <Button
                       onClick={() => handleSort('health_status')}
                       endIcon={getSortIcon('health_status')}
@@ -377,7 +418,12 @@ const Dashboard = () => {
                       Sức khỏe
                     </Button>
                   </TableCell>
-                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                  <TableCell sx={{ 
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    padding: { xs: '8px 4px', sm: '16px' },
+                    minWidth: { xs: '80px', sm: '100px' },
+                    whiteSpace: 'nowrap'
+                  }}>
                     <Button
                       onClick={() => handleSort('status')}
                       endIcon={getSortIcon('status')}
@@ -391,7 +437,12 @@ const Dashboard = () => {
                       Trạng thái
                     </Button>
                   </TableCell>
-                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                  <TableCell sx={{ 
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    padding: { xs: '8px 4px', sm: '16px' },
+                    minWidth: { xs: '80px', sm: '100px' },
+                    whiteSpace: 'nowrap'
+                  }}>
                     <Typography 
                       variant="body2" 
                       fontWeight="bold"
@@ -408,17 +459,32 @@ const Dashboard = () => {
               <TableBody>
                 {activeBeehives.map((beehive) => (
                   <TableRow key={beehive.serial_number} hover>
-                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                    <TableCell sx={{ 
+                      py: { xs: 0.5, sm: 1 },
+                      px: { xs: '4px', sm: '16px' },
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                      whiteSpace: 'nowrap'
+                    }}>
                       <Typography variant="subtitle2" fontWeight="bold" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                         {beehive.serial_number || 'N/A'}
                       </Typography>
                     </TableCell>
-                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                    <TableCell sx={{ 
+                      py: { xs: 0.5, sm: 1 },
+                      px: { xs: '4px', sm: '16px' },
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                      whiteSpace: 'nowrap'
+                    }}>
                       <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                         {beehive.import_date ? new Date(beehive.import_date).toLocaleDateString('vi-VN') : 'N/A'}
                       </Typography>
                     </TableCell>
-                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                    <TableCell sx={{ 
+                      py: { xs: 0.5, sm: 1 },
+                      px: { xs: '4px', sm: '16px' },
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                      whiteSpace: 'nowrap'
+                    }}>
                       <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                         {beehive.split_date 
                           ? new Date(beehive.split_date).toLocaleDateString('vi-VN')
@@ -426,7 +492,12 @@ const Dashboard = () => {
                         }
                       </Typography>
                     </TableCell>
-                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                    <TableCell sx={{ 
+                      py: { xs: 0.5, sm: 1 },
+                      px: { xs: '4px', sm: '16px' },
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                      whiteSpace: 'nowrap'
+                    }}>
                       <Chip
                         icon={<img src={getHealthStatusIcon(beehive.health_status || 'Unknown')} alt={`Tình trạng sức khỏe: ${beehive.health_status || 'Unknown'}`} style={{ width: 12, height: 12 }} />}
                         label={beehive.health_status || 'Unknown'}
@@ -435,7 +506,12 @@ const Dashboard = () => {
                         sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
                       />
                     </TableCell>
-                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                    <TableCell sx={{ 
+                      py: { xs: 0.5, sm: 1 },
+                      px: { xs: '4px', sm: '16px' },
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                      whiteSpace: 'nowrap'
+                    }}>
                       <Chip
                         label="Đang quản lý"
                         color="success"
@@ -443,7 +519,12 @@ const Dashboard = () => {
                         sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
                       />
                     </TableCell>
-                    <TableCell sx={{ py: { xs: 0.5, sm: 1 } }}>
+                    <TableCell sx={{ 
+                      py: { xs: 0.5, sm: 1 },
+                      px: { xs: '4px', sm: '16px' },
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                      whiteSpace: 'nowrap'
+                    }}>
                       <Stack direction="row" spacing={0.25}>
                         <AccessibleIconButton
                           ariaLabel={`Chỉnh sửa tổ ong ${beehive.serial_number || 'N/A'}`}
