@@ -46,8 +46,8 @@ def create_app(config_name=None):
     
     # Initialize rate limiting
     limiter = Limiter(
-        app,
         key_func=get_remote_address,
+        app=app,
         default_limits=[app_config.RATE_LIMIT_DEFAULT] if app_config.RATE_LIMIT_ENABLED else []
     )
     
@@ -100,33 +100,33 @@ def create_app(config_name=None):
         except Exception as e:
             return jsonify({'message': f'Database initialization failed: {str(e)}'}), 500
     
-    # Initialize database when app starts
-    def init_app():
-        """Initialize database and create tables"""
-        with app.app_context():
-            try:
-                # Create all tables
-                db.create_all()
-                print("✓ Database tables created successfully")
-                
-                # Check if any users exist, if not, we're ready for setup
-                user_count = User.query.count()
-                if user_count == 0:
-                    print("✓ Database is ready for initial setup")
-                else:
-                    print(f"✓ Database initialized with {user_count} users")
-                    
-            except Exception as e:
-                print(f"✗ Error creating database tables: {str(e)}")
-                # Don't exit, let the app run and handle errors gracefully
-    
-    # Initialize database on startup
-    init_app()
-    
     return app
+
+# Initialize database when app starts
+def init_db_on_startup(app):
+    """Initialize database and create tables on app startup."""
+    with app.app_context():
+        try:
+            # Create all tables
+            db.create_all()
+            print("✓ Database tables created successfully")
+            
+            # Check if any users exist, if not, we're ready for setup
+            user_count = User.query.count()
+            if user_count == 0:
+                print("✓ Database is ready for initial setup")
+            else:
+                print(f"✓ Database initialized with {user_count} users")
+                
+        except Exception as e:
+            print(f"✗ Error creating database tables: {str(e)}")
+            # Don't exit, let the app run and handle errors gracefully
 
 # Create app instance
 app = create_app()
+
+# Initialize database on startup
+init_db_on_startup(app)
 
 if __name__ == '__main__':
     # Only run in debug mode if explicitly set
