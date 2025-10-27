@@ -32,7 +32,7 @@ def create_app(config_name=None):
     app_config = config.get(config_name, config['default'])
     
     # Create Flask app
-app = Flask(__name__)
+    app = Flask(__name__)
     app.config.from_object(app_config)
     
     # Initialize extensions
