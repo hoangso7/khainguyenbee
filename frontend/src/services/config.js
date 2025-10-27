@@ -1,8 +1,5 @@
 // Application configuration service
-// This service provides application information that can be configured via environment variables
-
-const getAppConfig = () => {
-  // These values can be overridden by environment variables in production
+export const getAppConfig = () => {
   return {
     domain: process.env.REACT_APP_DOMAIN || 'khainguyenbee.io.vn',
     appName: process.env.REACT_APP_NAME || 'Quản lý tổ ong',

@@ -19,7 +19,7 @@ import {
   Support as SupportIcon,
   CheckCircle as CheckIcon,
 } from '@mui/icons-material';
-import getAppConfig from '../../services/config.js';
+import { getAppConfig } from '../../services/config.js';
 
 const About = () => {
   const appConfig = getAppConfig();
