@@ -5,6 +5,7 @@ Refactored with modular architecture
 
 import os
 import logging
+from logging.handlers import RotatingFileHandler
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -58,10 +59,25 @@ def create_app(config_name=None):
     app.register_blueprint(beehives_bp)
     
     # Configure logging
-    logging.basicConfig(
-        level=getattr(logging, app_config.LOG_LEVEL),
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    if not app.debug and not app.testing:
+        # Create logs directory if it doesn't exist
+        logs_dir = '/app/logs'
+        os.makedirs(logs_dir, exist_ok=True)
+        
+        # Configure file handler for errors
+        file_handler = RotatingFileHandler(
+            os.path.join(logs_dir, 'error.log'),
+            maxBytes=10240000,  # 10MB
+            backupCount=10
+        )
+        file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+        ))
+        file_handler.setLevel(logging.ERROR)
+        app.logger.addHandler(file_handler)
+        
+        app.logger.setLevel(logging.INFO)
+        app.logger.info('KBee Manager startup')
     
     # Root route for health check
     @app.route('/')
