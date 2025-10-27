@@ -38,7 +38,7 @@ const Setup = () => {
   useEffect(() => {
     const checkSetupStatus = async () => {
       try {
-        const response = await fetch('/api/setup/check');
+        const response = await fetch('/api/auth/setup/check');
         const data = await response.json();
         
         if (!data.setup_needed) {

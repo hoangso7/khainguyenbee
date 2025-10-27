@@ -9,7 +9,7 @@ const SetupGuard = ({ children }) => {
   useEffect(() => {
     const checkSetupStatus = async () => {
       try {
-        const response = await fetch('/api/setup/check');
+        const response = await fetch('/api/auth/setup/check');
         const data = await response.json();
         
         // If setup is not needed (admin user exists), redirect to login
