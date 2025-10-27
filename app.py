@@ -48,11 +48,14 @@ def create_app(config_name=None):
          allow_headers=['Content-Type', 'Authorization'],
          supports_credentials=True)
     
-    # Initialize rate limiting
+    # Initialize rate limiting with Redis storage
     limiter = Limiter(
         key_func=get_remote_address,
         app=app,
-        default_limits=[app_config.RATE_LIMIT_DEFAULT] if app_config.RATE_LIMIT_ENABLED else []
+        storage_uri="redis://kbee_redis:6379",
+        default_limits=[app_config.RATE_LIMIT_DEFAULT] if app_config.RATE_LIMIT_ENABLED else [],
+        strategy="fixed-window",
+        swallow_errors=True
     )
     
     # Register error handlers
