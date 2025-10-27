@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import apiService from '../lib/api';
+import apiService from '../lib/api.js';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Hexagon, Calendar, MapPin, Phone } from 'lucide-react';
