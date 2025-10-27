@@ -369,7 +369,7 @@ const BulkAddBeehives = () => {
       {/* Beehives List */}
       {beehives.length > 0 && (
         <Card>
-          <CardContent>
+          <CardContent sx={{ p: { xs: 1, sm: 3 } }}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
               <Typography variant="h6">
                 Danh sách tổ ong ({beehives.length} tổ)
@@ -418,6 +418,7 @@ const BulkAddBeehives = () => {
                 WebkitOverflowScrolling: 'touch',
                 scrollbarWidth: 'thin',
                 scrollbarColor: '#D2691E #f1f1f1',
+                position: 'relative',
                 '&::-webkit-scrollbar': {
                   height: 12,
                   width: 12,
@@ -443,8 +444,9 @@ const BulkAddBeehives = () => {
             >
               <Table stickyHeader sx={{ 
                 minWidth: { xs: 500, sm: 800 },
-                width: '100%',
-                display: 'table'
+                width: 'max-content',
+                display: 'table',
+                tableLayout: 'fixed'
               }}>
                 <TableHead>
                   <TableRow>

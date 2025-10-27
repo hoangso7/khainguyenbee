@@ -213,7 +213,7 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <Card>
-        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+        <CardContent sx={{ p: { xs: 1, sm: 3 } }}>
           <Box 
             display="flex" 
             justifyContent="space-between" 
@@ -341,6 +341,7 @@ const Dashboard = () => {
               WebkitOverflowScrolling: 'touch',
               scrollbarWidth: 'thin',
               scrollbarColor: '#D2691E #f1f1f1',
+              position: 'relative',
               '&::-webkit-scrollbar': {
                 height: 12,
                 width: 12,
@@ -366,8 +367,9 @@ const Dashboard = () => {
           >
             <Table stickyHeader sx={{ 
               minWidth: { xs: 500, sm: 800 },
-              width: '100%',
-              display: 'table'
+              width: 'max-content',
+              display: 'table',
+              tableLayout: 'fixed'
             }}>
               <TableHead>
                 <TableRow>
