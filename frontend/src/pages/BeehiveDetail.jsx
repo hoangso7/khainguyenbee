@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { ArrowLeft, Calendar, Edit } from 'lucide-react';
 import { formatDate } from '../utils/dateUtils';
 import beeIcon from '../assets/bee-icon.png';
-import beeIcon from '../assets/bee-icon.png';
+
 
 const BeehiveDetail = () => {
   const navigate = useNavigate();
