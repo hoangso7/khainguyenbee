@@ -276,7 +276,7 @@ const Dashboard = () => {
                     </TableRow>
                   ) : (
                     paginatedBeehives.map((beehive) => (
-                      <TableRow key={beehive.serial_number} className="bg-amber-50/50 hover:bg-amber-50 transition-colors">
+                      <TableRow key={beehive.serial_number} className="odd:bg-white even:bg-amber-50 hover:bg-amber-100 transition-colors border-b border-amber-100">
                         <TableCell>{beehive.serial_number}</TableCell>
                         <TableCell>{formatDate(beehive.import_date)}</TableCell>
                         <TableCell>{beehive.split_date ? formatDate(beehive.split_date) : '-'}</TableCell>
@@ -338,8 +338,8 @@ const Dashboard = () => {
               ) : totalItems === 0 ? (
                 <p className="text-center text-gray-500 py-8">Không có dữ liệu</p>
               ) : (
-                paginatedBeehives.map((beehive) => (
-                  <Card key={beehive.serial_number} className="bg-amber-50/50">
+                paginatedBeehives.map((beehive, idx) => (
+                  <Card key={beehive.serial_number} className={idx % 2 === 0 ? 'bg-white border border-amber-100' : 'bg-amber-50 border border-amber-100'}>
                     <CardHeader className="pb-3">
                       <div className="flex justify-between items-start">
                         <div>
