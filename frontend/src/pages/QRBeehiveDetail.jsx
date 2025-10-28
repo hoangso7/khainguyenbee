@@ -19,16 +19,22 @@ const QRBeehiveDetail = () => {
   }, [token, loadBeehive]);
 
   const loadBeehive = useCallback(async () => {
+    console.log('🔍 QRBeehiveDetail: Starting to load beehive with token:', token);
     try {
       const response = await apiService.getBeehiveByToken(token);
+      console.log('✅ QRBeehiveDetail: API response received:', response);
+      
       setBeehive(response.beehive);
+      console.log('📊 QRBeehiveDetail: Beehive data set:', response.beehive);
       
       // Set owner and business info from response
       if (response.owner) {
         setOwner(response.owner);
+        console.log('👤 QRBeehiveDetail: Owner data set:', response.owner);
       }
       if (response.business_info) {
         setBusinessInfo(response.business_info);
+        console.log('🏢 QRBeehiveDetail: Business info set:', response.business_info);
       }
       
       // Try to get additional user info if logged in
@@ -36,12 +42,13 @@ const QRBeehiveDetail = () => {
         const userData = await apiService.getCurrentUser();
         if (userData && userData.id === response.beehive.user_id) {
           setOwner(userData);
+          console.log('🔐 QRBeehiveDetail: User is logged in as owner:', userData);
         }
       } catch {
-        // User not logged in, that's okay for public view
+        console.log('ℹ️ QRBeehiveDetail: User not logged in, that\'s okay for public view');
       }
     } catch (error) {
-      console.error('Error loading beehive:', error);
+      console.error('❌ QRBeehiveDetail: Error loading beehive:', error);
       // Set beehive to null to show error state
       setBeehive(null);
     }

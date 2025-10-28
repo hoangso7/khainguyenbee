@@ -33,9 +33,14 @@ const EditBeehive = () => {
   }, [serialNumber, loadBeehive]);
 
   const loadBeehive = useCallback(async () => {
+    console.log('🔍 EditBeehive: Starting to load beehive with serialNumber:', serialNumber);
     try {
       const data = await apiService.getBeehive(serialNumber);
+      console.log('✅ EditBeehive: API response received:', data);
+      
       setBeehive(data);
+      console.log('📊 EditBeehive: Beehive data set:', data);
+      
       setFormData({
         import_date: data.import_date,
         split_date: data.split_date || '',
@@ -44,8 +49,16 @@ const EditBeehive = () => {
         is_sold: data.is_sold,
         sold_date: data.sold_date || '',
       });
+      console.log('📝 EditBeehive: Form data initialized:', {
+        import_date: data.import_date,
+        split_date: data.split_date || '',
+        health_status: data.health_status,
+        notes: data.notes || '',
+        is_sold: data.is_sold,
+        sold_date: data.sold_date || '',
+      });
     } catch (error) {
-      console.error('Error loading beehive:', error);
+      console.error('❌ EditBeehive: Error loading beehive:', error);
       toast.error('Không tìm thấy tổ ong');
       // Don't navigate away, let the component show error state
     }
@@ -55,21 +68,30 @@ const EditBeehive = () => {
     e.preventDefault();
     if (!serialNumber) return;
 
+    console.log('💾 EditBeehive: Starting form submission for serialNumber:', serialNumber);
+    console.log('📝 EditBeehive: Form data to submit:', formData);
+
     setLoading(true);
 
     try {
-      await apiService.updateBeehive(serialNumber, {
+      const updateData = {
         import_date: formData.import_date,
         split_date: formData.split_date || undefined,
         health_status: formData.health_status,
         notes: formData.notes || undefined,
         is_sold: formData.is_sold,
         sold_date: formData.sold_date || undefined,
-      });
-
+      };
+      
+      console.log('🚀 EditBeehive: Sending update request with data:', updateData);
+      
+      await apiService.updateBeehive(serialNumber, updateData);
+      
+      console.log('✅ EditBeehive: Update successful');
       toast.success('Đã cập nhật thông tin tổ ong');
       navigate('/');
     } catch (error) {
+      console.error('❌ EditBeehive: Update failed:', error);
       toast.error(error.message || 'Không thể cập nhật tổ ong');
     } finally {
       setLoading(false);

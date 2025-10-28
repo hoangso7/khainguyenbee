@@ -24,13 +24,21 @@ const BeehiveDetail = () => {
   }, [qrToken, loadBeehive]);
 
   const loadBeehive = useCallback(async () => {
+    console.log('🔍 BeehiveDetail: Starting to load beehive with qrToken:', qrToken);
     try {
       const data = await apiService.getBeehiveByToken(qrToken);
+      console.log('✅ BeehiveDetail: API response received:', data);
+      
       setBeehive(data.beehive);
+      console.log('📊 BeehiveDetail: Beehive data set:', data.beehive);
+      
       setIsAdmin(data.is_admin || false);
+      console.log('🔐 BeehiveDetail: Admin status set:', data.is_admin || false);
+      
       generateQR(data.beehive.qr_token);
+      console.log('📱 BeehiveDetail: QR code generated for token:', data.beehive.qr_token);
     } catch (error) {
-      console.error('Error loading beehive:', error);
+      console.error('❌ BeehiveDetail: Error loading beehive:', error);
       toast.error('Không tìm thấy tổ ong');
       // Don't navigate away, let the component show error state
     }
@@ -38,6 +46,7 @@ const BeehiveDetail = () => {
 
   const generateQR = async (token) => {
     const publicUrl = `${window.location.origin}/qr/${token}`;
+    console.log('📱 BeehiveDetail: Generating QR code for URL:', publicUrl);
     try {
       if (canvasRef.current) {
         await QRCodeLib.toCanvas(canvasRef.current, publicUrl, {
@@ -46,9 +55,10 @@ const BeehiveDetail = () => {
         });
         const url = await QRCodeLib.toDataURL(publicUrl, { width: 300 });
         setQrUrl(url);
+        console.log('✅ BeehiveDetail: QR code generated successfully');
       }
     } catch (error) {
-      console.error('Error generating QR code:', error);
+      console.error('❌ BeehiveDetail: Error generating QR code:', error);
     }
   };
 
