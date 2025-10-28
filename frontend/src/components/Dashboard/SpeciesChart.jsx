@@ -16,11 +16,11 @@ const SpeciesChart = ({ data }) => {
           <CardTitle className="font-bold">Thống kê chủng loại tổ ong</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col items-center justify-center gap-4 py-6">
+          <div className="h-[250px] md:h-[280px] flex flex-col items-center justify-center gap-4">
             <img 
               src="/bee.gif" 
               alt="Loading..." 
-              className="w-15 h-15 rounded-full shadow-lg" 
+              className="w-12 h-12 rounded-full shadow-lg" 
             />
             <p className="text-sm text-blue-600 font-medium opacity-80">
               Đang tải dữ liệu...
@@ -67,7 +67,7 @@ const SpeciesChart = ({ data }) => {
         <CardTitle className="font-bold">Thống kê chủng loại tổ ong</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px]">
+        <div className="h-[250px] md:h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie 
@@ -76,7 +76,7 @@ const SpeciesChart = ({ data }) => {
                 cy="50%" 
                 labelLine={false} 
                 label={renderCustomizedLabel}
-                outerRadius={80} 
+                outerRadius={60} 
                 dataKey="value"
               >
                 {chartData.map((entry, index) => (
