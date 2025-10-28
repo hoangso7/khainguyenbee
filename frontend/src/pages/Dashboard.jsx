@@ -27,6 +27,8 @@ const Dashboard = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [beehiveToDelete, setBeehiveToDelete] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const perPage = 10;
 
   const loadData = useCallback(async () => {
     try {
@@ -72,6 +74,36 @@ const Dashboard = () => {
   useEffect(() => {
     loadData();
   }, [loadData]);
+  // Derived: filtered beehives (client-side to match Sold page behavior)
+  const filteredBeehives = beehives.filter((b) => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return true;
+    const importDateLocal = b.import_date ? new Date(b.import_date).toLocaleDateString('vi-VN') : '';
+    return (
+      (b.serial_number || '').toLowerCase().includes(term) ||
+      (b.qr_token || '').toLowerCase().includes(term) ||
+      (b.notes || '').toLowerCase().includes(term) ||
+      (b.import_date || '').includes(term) ||
+      importDateLocal.includes(term)
+    );
+  });
+
+  const totalItems = filteredBeehives.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
+  const currentPage = Math.min(page, totalPages);
+  const startIdx = (currentPage - 1) * perPage;
+  const endIdx = startIdx + perPage;
+  const paginatedBeehives = filteredBeehives.slice(startIdx, endIdx);
+
+  const goToPage = (p) => {
+    if (p < 1 || p > totalPages) return;
+    setPage(p);
+  };
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, filters]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({
@@ -238,7 +270,7 @@ const Dashboard = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
-                placeholder="Tìm theo mã tổ, QR token, ngày nhập (YYYY-MM-DD) hoặc ghi chú..."
+                placeholder="Tìm theo mã tổ, ngày nhập, hoặc ghi chú..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -311,28 +343,14 @@ const Dashboard = () => {
                         Đang tải dữ liệu...
                       </TableCell>
                     </TableRow>
-                  ) : beehives.length === 0 ? (
+                  ) : totalItems === 0 ? (
                 <TableRow>
                       <TableCell colSpan={6} className="text-center text-gray-500">
                         Không có dữ liệu
                   </TableCell>
                     </TableRow>
                   ) : (
-                    // Client-side search to match Sold page behavior
-                    beehives
-                      .filter((b) => {
-                        const term = searchTerm.trim().toLowerCase();
-                        if (!term) return true;
-                        const importDateLocal = b.import_date ? new Date(b.import_date).toLocaleDateString('vi-VN') : '';
-                        return (
-                          (b.serial_number || '').toLowerCase().includes(term) ||
-                          (b.qr_token || '').toLowerCase().includes(term) ||
-                          (b.notes || '').toLowerCase().includes(term) ||
-                          (b.import_date || '').includes(term) ||
-                          importDateLocal.includes(term)
-                        );
-                      })
-                      .map((beehive) => (
+                    paginatedBeehives.map((beehive) => (
                       <TableRow key={beehive.serial_number}>
                         <TableCell>{beehive.serial_number}</TableCell>
                         <TableCell>{formatDate(beehive.import_date)}</TableCell>
@@ -369,33 +387,33 @@ const Dashboard = () => {
                           </div>
                   </TableCell>
                 </TableRow>
-                      ))
+                    ))
                   )}
               </TableBody>
             </Table>
+              {/* Pagination Controls */}
+              {!loading && totalItems > 0 && (
+                <div className="flex items-center justify-between mt-4">
+                  <p className="text-sm text-gray-600">
+                    Hiển thị {startIdx + 1}-{Math.min(endIdx, totalItems)} / Tổng {totalItems}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>Trước</Button>
+                    <span className="text-sm">Trang {currentPage}/{totalPages}</span>
+                    <Button variant="outline" size="sm" onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>Sau</Button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Mobile Cards */}
             <div className="md:hidden space-y-3">
               {loading ? (
                 <p className="text-center text-gray-500 py-8">Đang tải dữ liệu...</p>
-              ) : beehives.length === 0 ? (
+              ) : totalItems === 0 ? (
                 <p className="text-center text-gray-500 py-8">Không có dữ liệu</p>
               ) : (
-                beehives
-                  .filter((b) => {
-                    const term = searchTerm.trim().toLowerCase();
-                    if (!term) return true;
-                    const importDateLocal = b.import_date ? new Date(b.import_date).toLocaleDateString('vi-VN') : '';
-                    return (
-                      (b.serial_number || '').toLowerCase().includes(term) ||
-                      (b.qr_token || '').toLowerCase().includes(term) ||
-                      (b.notes || '').toLowerCase().includes(term) ||
-                      (b.import_date || '').includes(term) ||
-                      importDateLocal.includes(term)
-                    );
-                  })
-                  .map((beehive) => (
+                paginatedBeehives.map((beehive) => (
                   <Card key={beehive.serial_number}>
                     <CardHeader className="pb-3">
                       <div className="flex justify-between items-start">
@@ -444,8 +462,21 @@ const Dashboard = () => {
                       </div>
                     </CardContent>
                   </Card>
-                  ))
+                ))
           )}
+              {/* Mobile Pagination */}
+              {!loading && totalItems > 0 && (
+                <div className="flex items-center justify-between mt-4">
+                  <p className="text-sm text-gray-600">
+                    Hiển thị {startIdx + 1}-{Math.min(endIdx, totalItems)} / Tổng {totalItems}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>Trước</Button>
+                    <span className="text-sm">Trang {currentPage}/{totalPages}</span>
+                    <Button variant="outline" size="sm" onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>Sau</Button>
+                  </div>
+                </div>
+              )}
             </div>
         </CardContent>
       </Card>

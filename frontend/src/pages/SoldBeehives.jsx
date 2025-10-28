@@ -13,6 +13,8 @@ const SoldBeehives = () => {
   const navigate = useNavigate();
   const [beehives, setBeehives] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const perPage = 10;
 
   useEffect(() => {
     loadSoldBeehives();
@@ -52,6 +54,23 @@ const SoldBeehives = () => {
     );
   });
 
+  const totalItems = filteredBeehives.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
+  const currentPage = Math.min(page, totalPages);
+  const startIdx = (currentPage - 1) * perPage;
+  const endIdx = startIdx + perPage;
+  const paginatedBeehives = filteredBeehives.slice(startIdx, endIdx);
+
+  const goToPage = (p) => {
+    if (p < 1 || p > totalPages) return;
+    setPage(p);
+  };
+
+  // Reset page when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
+
   const getHealthBadgeVariant = (status) => {
     switch (status) {
       case 'Tốt':
@@ -90,7 +109,7 @@ const SoldBeehives = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
-                placeholder="Tìm kiếm theo mã tổ, QR token, ghi chú hoặc ngày bán..."
+                placeholder="Tìm kiếm theo mã tổ, ghi chú hoặc ngày bán..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -118,7 +137,7 @@ const SoldBeehives = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredBeehives.map((beehive) => (
+                    paginatedBeehives.map((beehive) => (
                       <TableRow key={beehive.serial_number}>
                         <TableCell>{beehive.serial_number}</TableCell>
                         <TableCell>{formatDate(beehive.import_date)}</TableCell>
@@ -143,6 +162,19 @@ const SoldBeehives = () => {
                   )}
                 </TableBody>
               </Table>
+              {/* Pagination Controls */}
+              {filteredBeehives.length > 0 && (
+                <div className="flex items-center justify-between mt-4">
+                  <p className="text-sm text-gray-600">
+                    Hiển thị {startIdx + 1}-{Math.min(endIdx, totalItems)} / Tổng {totalItems}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>Trước</Button>
+                    <span className="text-sm">Trang {currentPage}/{totalPages}</span>
+                    <Button variant="outline" size="sm" onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>Sau</Button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Mobile Cards */}
@@ -150,7 +182,7 @@ const SoldBeehives = () => {
               {filteredBeehives.length === 0 ? (
                 <p className="text-center text-gray-500 py-8">Không có dữ liệu</p>
               ) : (
-                filteredBeehives.map((beehive) => (
+                paginatedBeehives.map((beehive) => (
                   <Card key={beehive.serial_number}>
                     <CardHeader className="pb-3">
                       <div className="flex justify-between items-start">
@@ -180,6 +212,19 @@ const SoldBeehives = () => {
                     </CardContent>
                   </Card>
                 ))
+              )}
+              {/* Mobile Pagination */}
+              {filteredBeehives.length > 0 && (
+                <div className="flex items-center justify-between mt-4">
+                  <p className="text-sm text-gray-600">
+                    Hiển thị {startIdx + 1}-{Math.min(endIdx, totalItems)} / Tổng {totalItems}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>Trước</Button>
+                    <span className="text-sm">Trang {currentPage}/{totalPages}</span>
+                    <Button variant="outline" size="sm" onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>Sau</Button>
+                  </div>
+                </div>
               )}
             </div>
           </CardContent>
