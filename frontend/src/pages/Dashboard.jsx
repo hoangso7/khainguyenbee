@@ -198,13 +198,13 @@ const Dashboard = () => {
         <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Tổng số tổ đang quản lý</CardDescription>
+              <CardDescription className="font-bold">Tổng số tổ đang quản lý</CardDescription>
               <CardTitle>{loading ? '...' : stats.active}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Tổng số tổ đã bán</CardDescription>
+              <CardDescription className="font-bold">Tổng số tổ đã bán</CardDescription>
               <CardTitle className="text-amber-600">{loading ? '...' : stats.sold}</CardTitle>
             </CardHeader>
           </Card>
