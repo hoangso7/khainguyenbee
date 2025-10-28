@@ -1,28 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Box, IconButton, Popover } from '@mui/material';
-import { CalendarToday as CalendarIcon } from '@mui/icons-material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Calendar } from 'lucide-react';
 
 const DateInput = ({ 
   value, 
   onChange, 
   label, 
   fullWidth = true, 
-  size = 'small',
+  size = 'default',
   error = false,
   helperText = '',
   disabled = false,
+  className = '',
   ...props 
 }) => {
   const [displayValue, setDisplayValue] = useState('');
   const [isValid, setIsValid] = useState(true);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null);
 
-  // Convert ISO date (YYYY-MM-DD) to DD/MM/YYYY format
+  // Convert ISO date (YYYY-MM-DD) to DD/MM/YYYY format for display
   const formatDateToDisplay = (isoDate) => {
     if (!isoDate) return '';
     const date = new Date(isoDate);
@@ -69,11 +65,6 @@ const DateInput = ({
   // Update display value when prop value changes
   useEffect(() => {
     setDisplayValue(formatDateToDisplay(value));
-    if (value) {
-      setSelectedDate(dayjs(value));
-    } else {
-      setSelectedDate(null);
-    }
   }, [value]);
 
   const handleChange = (event) => {
@@ -105,94 +96,77 @@ const DateInput = ({
     }
   };
 
-  const handleCalendarClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  // Get the HTML5 date input value (YYYY-MM-DD format)
+  const getDateInputValue = () => {
+    if (!value) return '';
+    return value;
   };
 
-  const handleCalendarClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleDateChange = (date) => {
-    if (date) {
-      const isoDate = date.format('YYYY-MM-DD');
-      setSelectedDate(date);
-      setDisplayValue(formatDateToDisplay(isoDate));
-      setIsValid(true);
-      
-      if (onChange) {
-        onChange({
-          target: {
-            value: isoDate
-          }
-        });
-      }
+  const handleDateInputChange = (event) => {
+    const dateValue = event.target.value;
+    if (onChange) {
+      onChange({
+        ...event,
+        target: {
+          ...event.target,
+          value: dateValue
+        }
+      });
     }
-    handleCalendarClose();
   };
 
-  const open = Boolean(anchorEl);
+  const inputSizeClasses = {
+    'sm': 'h-8 text-sm',
+    'default': 'h-10',
+    'lg': 'h-12 text-lg'
+  };
+
+  const containerClasses = fullWidth ? 'w-full' : 'w-auto';
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box sx={{ position: 'relative' }}>
-        <TextField
+    <div className={`space-y-2 ${containerClasses} ${className}`}>
+      {label && (
+        <Label htmlFor={props.id || `date-input-${Math.random().toString(36).substr(2, 9)}`} className="text-sm font-medium">
+          {label}
+        </Label>
+      )}
+      
+      <div className="relative">
+        {/* HTML5 date input for mobile */}
+        <Input
+          type="date"
+          value={getDateInputValue()}
+          onChange={handleDateInputChange}
+          disabled={disabled}
+          className={`${inputSizeClasses[size]} pr-10 ${error ? 'border-red-500 focus:border-red-500' : ''} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           {...props}
-          fullWidth={fullWidth}
-          size={size}
-          label={label}
+        />
+        
+        {/* Calendar icon */}
+        <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+      </div>
+      
+      {/* Error message */}
+      {error && helperText && (
+        <p className="text-sm text-red-500">{helperText}</p>
+      )}
+      
+      {/* Additional text input for manual entry (hidden on mobile) */}
+      <div className="hidden md:block">
+        <Input
+          type="text"
           value={displayValue}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={error || !isValid}
-          helperText={helperText || (!isValid && displayValue ? 'Định dạng ngày không hợp lệ (dd/mm/yyyy)' : '')}
           disabled={disabled}
           placeholder="dd/mm/yyyy"
-          inputProps={{
-            maxLength: 10,
-            ...props.inputProps
-          }}
-          InputProps={{
-            endAdornment: (
-              <IconButton
-                size="small"
-                onClick={handleCalendarClick}
-                disabled={disabled}
-                sx={{ mr: -1 }}
-              >
-                <CalendarIcon fontSize="small" />
-              </IconButton>
-            ),
-            ...props.InputProps
-          }}
+          className={`${inputSizeClasses[size]} ${!isValid ? 'border-red-500 focus:border-red-500' : ''} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
         />
-        
-        <Popover
-          open={open}
-          anchorEl={anchorEl}
-          onClose={handleCalendarClose}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'left',
-          }}
-        >
-          <DatePicker
-            value={selectedDate}
-            onChange={handleDateChange}
-            slotProps={{
-              textField: {
-                size: 'small',
-                sx: { display: 'none' }
-              }
-            }}
-          />
-        </Popover>
-      </Box>
-    </LocalizationProvider>
+        {!isValid && displayValue && (
+          <p className="text-sm text-red-500 mt-1">Định dạng ngày không hợp lệ (dd/mm/yyyy)</p>
+        )}
+      </div>
+    </div>
   );
 };
 
