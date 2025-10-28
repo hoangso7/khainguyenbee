@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Card, CardContent } from '../ui/card';
+import { Card, CardContent } from './ui/card';
 
 const SetupGuard = ({ children }) => {
   const [isChecking, setIsChecking] = useState(true);
