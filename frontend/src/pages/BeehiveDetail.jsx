@@ -196,8 +196,16 @@ const BeehiveDetail = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Tổ ong {beehive.serial_number}</CardTitle>
-              <div className={`flex items-center gap-2 px-4 py-2 rounded-full border ${getHealthColor(beehive.health_status)}`}>
-                <span className="font-semibold text-base">{beehive.health_status}</span>
+              <div className="flex items-center gap-2">
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-full border ${getHealthColor(beehive.health_status)}`}>
+                  <span className="font-semibold text-base">Sức khoẻ: {beehive.health_status}</span>
+                </div>
+                <Badge variant="secondary" className="text-sm">
+                  {(() => {
+                    const ageDays = calculateAgeDays(beehive);
+                    return `Tuổi: ${ageDays === null ? '-' : ageDays + ' ngày'}`;
+                  })()}
+                </Badge>
               </div>
             </div>
           </CardHeader>
@@ -218,16 +226,7 @@ const BeehiveDetail = () => {
                     {beehive.split_date ? formatDate(beehive.split_date) : 'Tổ chưa được tách'}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">Tuổi</p>
-                  <p className="flex items-center gap-2">
-                    {(() => {
-                      const ageDays = calculateAgeDays(beehive);
-                      if (ageDays === null) return '-';
-                      return `${ageDays} ngày`;
-                    })()}
-                  </p>
-                </div>
+                
               </div>
               
               {/* Hình ảnh đại diện */}
