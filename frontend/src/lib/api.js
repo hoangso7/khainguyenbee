@@ -45,6 +45,14 @@ class ApiService {
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        
+        // Handle authentication errors
+        if (response.status === 401) {
+          // Clear token if authentication fails
+          this.setToken(null);
+          throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+        }
+        
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 

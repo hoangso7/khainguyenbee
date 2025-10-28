@@ -44,10 +44,11 @@ const EditBeehive = () => {
         is_sold: data.is_sold,
         sold_date: data.sold_date || '',
       });
-        } catch {
-          toast.error('Không tìm thấy tổ ong');
-          navigate('/');
-        }
+    } catch (error) {
+      console.error('Error loading beehive:', error);
+      toast.error('Không tìm thấy tổ ong');
+      // Don't navigate away, let the component show error state
+    }
   }, [serialNumber, navigate]);
 
   const handleSubmit = async (e) => {
@@ -76,7 +77,24 @@ const EditBeehive = () => {
   };
 
   if (!beehive) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white flex items-center justify-center p-4">
+        <Card className="max-w-md w-full">
+          <CardHeader>
+            <CardTitle className="text-center">Không tìm thấy thông tin</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center text-gray-600">
+            <p>Tổ ong {serialNumber} không tồn tại hoặc bạn không có quyền chỉnh sửa.</p>
+            <Button 
+              onClick={() => navigate('/')} 
+              className="mt-4 bg-amber-500 hover:bg-amber-600 text-white"
+            >
+              Quay về trang chủ
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (

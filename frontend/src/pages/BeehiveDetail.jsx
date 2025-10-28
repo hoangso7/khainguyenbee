@@ -29,10 +29,11 @@ const BeehiveDetail = () => {
       setBeehive(data.beehive);
       setIsAdmin(data.is_admin || false);
       generateQR(data.beehive.qr_token);
-        } catch {
-          toast.error('Không tìm thấy tổ ong');
-          navigate('/');
-        }
+    } catch (error) {
+      console.error('Error loading beehive:', error);
+      toast.error('Không tìm thấy tổ ong');
+      // Don't navigate away, let the component show error state
+    }
   }, [qrToken, navigate]);
 
   const generateQR = async (token) => {
@@ -75,7 +76,24 @@ const BeehiveDetail = () => {
   };
 
   if (!beehive) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white flex items-center justify-center p-4">
+        <Card className="max-w-md w-full">
+          <CardHeader>
+            <CardTitle className="text-center">Không tìm thấy thông tin</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center text-gray-600">
+            <p>Mã QR không hợp lệ hoặc tổ ong không tồn tại.</p>
+            <Button 
+              onClick={() => navigate('/')} 
+              className="mt-4 bg-amber-500 hover:bg-amber-600 text-white"
+            >
+              Quay về trang chủ
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (

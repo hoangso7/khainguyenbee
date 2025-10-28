@@ -40,8 +40,10 @@ const QRBeehiveDetail = () => {
       } catch {
         // User not logged in, that's okay for public view
       }
-    } catch {
-      console.error('Error loading beehive');
+    } catch (error) {
+      console.error('Error loading beehive:', error);
+      // Set beehive to null to show error state
+      setBeehive(null);
     }
   }, [token]);
 

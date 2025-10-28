@@ -3,7 +3,7 @@ Beehive management routes for KBee Manager
 """
 
 from flask import Blueprint, request, jsonify, send_file
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
 from datetime import datetime
 import logging
 import io
@@ -449,7 +449,6 @@ def get_beehive_by_token(qr_token):
         # Check if user is authenticated and is the owner
         is_admin = False
         try:
-            from flask_jwt_extended import verify_jwt_in_request
             verify_jwt_in_request()
             current_user_id = get_jwt_identity()
             is_admin = (current_user_id == beehive.user_id)
