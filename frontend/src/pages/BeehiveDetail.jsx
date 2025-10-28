@@ -265,7 +265,7 @@ const BeehiveDetail = () => {
               {businessInfo.farm_address && (
                 <div>
                   <p className="text-sm text-gray-500">Địa chỉ</p>
-                  <p className="whitespace-pre-line">{businessInfo.farm_address}</p>
+                  <p className="whitespace-pre-line font-bold">{businessInfo.farm_address}</p>
                 </div>
               )}
               {businessInfo.farm_phone && (
