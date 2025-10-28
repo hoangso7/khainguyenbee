@@ -126,7 +126,7 @@ def get_beehives():
         raise
     except Exception as e:
         logger.error(f'Get beehives error: {str(e)}')
-        raise DatabaseError('Failed to retrieve beehives')
+        raise DatabaseError('Không thể tải danh sách tổ ong')
 
 @beehives_bp.route('/sold-beehives', methods=['GET'])
 @jwt_required()
@@ -223,7 +223,7 @@ def get_sold_beehives():
         raise
     except Exception as e:
         logger.error(f'Get sold beehives error: {str(e)}')
-        raise DatabaseError('Failed to retrieve sold beehives')
+        raise DatabaseError('Không thể tải danh sách tổ ong đã bán')
 
 @beehives_bp.route('/stats', methods=['GET'])
 @jwt_required()
@@ -250,7 +250,7 @@ def get_stats():
         
     except Exception as e:
         logger.error(f'Get stats error: {str(e)}')
-        raise DatabaseError('Failed to retrieve statistics')
+        raise DatabaseError('Không thể lấy thống kê')
 
 @beehives_bp.route('/beehives', methods=['POST'])
 @jwt_required()
@@ -261,7 +261,7 @@ def create_beehive():
         data = request.get_json()
         
         if not data:
-            raise ValidationError('No data provided')
+            raise ValidationError('Thiếu dữ liệu đầu vào')
         
         # Validate input
         validated_data = BeehiveValidator.validate_beehive_data(data)
@@ -293,7 +293,7 @@ def create_beehive():
     except Exception as e:
         db.session.rollback()
         logger.error(f'Create beehive error: {str(e)}')
-        raise DatabaseError('Failed to create beehive')
+        raise DatabaseError('Không thể tạo tổ ong')
 
 @beehives_bp.route('/beehives/<serial_number>', methods=['GET'])
 @jwt_required()
@@ -304,7 +304,7 @@ def get_beehive(serial_number):
         
         beehive = Beehive.query.filter_by(serial_number=serial_number, user_id=current_user_id).first()
         if not beehive:
-            raise NotFoundError('Beehive not found')
+            raise NotFoundError('Không tìm thấy tổ ong')
         
         return jsonify(beehive.to_dict()), 200
         
@@ -312,7 +312,7 @@ def get_beehive(serial_number):
         raise
     except Exception as e:
         logger.error(f'Get beehive error: {str(e)}')
-        raise DatabaseError('Failed to retrieve beehive')
+        raise DatabaseError('Không thể lấy thông tin tổ ong')
 
 @beehives_bp.route('/beehives/<serial_number>', methods=['PUT'])
 @jwt_required()
@@ -323,11 +323,11 @@ def update_beehive(serial_number):
         
         beehive = Beehive.query.filter_by(serial_number=serial_number, user_id=current_user_id).first()
         if not beehive:
-            raise NotFoundError('Beehive not found')
+            raise NotFoundError('Không tìm thấy tổ ong')
         
         data = request.get_json()
         if not data:
-            raise ValidationError('No data provided')
+            raise ValidationError('Thiếu dữ liệu đầu vào')
         
         logger.info(f"Update beehive data received: {data}")
         
@@ -367,7 +367,7 @@ def update_beehive(serial_number):
     except Exception as e:
         db.session.rollback()
         logger.error(f'Update beehive error: {str(e)}')
-        raise DatabaseError('Failed to update beehive')
+        raise DatabaseError('Không thể cập nhật tổ ong')
 
 @beehives_bp.route('/beehives/<serial_number>', methods=['DELETE'])
 @jwt_required()
@@ -378,21 +378,21 @@ def delete_beehive(serial_number):
         
         beehive = Beehive.query.filter_by(serial_number=serial_number, user_id=current_user_id).first()
         if not beehive:
-            raise NotFoundError('Beehive not found')
+            raise NotFoundError('Không tìm thấy tổ ong')
         
         db.session.delete(beehive)
         db.session.commit()
         
         logger.info(f'Beehive {serial_number} deleted successfully by user {current_user_id}')
         
-        return jsonify({'message': 'Beehive deleted successfully'}), 200
+        return jsonify({'message': 'Xóa tổ ong thành công'}), 200
         
     except NotFoundError:
         raise
     except Exception as e:
         db.session.rollback()
         logger.error(f'Delete beehive error: {str(e)}')
-        raise DatabaseError('Failed to delete beehive')
+        raise DatabaseError('Không thể xóa tổ ong')
 
 @beehives_bp.route('/beehives/<serial_number>/sell', methods=['POST'])
 @jwt_required()
@@ -403,7 +403,7 @@ def sell_beehive(serial_number):
         
         beehive = Beehive.query.filter_by(serial_number=serial_number, user_id=current_user_id).first()
         if not beehive:
-            raise NotFoundError('Beehive not found')
+            raise NotFoundError('Không tìm thấy tổ ong')
         
         beehive.is_sold = True
         beehive.sold_date = datetime.utcnow().date()
@@ -419,7 +419,7 @@ def sell_beehive(serial_number):
     except Exception as e:
         db.session.rollback()
         logger.error(f'Sell beehive error: {str(e)}')
-        raise DatabaseError('Failed to sell beehive')
+        raise DatabaseError('Không thể đánh dấu đã bán')
 
 @beehives_bp.route('/beehives/<serial_number>/unsell', methods=['POST'])
 @jwt_required()
@@ -430,7 +430,7 @@ def unsell_beehive(serial_number):
         
         beehive = Beehive.query.filter_by(serial_number=serial_number, user_id=current_user_id).first()
         if not beehive:
-            raise NotFoundError('Beehive not found')
+            raise NotFoundError('Không tìm thấy tổ ong')
         
         beehive.is_sold = False
         beehive.sold_date = None
@@ -446,7 +446,7 @@ def unsell_beehive(serial_number):
     except Exception as e:
         db.session.rollback()
         logger.error(f'Unsell beehive error: {str(e)}')
-        raise DatabaseError('Failed to unsell beehive')
+        raise DatabaseError('Không thể bỏ trạng thái đã bán')
 
 @beehives_bp.route('/beehive/<qr_token>', methods=['GET'])
 def get_beehive_by_token(qr_token):
@@ -454,7 +454,7 @@ def get_beehive_by_token(qr_token):
     try:
         beehive = Beehive.query.filter_by(qr_token=qr_token).first()
         if not beehive:
-            raise NotFoundError('Beehive not found')
+            raise NotFoundError('Không tìm thấy tổ ong')
         
         owner = User.query.get(beehive.user_id)
         
@@ -495,7 +495,7 @@ def get_beehive_by_token(qr_token):
         raise
     except Exception as e:
         logger.error(f'Get beehive by token error: {str(e)}')
-        raise DatabaseError('Failed to retrieve beehive information')
+        raise DatabaseError('Không thể lấy thông tin tổ ong')
 
 @beehives_bp.route('/qr/<serial_number>')
 @jwt_required()
@@ -506,7 +506,7 @@ def qr_code(serial_number):
         
         beehive = Beehive.query.filter_by(serial_number=serial_number, user_id=current_user_id).first()
         if not beehive:
-            raise NotFoundError('Beehive not found')
+            raise NotFoundError('Không tìm thấy tổ ong')
         
         return QRCodeGenerator.generate_qr_response(beehive.qr_token)
         
@@ -514,7 +514,7 @@ def qr_code(serial_number):
         raise
     except Exception as e:
         logger.error(f'QR code generation error: {str(e)}')
-        raise DatabaseError('Failed to generate QR code')
+        raise DatabaseError('Không thể tạo mã QR')
 
 @beehives_bp.route('/export_pdf/<serial_number>')
 @jwt_required()
@@ -525,7 +525,7 @@ def export_pdf(serial_number):
         
         beehive = Beehive.query.filter_by(serial_number=serial_number, user_id=current_user_id).first()
         if not beehive:
-            raise NotFoundError('Beehive not found')
+            raise NotFoundError('Không tìm thấy tổ ong')
         
         # Create PDF
         buffer = io.BytesIO()
@@ -570,7 +570,7 @@ def export_pdf(serial_number):
         raise
     except Exception as e:
         logger.error(f'PDF export error: {str(e)}')
-        raise DatabaseError('Failed to export PDF')
+        raise DatabaseError('Không thể xuất PDF')
 
 @beehives_bp.route('/export_bulk_qr_pdf', methods=['POST'])
 @jwt_required()
@@ -581,7 +581,7 @@ def export_bulk_qr_pdf():
         data = request.get_json()
         
         if not data or 'serial_numbers' not in data:
-            raise ValidationError('Serial numbers required')
+            raise ValidationError('Thiếu danh sách mã tổ')
         
         serial_numbers = data['serial_numbers']
         
@@ -591,7 +591,7 @@ def export_bulk_qr_pdf():
         ).all()
         
         if not beehives:
-            raise NotFoundError('No beehives found')
+            raise NotFoundError('Không tìm thấy tổ ong nào')
         
         # Create PDF with QR codes
         buffer = io.BytesIO()
@@ -693,4 +693,4 @@ def export_bulk_qr_pdf():
         raise
     except Exception as e:
         logger.error(f'Bulk QR PDF export error: {str(e)}')
-        raise DatabaseError('Failed to export bulk QR PDF')
+        raise DatabaseError('Không thể xuất PDF QR hàng loạt')

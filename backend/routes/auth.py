@@ -22,7 +22,7 @@ def login():
     try:
         data = request.get_json()
         if not data:
-            raise ValidationError('No data provided')
+            raise ValidationError('Thiếu dữ liệu đầu vào')
         
         # Validate input
         validated_data = UserValidator.validate_login_data(data)
@@ -32,7 +32,7 @@ def login():
             user = User.query.filter_by(username=validated_data['username']).first()
         except Exception as db_error:
             logger.error(f'Database error during login: {str(db_error)}')
-            raise DatabaseError('Database not ready. Please try again.')
+            raise DatabaseError('Cơ sở dữ liệu chưa sẵn sàng. Vui lòng thử lại.')
         
         if user and user.check_password(validated_data['password']):
             # Create JWT token
@@ -49,7 +49,7 @@ def login():
             }), 200
         
         logger.warning(f'Failed login attempt for username: {validated_data["username"]}')
-        raise AuthenticationError('Invalid credentials')
+        raise AuthenticationError('Thông tin đăng nhập không hợp lệ')
         
     except ValidationError:
         raise
@@ -59,7 +59,7 @@ def login():
         raise
     except Exception as e:
         logger.error(f'Login error: {str(e)}')
-        raise AuthenticationError('Login failed')
+        raise AuthenticationError('Đăng nhập thất bại')
 
 @auth_bp.route('/me', methods=['GET'])
 @jwt_required()
@@ -70,7 +70,7 @@ def get_current_user():
         user = User.query.get(user_id)
         
         if not user:
-            raise NotFoundError('User not found')
+            raise NotFoundError('Không tìm thấy người dùng')
         
         return jsonify(user.to_dict()), 200
         
@@ -78,7 +78,7 @@ def get_current_user():
         raise
     except Exception as e:
         logger.error(f'Get current user error: {str(e)}')
-        raise DatabaseError('Failed to get user information')
+        raise DatabaseError('Không thể lấy thông tin người dùng')
 
 @auth_bp.route('/logout', methods=['POST'])
 @jwt_required()
@@ -89,11 +89,11 @@ def logout():
         # In a more secure implementation, you might want to blacklist the token
         logger.info(f'User {get_jwt_identity()} logged out')
         
-        return jsonify({'message': 'Logged out successfully'}), 200
+        return jsonify({'message': 'Đăng xuất thành công'}), 200
         
     except Exception as e:
         logger.error(f'Logout error: {str(e)}')
-        raise AuthenticationError('Logout failed')
+        raise AuthenticationError('Đăng xuất thất bại')
 
 @auth_bp.route('/profile', methods=['PUT'])
 @jwt_required()
@@ -104,11 +104,11 @@ def update_profile():
         user = User.query.get(user_id)
         
         if not user:
-            raise NotFoundError('User not found')
+            raise NotFoundError('Không tìm thấy người dùng')
         
         data = request.get_json()
         if not data:
-            raise ValidationError('No data provided')
+            raise ValidationError('Thiếu dữ liệu đầu vào')
         
         # Validate input
         validated_data = UserValidator.validate_profile_update_data(data)
@@ -121,7 +121,7 @@ def update_profile():
                 User.id != user_id
             ).first()
             if existing_user:
-                raise ValidationError('Username already taken', field='username')
+                raise ValidationError('Tên đăng nhập đã được sử dụng', field='username')
             user.username = validated_data['username']
         
         if 'email' in validated_data:
@@ -131,7 +131,7 @@ def update_profile():
                 User.id != user_id
             ).first()
             if existing_user:
-                raise ValidationError('Email already taken', field='email')
+                raise ValidationError('Email đã được sử dụng', field='email')
             user.email = validated_data['email']
         
         if 'password' in validated_data:
@@ -168,7 +168,7 @@ def update_profile():
         logger.info(f'User {user.username} profile updated successfully')
         
         return jsonify({
-            'message': 'Profile updated successfully',
+            'message': 'Cập nhật thông tin thành công',
             'user': user.to_dict()
         }), 200
         
@@ -179,7 +179,7 @@ def update_profile():
     except Exception as e:
         db.session.rollback()
         logger.error(f'Profile update error: {str(e)}')
-        raise DatabaseError('Failed to update profile')
+        raise DatabaseError('Không thể cập nhật thông tin người dùng')
 
 @auth_bp.route('/setup/check', methods=['GET'])
 def check_setup():
@@ -195,11 +195,11 @@ def check_setup():
         except Exception as db_error:
             # Database tables don't exist yet
             logger.error(f'Database not ready for setup check: {str(db_error)}')
-            return jsonify({'setup_needed': True, 'message': 'Database not ready'}), 200
+            return jsonify({'setup_needed': True, 'message': 'Cơ sở dữ liệu chưa sẵn sàng'}), 200
             
     except Exception as e:
         logger.error(f'Setup check error: {str(e)}')
-        return jsonify({'setup_needed': True, 'message': f'Error checking setup: {str(e)}'}), 200
+        return jsonify({'setup_needed': True, 'message': f'Lỗi khi kiểm tra thiết lập: {str(e)}'}), 200
 
 @auth_bp.route('/setup', methods=['POST'])
 def setup_admin():
@@ -210,14 +210,14 @@ def setup_admin():
             db.create_all()
         except Exception as db_error:
             logger.error(f'Error creating database tables: {str(db_error)}')
-            raise DatabaseError('Database initialization failed')
+            raise DatabaseError('Khởi tạo cơ sở dữ liệu thất bại')
         
         # Check if any users exist
         try:
             existing_user = User.query.first()
             if existing_user:
                 return jsonify({
-                    'message': 'Setup already completed. Admin user already exists.',
+                    'message': 'Thiết lập đã hoàn tất. Tài khoản quản trị đã tồn tại.',
                     'setup_completed': True
                 }), 400
         except Exception as db_error:
@@ -226,7 +226,7 @@ def setup_admin():
         
         data = request.get_json()
         if not data:
-            raise ValidationError('No data provided')
+            raise ValidationError('Thiếu dữ liệu đầu vào')
         
         # Validate input
         validated_data = UserValidator.validate_registration_data(data)
@@ -250,7 +250,7 @@ def setup_admin():
         logger.info(f'Admin user {admin.username} created successfully')
         
         return jsonify({
-            'message': 'Admin user created successfully',
+            'message': 'Tạo tài khoản quản trị thành công',
             'username': admin.username,
             'setup_completed': True
         }), 201
@@ -262,4 +262,4 @@ def setup_admin():
     except Exception as e:
         db.session.rollback()
         logger.error(f'Setup error: {str(e)}')
-        raise DatabaseError(f'Error creating admin user: {str(e)}')
+        raise DatabaseError(f'Lỗi khi tạo tài khoản quản trị: {str(e)}')

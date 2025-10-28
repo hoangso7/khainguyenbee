@@ -28,31 +28,31 @@ class ValidationError(KBeeError):
 class AuthenticationError(KBeeError):
     """Authentication error"""
     
-    def __init__(self, message="Authentication failed"):
+    def __init__(self, message="Xác thực không thành công"):
         super().__init__(message, 401)
 
 class AuthorizationError(KBeeError):
     """Authorization error"""
     
-    def __init__(self, message="Access denied"):
+    def __init__(self, message="Từ chối truy cập"):
         super().__init__(message, 403)
 
 class NotFoundError(KBeeError):
     """Resource not found error"""
     
-    def __init__(self, message="Resource not found"):
+    def __init__(self, message="Không tìm thấy tài nguyên"):
         super().__init__(message, 404)
 
 class DatabaseError(KBeeError):
     """Database error"""
     
-    def __init__(self, message="Database operation failed"):
+    def __init__(self, message="Thao tác cơ sở dữ liệu thất bại"):
         super().__init__(message, 500)
 
 class ExternalServiceError(KBeeError):
     """External service error"""
     
-    def __init__(self, message="External service unavailable"):
+    def __init__(self, message="Dịch vụ bên ngoài tạm thời không khả dụng"):
         super().__init__(message, 503)
 
 def register_error_handlers(app):
@@ -134,7 +134,7 @@ def register_error_handlers(app):
         
         return jsonify({
             'error': True,
-            'message': 'Database operation failed',
+            'message': 'Thao tác cơ sở dữ liệu thất bại',
             'status_code': 500,
             'type': 'database_error'
         }), 500
@@ -159,7 +159,7 @@ def register_error_handlers(app):
         
         # Don't expose internal errors in production
         if app.config.get('FLASK_ENV') == 'production':
-            message = 'Internal server error'
+            message = 'Lỗi máy chủ nội bộ'
         else:
             message = str(error)
         
@@ -177,7 +177,7 @@ def handle_database_error(func):
             return func(*args, **kwargs)
         except Exception as e:
             logger.error(f"Database error in {func.__name__}: {str(e)}")
-            raise DatabaseError("Database operation failed")
+            raise DatabaseError("Thao tác cơ sở dữ liệu thất bại")
     return db_wrapper
 
 def validation_error_handler(func):
@@ -190,5 +190,5 @@ def validation_error_handler(func):
             raise ValidationError(str(e))
         except TypeError as e:
             logger.warning(f"Type error in {func.__name__}: {str(e)}")
-            raise ValidationError("Invalid data type")
+            raise ValidationError("Kiểu dữ liệu không hợp lệ")
     return validation_wrapper

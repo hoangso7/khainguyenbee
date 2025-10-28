@@ -15,23 +15,23 @@ class Validator:
         """Validate required fields"""
         for field in fields:
             if field not in data or data[field] is None or data[field] == '':
-                raise ValidationError(f"Field '{field}' is required", field=field)
+                raise ValidationError(f"Trường '{field}' là bắt buộc", field=field)
     
     @staticmethod
     def validate_string(data: Dict[str, Any], field: str, min_length: int = 1, max_length: int = 255) -> str:
         """Validate string field"""
         if field not in data:
-            raise ValidationError(f"Field '{field}' is required", field=field)
+            raise ValidationError(f"Trường '{field}' là bắt buộc", field=field)
         
         value = data[field]
         if not isinstance(value, str):
-            raise ValidationError(f"Field '{field}' must be a string", field=field)
+            raise ValidationError(f"Trường '{field}' phải là chuỗi ký tự", field=field)
         
         if len(value) < min_length:
-            raise ValidationError(f"Field '{field}' must be at least {min_length} characters long", field=field)
+            raise ValidationError(f"Trường '{field}' phải có ít nhất {min_length} ký tự", field=field)
         
         if len(value) > max_length:
-            raise ValidationError(f"Field '{field}' must be no more than {max_length} characters long", field=field)
+            raise ValidationError(f"Trường '{field}' không được quá {max_length} ký tự", field=field)
         
         return value.strip()
     
@@ -42,7 +42,7 @@ class Validator:
         
         email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         if not re.match(email_pattern, email):
-            raise ValidationError(f"Field '{field}' must be a valid email address", field=field)
+            raise ValidationError(f"Trường '{field}' phải là địa chỉ email hợp lệ", field=field)
         
         return email.lower()
     
@@ -54,7 +54,7 @@ class Validator:
         # Check for common weak passwords
         weak_passwords = ['password', '123456', 'admin', 'qwerty', 'abc123']
         if password.lower() in weak_passwords:
-            raise ValidationError(f"Field '{field}' is too weak. Please choose a stronger password", field=field)
+            raise ValidationError(f"Mật khẩu quá yếu. Vui lòng chọn mật khẩu mạnh hơn", field=field)
         
         return password
     
@@ -62,7 +62,7 @@ class Validator:
     def validate_date(data: Dict[str, Any], field: str, allow_future: bool = True) -> date:
         """Validate date field"""
         if field not in data:
-            raise ValidationError(f"Field '{field}' is required", field=field)
+            raise ValidationError(f"Trường '{field}' là bắt buộc", field=field)
         
         value = data[field]
         if not value:
@@ -74,27 +74,27 @@ class Validator:
             elif isinstance(value, date):
                 parsed_date = value
             else:
-                raise ValidationError(f"Field '{field}' must be a valid date", field=field)
+                raise ValidationError(f"Trường '{field}' phải là ngày hợp lệ", field=field)
             
             if not allow_future and parsed_date > date.today():
-                raise ValidationError(f"Field '{field}' cannot be in the future", field=field)
+                raise ValidationError(f"Trường '{field}' không thể là ngày trong tương lai", field=field)
             
             return parsed_date
         except ValueError:
-            raise ValidationError(f"Field '{field}' must be in YYYY-MM-DD format", field=field)
+            raise ValidationError(f"Trường '{field}' phải có định dạng YYYY-MM-DD", field=field)
     
     @staticmethod
     def validate_choice(data: Dict[str, Any], field: str, choices: List[str]) -> str:
         """Validate choice field"""
         if field not in data:
-            raise ValidationError(f"Field '{field}' is required", field=field)
+            raise ValidationError(f"Trường '{field}' là bắt buộc", field=field)
         
         value = data[field]
         if not isinstance(value, str):
-            raise ValidationError(f"Field '{field}' must be a string", field=field)
+            raise ValidationError(f"Trường '{field}' phải là chuỗi ký tự", field=field)
         
         if value not in choices:
-            raise ValidationError(f"Field '{field}' must be one of: {', '.join(choices)}", field=field)
+            raise ValidationError(f"Trường '{field}' phải là một trong: {', '.join(choices)}", field=field)
         
         return value
     
@@ -112,25 +112,25 @@ class Validator:
         elif isinstance(value, int):
             return bool(value)
         else:
-            raise ValidationError(f"Field '{field}' must be a boolean value", field=field)
+            raise ValidationError(f"Trường '{field}' phải là giá trị boolean", field=field)
     
     @staticmethod
     def validate_integer(data: Dict[str, Any], field: str, min_value: Optional[int] = None, max_value: Optional[int] = None) -> int:
         """Validate integer field"""
         if field not in data:
-            raise ValidationError(f"Field '{field}' is required", field=field)
+            raise ValidationError(f"Trường '{field}' là bắt buộc", field=field)
         
         value = data[field]
         try:
             int_value = int(value)
         except (ValueError, TypeError):
-            raise ValidationError(f"Field '{field}' must be an integer", field=field)
+            raise ValidationError(f"Trường '{field}' phải là số nguyên", field=field)
         
         if min_value is not None and int_value < min_value:
-            raise ValidationError(f"Field '{field}' must be at least {min_value}", field=field)
+            raise ValidationError(f"Trường '{field}' phải có giá trị ít nhất {min_value}", field=field)
         
         if max_value is not None and int_value > max_value:
-            raise ValidationError(f"Field '{field}' must be no more than {max_value}", field=field)
+            raise ValidationError(f"Trường '{field}' không được quá {max_value}", field=field)
         
         return int_value
 
@@ -161,7 +161,7 @@ class UserValidator:
         
         # Validate username format (alphanumeric and underscores only)
         if not re.match(r'^[a-zA-Z0-9_]+$', username):
-            raise ValidationError("Username can only contain letters, numbers, and underscores", field='username')
+            raise ValidationError("Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới", field='username')
         
         return {
             'username': username,
@@ -177,7 +177,7 @@ class UserValidator:
         if 'username' in data:
             validated_data['username'] = Validator.validate_string(data, 'username', min_length=3, max_length=80)
             if not re.match(r'^[a-zA-Z0-9_]+$', validated_data['username']):
-                raise ValidationError("Username can only contain letters, numbers, and underscores", field='username')
+                raise ValidationError("Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới", field='username')
         
         if 'email' in data:
             validated_data['email'] = Validator.validate_email(data, 'email')
@@ -195,7 +195,7 @@ class UserValidator:
             phone = Validator.validate_string(data, 'farmPhone', min_length=1, max_length=20)
             # Basic phone validation - allow dots, spaces, dashes, parentheses
             if not re.match(r'^[\+]?[0-9\s\-\(\)\.]+$', phone):
-                raise ValidationError("Phone number contains invalid characters", field='farmPhone')
+                raise ValidationError("Số điện thoại chứa ký tự không hợp lệ", field='farmPhone')
             validated_data['farmPhone'] = phone
         
         return validated_data
@@ -219,7 +219,7 @@ class BeehiveValidator:
             
             # Split date should be after import date
             if validated_data['split_date'] < validated_data['import_date']:
-                raise ValidationError("Split date must be after import date", field='split_date')
+                raise ValidationError("Ngày tách đàn phải sau ngày nhập", field='split_date')
         
         # Health status validation
         health_choices = ['Tốt', 'Bình thường', 'Yếu']
@@ -292,10 +292,10 @@ class QueryValidator:
         sort_order = data.get('sort_order', 'desc')
         
         if sort_field not in allowed_fields:
-            raise ValidationError(f"Sort field must be one of: {', '.join(allowed_fields)}", field='sort_field')
+            raise ValidationError(f"Trường sắp xếp phải là một trong: {', '.join(allowed_fields)}", field='sort_field')
         
         if sort_order not in ['asc', 'desc']:
-            raise ValidationError("Sort order must be 'asc' or 'desc'", field='sort_order')
+            raise ValidationError("Thứ tự sắp xếp phải là 'asc' hoặc 'desc'", field='sort_order')
         
         return {
             'sort_field': sort_field,

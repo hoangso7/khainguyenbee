@@ -53,7 +53,7 @@ class ApiService {
           throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
         }
         
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        throw new Error(errorData.message || `Lỗi HTTP! Mã lỗi: ${response.status}`);
       }
 
       return await response.json();
@@ -194,7 +194,7 @@ class ApiService {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Lỗi HTTP! Mã lỗi: ${response.status}`);
     }
 
     return response.blob();
@@ -214,7 +214,7 @@ class ApiService {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Lỗi HTTP! Mã lỗi: ${response.status}`);
     }
 
     return response.blob();
