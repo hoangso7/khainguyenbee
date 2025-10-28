@@ -171,7 +171,7 @@ const Dashboard = () => {
               </Button>
               <Button variant="outline" size="sm" onClick={handleLogout} className="bg-white/90 hover:bg-white">
                 <LogOut className="w-4 h-4 mr-2" />
-                Đăng xuất
+                Thoát
               </Button>
             </div>
           </div>
