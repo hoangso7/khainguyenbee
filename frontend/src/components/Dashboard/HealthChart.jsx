@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, Typography, Box } from '@mui/material';
+import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 const HealthChart = ({ data }) => {
@@ -13,41 +13,20 @@ const HealthChart = ({ data }) => {
   if (!data || typeof data !== 'object') {
     return (
       <Card>
+        <CardHeader>
+          <CardTitle>Thống kê sức khỏe tổ ong</CardTitle>
+        </CardHeader>
         <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Thống kê sức khỏe tổ ong
-          </Typography>
-          <Box 
-            display="flex" 
-            justifyContent="center" 
-            alignItems="center" 
-            sx={{ 
-              flexDirection: 'column',
-              gap: 2,
-              py: 3
-            }}
-          >
+          <div className="flex flex-col items-center justify-center gap-4 py-6">
             <img 
               src="/bee.gif" 
               alt="Loading..." 
-              style={{ 
-                width: '60px', 
-                height: '60px',
-                borderRadius: '50%',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-              }} 
+              className="w-15 h-15 rounded-full shadow-lg" 
             />
-            <Typography 
-              variant="body2" 
-              color="primary" 
-              sx={{ 
-                fontWeight: 500,
-                opacity: 0.8
-              }}
-            >
+            <p className="text-sm text-blue-600 font-medium opacity-80">
               Đang tải dữ liệu...
-            </Typography>
-          </Box>
+            </p>
+          </div>
         </CardContent>
       </Card>
     );
@@ -66,19 +45,11 @@ const HealthChart = ({ data }) => {
       const percentage = ((data.value / total) * 100).toFixed(1);
       
       return (
-        <Box
-          sx={{
-            background: 'white',
-            border: '1px solid #ccc',
-            borderRadius: 1,
-            padding: 1,
-            boxShadow: 2,
-          }}
-        >
-          <Typography variant="body2">
+        <div className="bg-white border border-gray-300 rounded p-2 shadow-lg">
+          <p className="text-sm">
             {data.name}: {data.value} tổ ({percentage}%)
-          </Typography>
-        </Box>
+          </p>
+        </div>
       );
     }
     return null;
@@ -86,11 +57,11 @@ const HealthChart = ({ data }) => {
 
   return (
     <Card>
+      <CardHeader>
+        <CardTitle>Thống kê sức khỏe tổ ong</CardTitle>
+      </CardHeader>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Thống kê sức khỏe tổ ong
-        </Typography>
-        <Box sx={{ height: 300 }}>
+        <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -111,7 +82,7 @@ const HealthChart = ({ data }) => {
               <Legend />
             </PieChart>
           </ResponsiveContainer>
-        </Box>
+        </div>
       </CardContent>
     </Card>
   );

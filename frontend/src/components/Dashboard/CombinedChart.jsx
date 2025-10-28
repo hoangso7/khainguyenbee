@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, Typography, Box } from '@mui/material';
+import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 const CombinedChart = ({ healthData, speciesData }) => {
@@ -18,21 +18,20 @@ const CombinedChart = ({ healthData, speciesData }) => {
   if (!healthData || !speciesData || typeof healthData !== 'object' || typeof speciesData !== 'object') {
     return (
       <Card>
+        <CardHeader>
+          <CardTitle>Thống kê tổng quan</CardTitle>
+        </CardHeader>
         <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Thống kê tổng quan
-          </Typography>
-          <Box 
-            display="flex" 
-            justifyContent="center" 
-            alignItems="center" 
-            sx={{ flexDirection: 'column', gap: 2, py: 3 }}
-          >
-            <img src="/bee.gif" alt="Loading..." style={{ width: '60px', height: '60px', borderRadius: '50%', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }} />
-            <Typography variant="body2" color="primary" sx={{ fontWeight: 500, opacity: 0.8 }}>
+          <div className="flex flex-col items-center justify-center gap-4 py-6">
+            <img 
+              src="/bee.gif" 
+              alt="Loading..." 
+              className="w-15 h-15 rounded-full shadow-lg" 
+            />
+            <p className="text-sm text-blue-600 font-medium opacity-80">
               Đang tải dữ liệu...
-            </Typography>
-          </Box>
+            </p>
+          </div>
         </CardContent>
       </Card>
     );
@@ -56,9 +55,9 @@ const CombinedChart = ({ healthData, speciesData }) => {
       const total = item.payload.total || item.value;
       const percentage = total ? ((item.value / total) * 100).toFixed(1) : 0;
       return (
-        <Box sx={{ background: 'white', border: '1px solid #ccc', borderRadius: 1, p: 1, boxShadow: 2 }}>
-          <Typography variant="body2">{item.name}: {item.value} tổ ({percentage}%)</Typography>
-        </Box>
+        <div className="bg-white border border-gray-300 rounded p-2 shadow-lg">
+          <p className="text-sm">{item.name}: {item.value} tổ ({percentage}%)</p>
+        </div>
       );
     }
     return null;
@@ -66,11 +65,11 @@ const CombinedChart = ({ healthData, speciesData }) => {
 
   return (
     <Card>
+      <CardHeader>
+        <CardTitle>Thống kê tổng quan</CardTitle>
+      </CardHeader>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Thống kê tổng quan
-        </Typography>
-        <Box sx={{ height: 400 }}>
+        <div className="h-[400px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               {/* Health Pie Chart */}
@@ -107,15 +106,15 @@ const CombinedChart = ({ healthData, speciesData }) => {
               <Legend />
             </PieChart>
           </ResponsiveContainer>
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-around', mt: 2 }}>
-          <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#228B22' }}>
+        </div>
+        <div className="flex justify-around mt-4">
+          <p className="text-sm font-bold text-green-600">
             Sức khỏe: Tốt/Yếu
-          </Typography>
-          <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#f59e0b' }}>
+          </p>
+          <p className="text-sm font-bold text-amber-600">
             Chủng loại: Furva Vàng/Đen
-          </Typography>
-        </Box>
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, Typography, Box } from '@mui/material';
+import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 const SpeciesChart = ({ data }) => {
@@ -12,21 +12,20 @@ const SpeciesChart = ({ data }) => {
   if (!data || typeof data !== 'object') {
     return (
       <Card>
+        <CardHeader>
+          <CardTitle>Thống kê chủng loại tổ ong</CardTitle>
+        </CardHeader>
         <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Thống kê chủng loại tổ ong
-          </Typography>
-          <Box 
-            display="flex" 
-            justifyContent="center" 
-            alignItems="center" 
-            sx={{ flexDirection: 'column', gap: 2, py: 3 }}
-          >
-            <img src="/bee.gif" alt="Loading..." style={{ width: '60px', height: '60px', borderRadius: '50%', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }} />
-            <Typography variant="body2" color="primary" sx={{ fontWeight: 500, opacity: 0.8 }}>
+          <div className="flex flex-col items-center justify-center gap-4 py-6">
+            <img 
+              src="/bee.gif" 
+              alt="Loading..." 
+              className="w-15 h-15 rounded-full shadow-lg" 
+            />
+            <p className="text-sm text-blue-600 font-medium opacity-80">
               Đang tải dữ liệu...
-            </Typography>
-          </Box>
+            </p>
+          </div>
         </CardContent>
       </Card>
     );
@@ -44,9 +43,9 @@ const SpeciesChart = ({ data }) => {
       const total = chartData.reduce((sum, d) => sum + d.value, 0);
       const percentage = total ? ((item.value / total) * 100).toFixed(1) : 0;
       return (
-        <Box sx={{ background: 'white', border: '1px solid #ccc', borderRadius: 1, p: 1, boxShadow: 2 }}>
-          <Typography variant="body2">{item.name}: {item.value} tổ ({percentage}%)</Typography>
-        </Box>
+        <div className="bg-white border border-gray-300 rounded p-2 shadow-lg">
+          <p className="text-sm">{item.name}: {item.value} tổ ({percentage}%)</p>
+        </div>
       );
     }
     return null;
@@ -54,14 +53,22 @@ const SpeciesChart = ({ data }) => {
 
   return (
     <Card>
+      <CardHeader>
+        <CardTitle>Thống kê chủng loại tổ ong</CardTitle>
+      </CardHeader>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Thống kê chủng loại tổ ong
-        </Typography>
-        <Box sx={{ height: 300 }}>
+        <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-              <Pie data={chartData} cx="50%" cy="50%" labelLine={false} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} outerRadius={80} dataKey="value">
+              <Pie 
+                data={chartData} 
+                cx="50%" 
+                cy="50%" 
+                labelLine={false} 
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} 
+                outerRadius={80} 
+                dataKey="value"
+              >
                 {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
@@ -70,12 +77,10 @@ const SpeciesChart = ({ data }) => {
               <Legend />
             </PieChart>
           </ResponsiveContainer>
-        </Box>
+        </div>
       </CardContent>
     </Card>
   );
 };
 
 export default SpeciesChart;
-
-
