@@ -200,7 +200,7 @@ const BeehiveDetail = () => {
               <Badge className={`px-4 py-2 rounded-full border font-semibold text-base ${getHealthColor(beehive.health_status)}`}>
                 Sức khoẻ: {beehive.health_status}
               </Badge>
-              <Badge className="px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
+              <Badge className="px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-full font-semibold text-base">
                 Tuổi: {(() => {
                   const days = calculateAgeDays(beehive);
                   return days !== null ? `${days} ngày` : '—';
