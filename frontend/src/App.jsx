@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from './components/ui/sonner';
 import Login from './pages/Login';
 import Setup from './pages/Setup';
+import SetupGuard from './components/SetupGuard';
+import SetupRedirect from './components/SetupRedirect';
 import Dashboard from './pages/Dashboard';
 import AddBeehive from './pages/AddBeehive';
 import BulkAddBeehives from './pages/BulkAddBeehives';
@@ -18,7 +20,11 @@ function ProtectedRoute({ children }) {
   if (!token) {
     return <Navigate to="/login" replace />;
   }
-  return <>{children}</>;
+  return (
+    <SetupRedirect>
+      {children}
+    </SetupRedirect>
+  );
 }
 
 function App() {
@@ -27,7 +33,11 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
-        <Route path="/setup" element={<Setup />} />
+        <Route path="/setup" element={
+          <SetupGuard>
+            <Setup />
+          </SetupGuard>
+        } />
         <Route path="/beehive/:qrToken" element={<BeehiveDetail />} />
 
         {/* Protected Routes */}

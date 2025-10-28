@@ -18,26 +18,6 @@ const Setup = () => {
   const [farmName, setFarmName] = useState('');
   const [farmPhone, setFarmPhone] = useState('');
   const [loading, setLoading] = useState(false);
-  const [checking, setChecking] = useState(true);
-
-  useEffect(() => {
-    const checkSetup = async () => {
-      try {
-        const response = await fetch('/api/auth/setup/check');
-        const data = await response.json();
-        if (!data.setup_needed) {
-          // Already set up, redirect to login
-          navigate('/login');
-        }
-      } catch (error) {
-        console.error('Setup check failed:', error);
-      } finally {
-        setChecking(false);
-      }
-    };
-
-    checkSetup();
-  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -80,17 +60,6 @@ const Setup = () => {
       setLoading(false);
     }
   };
-
-  if (checking) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 to-yellow-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Đang kiểm tra...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 to-yellow-100 p-4">
