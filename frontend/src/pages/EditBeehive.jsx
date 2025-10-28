@@ -223,7 +223,7 @@ const EditBeehive = () => {
                   onValueChange={(value) => setFormData({ ...formData, health_status: value })}
                   disabled={formData.is_sold}
                 >
-                  <SelectTrigger id="health_status">
+                  <SelectTrigger id="health_status" className="bg-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent 
@@ -245,7 +245,7 @@ const EditBeehive = () => {
                   onValueChange={(value) => setFormData({ ...formData, species: value })}
                   disabled={formData.is_sold}
                 >
-                  <SelectTrigger id="species">
+                  <SelectTrigger id="species" className="bg-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent 

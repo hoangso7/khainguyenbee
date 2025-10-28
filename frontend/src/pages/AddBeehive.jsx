@@ -90,7 +90,7 @@ const AddBeehive = () => {
                   value={formData.health_status}
                   onValueChange={(value) => setFormData({ ...formData, health_status: value })}
                 >
-                  <SelectTrigger id="health_status">
+                  <SelectTrigger id="health_status" className="bg-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -106,7 +106,7 @@ const AddBeehive = () => {
                   value={formData.species}
                   onValueChange={(value) => setFormData({ ...formData, species: value })}
                 >
-                  <SelectTrigger id="species">
+                  <SelectTrigger id="species" className="bg-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

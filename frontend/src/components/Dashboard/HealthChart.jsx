@@ -37,12 +37,12 @@ const HealthChart = ({ data }) => {
     value,
     color: colors[name] || '#6c757d'
   }));
+  const total = chartData.reduce((s, d) => s + d.value, 0);
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const data = payload[0];
-      const total = chartData.reduce((sum, item) => sum + item.value, 0);
-      const percentage = ((data.value / total) * 100).toFixed(1);
+      const percentage = total ? ((data.value / total) * 100).toFixed(1) : 0;
       
       return (
         <div className="bg-white border border-gray-300 rounded p-2 shadow-lg">
@@ -53,6 +53,16 @@ const HealthChart = ({ data }) => {
       );
     }
     return null;
+  };
+
+  const renderCustomizedLabel = ({ name, percent }) => {
+    const count = data[name] ?? 0;
+    return `${name} (${count}) ${(percent * 100).toFixed(0)}%`;
+  };
+
+  const renderLegendText = (value) => {
+    const count = data[value] ?? 0;
+    return `${value} (${count})`;
   };
 
   return (
@@ -69,7 +79,7 @@ const HealthChart = ({ data }) => {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                label={renderCustomizedLabel}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
@@ -79,7 +89,7 @@ const HealthChart = ({ data }) => {
                 ))}
               </Pie>
               <Tooltip content={<CustomTooltip />} />
-              <Legend />
+              <Legend formatter={renderLegendText} />
             </PieChart>
           </ResponsiveContainer>
         </div>

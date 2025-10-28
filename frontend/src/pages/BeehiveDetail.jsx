@@ -161,7 +161,7 @@ const BeehiveDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to_white">
       <header className="bg-gradient-to-r from-amber-500 to-yellow-500 border-b border-amber-400 shadow-md">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -190,19 +190,10 @@ const BeehiveDetail = () => {
         {/* Main Info */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify_between">
               <CardTitle>Tổ ong {beehive.serial_number}</CardTitle>
-              <div className="flex items-center gap-2">
-                <div className={`flex items-center gap-2 px-4 py-2 rounded-full border ${getHealthColor(beehive.health_status)}`}>
-                  <span className="font-semibold text-base">Sức khoẻ: {beehive.health_status}</span>
-                  <Badge variant="outline" className="ml-2">{beehive.species}</Badge>
-                </div>
-                <Badge variant="secondary" className="text-sm">
-                  {(() => {
-                    const ageDays = calculateAgeDays(beehive);
-                    return `Tuổi: ${ageDays === null ? '-' : ageDays + ' ngày'}`;
-                  })()}
-                </Badge>
+              <div className={`flex items-center gap-2 px-4 py-2 rounded-full border ${getHealthColor(beehive.health_status)}`}>
+                <span className="font-semibold text-base">Sức khoẻ: {beehive.health_status}</span>
               </div>
             </div>
           </CardHeader>
@@ -223,7 +214,19 @@ const BeehiveDetail = () => {
                     {beehive.split_date ? formatDate(beehive.split_date) : 'Tổ chưa được tách'}
                   </p>
                 </div>
-                
+                {beehive.is_sold && beehive.sold_date && (
+                  <div>
+                    <p className="text-sm text-gray-500">Ngày bán</p>
+                    <p className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      {formatDate(beehive.sold_date)}
+                    </p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-sm text-gray-500">Chủng loại</p>
+                  <p className="font-medium">{beehive.species || 'Furva Vàng'}</p>
+                </div>
               </div>
               
               {/* Hình ảnh đại diện */}
@@ -234,15 +237,6 @@ const BeehiveDetail = () => {
                   className="w-32 h-32 object-contain"
                 />
               </div>
-              {beehive.is_sold && beehive.sold_date && (
-                <div>
-                  <p className="text-sm text-gray-500">Ngày bán</p>
-                  <p className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    {formatDate(beehive.sold_date)}
-                  </p>
-                </div>
-              )}
             </div>
 
             <div>
@@ -319,7 +313,7 @@ const BeehiveDetail = () => {
         {/* Footer */}
         <Card className="bg-amber-50 border-amber-200">
           <CardContent className="pt-6">
-            <div className="flex items-center justify-center gap-2 mb-2">
+            <div className="flex items-center justify_center gap-2 mb-2">
               <img src={beeIcon} alt="KBee" className="w-7 h-7" />
               <span className="text-amber-700 font-semibold">KBee Manager</span>
             </div>

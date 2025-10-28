@@ -36,11 +36,11 @@ const SpeciesChart = ({ data }) => {
     value,
     color: colors[name] || '#6c757d'
   }));
+  const total = chartData.reduce((s, d) => s + d.value, 0);
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const item = payload[0];
-      const total = chartData.reduce((sum, d) => sum + d.value, 0);
       const percentage = total ? ((item.value / total) * 100).toFixed(1) : 0;
       return (
         <div className="bg-white border border-gray-300 rounded p-2 shadow-lg">
@@ -49,6 +49,16 @@ const SpeciesChart = ({ data }) => {
       );
     }
     return null;
+  };
+
+  const renderCustomizedLabel = ({ name, percent }) => {
+    const count = data[name] ?? 0;
+    return `${name} (${count}) ${(percent * 100).toFixed(0)}%`;
+  };
+
+  const renderLegendText = (value) => {
+    const count = data[value] ?? 0;
+    return `${value} (${count})`;
   };
 
   return (
@@ -65,7 +75,7 @@ const SpeciesChart = ({ data }) => {
                 cx="50%" 
                 cy="50%" 
                 labelLine={false} 
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} 
+                label={renderCustomizedLabel}
                 outerRadius={80} 
                 dataKey="value"
               >
@@ -74,7 +84,7 @@ const SpeciesChart = ({ data }) => {
                 ))}
               </Pie>
               <Tooltip content={<CustomTooltip />} />
-              <Legend />
+              <Legend formatter={renderLegendText} />
             </PieChart>
           </ResponsiveContainer>
         </div>

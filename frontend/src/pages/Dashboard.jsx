@@ -13,7 +13,6 @@ import { formatDate } from '../utils/dateUtils';
 import beeIcon from '../assets/bee-icon.png';
 import HealthChart from '../components/Dashboard/HealthChart.jsx';
 import SpeciesChart from '../components/Dashboard/SpeciesChart.jsx';
-import CombinedChart from '../components/Dashboard/CombinedChart.jsx';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -22,6 +21,8 @@ const Dashboard = () => {
   const [speciesStats, setSpeciesStats] = useState({ 'Furva Vàng': 0, 'Furva Đen': 0 });
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [healthFilter, setHealthFilter] = useState(''); // '' = all, 'Tốt' or 'Yếu'
+  const [speciesFilter, setSpeciesFilter] = useState(''); // '' = all, 'Furva Vàng' or 'Furva Đen'
   
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [beehiveToDelete, setBeehiveToDelete] = useState(null);
@@ -84,15 +85,20 @@ const Dashboard = () => {
   // Derived: filtered beehives (client-side to match Sold page behavior)
   const filteredBeehives = beehives.filter((b) => {
     const term = searchTerm.trim().toLowerCase();
-    if (!term) return true;
-    const importDateLocal = b.import_date ? new Date(b.import_date).toLocaleDateString('vi-VN') : '';
-    return (
-      (b.serial_number || '').toLowerCase().includes(term) ||
-      (b.qr_token || '').toLowerCase().includes(term) ||
-      (b.notes || '').toLowerCase().includes(term) ||
-      (b.import_date || '').includes(term) ||
-      importDateLocal.includes(term)
-    );
+    if (term) {
+      const importDateLocal = b.import_date ? new Date(b.import_date).toLocaleDateString('vi-VN') : '';
+      const matchesSearch = (
+        (b.serial_number || '').toLowerCase().includes(term) ||
+        (b.qr_token || '').toLowerCase().includes(term) ||
+        (b.notes || '').toLowerCase().includes(term) ||
+        (b.import_date || '').includes(term) ||
+        importDateLocal.includes(term)
+      );
+      if (!matchesSearch) return false;
+    }
+    if (healthFilter && b.health_status !== healthFilter) return false;
+    if (speciesFilter && (b.species || 'Furva Vàng') !== speciesFilter) return false;
+    return true;
   });
 
   const totalItems = filteredBeehives.length;
@@ -107,10 +113,10 @@ const Dashboard = () => {
     setPage(p);
   };
 
-  // Reset page when search changes
+  // Reset page when search/filters change
   useEffect(() => {
     setPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, healthFilter, speciesFilter]);
 
   const handleDelete = (serialNumber) => {
     setBeehiveToDelete(serialNumber);
@@ -203,10 +209,7 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* Combined Chart */}
-        <CombinedChart healthData={{ 'Tốt': stats.good, 'Yếu': stats.weak }} speciesData={speciesStats} />
-
-        {/* Individual Charts */}
+        {/* Individual Charts only (remove combined chart) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <HealthChart data={{ 'Tốt': stats.good, 'Yếu': stats.weak }} />
           <SpeciesChart data={speciesStats} />
@@ -232,26 +235,49 @@ const Dashboard = () => {
           </Button>
         </div>
 
-        {/* Search */}
+        {/* Search & Filters */}
         <Card>
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle>Danh sách tổ ong</CardTitle>
-              
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                placeholder="Tìm theo mã tổ, ngày nhập, hoặc ghi chú..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <div className="relative md:col-span-2">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  placeholder="Tìm theo mã tổ, ngày nhập, ghi chú"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-600">Lọc theo sức khoẻ</label>
+                <select
+                  value={healthFilter}
+                  onChange={(e) => setHealthFilter(e.target.value)}
+                  className="w-full mt-1 border rounded-md px-3 py-2 bg-white"
+                >
+                  <option value="">Tất cả</option>
+                  <option value="Tốt">Tốt</option>
+                  <option value="Yếu">Yếu</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm text-gray-600">Lọc theo chủng loại</label>
+                <select
+                  value={speciesFilter}
+                  onChange={(e) => setSpeciesFilter(e.target.value)}
+                  className="w-full mt-1 border rounded-md px-3 py-2 bg-white"
+                >
+                  <option value="">Tất cả</option>
+                  <option value="Furva Vàng">Furva Vàng</option>
+                  <option value="Furva Đen">Furva Đen</option>
+                </select>
+              </div>
             </div>
-
-            
 
             {/* Desktop Table */}
             <div className="hidden md:block overflow-x-auto">
@@ -262,6 +288,7 @@ const Dashboard = () => {
                     <TableHead className="font-semibold">Ngày nhập</TableHead>
                     <TableHead className="font-semibold">Ngày tách</TableHead>
                     <TableHead className="font-semibold">Tình trạng</TableHead>
+                    <TableHead className="font-semibold">Chủng loại</TableHead>
                     <TableHead className="font-semibold">Ghi chú</TableHead>
                     <TableHead className="text-right font-semibold">Thao tác</TableHead>
                   </TableRow>
@@ -269,13 +296,13 @@ const Dashboard = () => {
                 <TableBody>
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center text-gray-500">
+                      <TableCell colSpan={7} className="text-center text-gray-500">
                         Đang tải dữ liệu...
                       </TableCell>
                     </TableRow>
                   ) : totalItems === 0 ? (
                 <TableRow>
-                      <TableCell colSpan={6} className="text-center text-gray-500">
+                      <TableCell colSpan={7} className="text-center text-gray-500">
                         Không có dữ liệu
                   </TableCell>
                     </TableRow>
@@ -290,6 +317,7 @@ const Dashboard = () => {
                             {beehive.health_status}
                           </Badge>
                         </TableCell>
+                        <TableCell>{beehive.species || 'Furva Vàng'}</TableCell>
                         <TableCell className="max-w-xs truncate">{beehive.notes || '-'}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex gap-2 justify-end">
@@ -357,6 +385,7 @@ const Dashboard = () => {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-2">
+                      <p className="text-sm text-gray-600">Chủng loại: {beehive.species || 'Furva Vàng'}</p>
                       {beehive.split_date && (
                         <p className="text-sm text-gray-600">Ngày tách: {formatDate(beehive.split_date)}</p>
                       )}
@@ -396,7 +425,7 @@ const Dashboard = () => {
           )}
               {/* Mobile Pagination */}
               {!loading && totalItems > 0 && (
-                <div className="flex items-center justify-between mt-4">
+                <div className="flex items-center justify_between mt-4">
                   <p className="text-sm text-gray-600">
                     Hiển thị {startIdx + 1}-{Math.min(endIdx, totalItems)} / Tổng {totalItems}
                   </p>
