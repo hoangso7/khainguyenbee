@@ -7,6 +7,7 @@ import { Label } from '../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { toast } from 'sonner';
 import { Hexagon } from 'lucide-react';
+import beeIcon from '../assets/bee-icon.png';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ const Login = () => {
         <CardHeader className="text-center bg-gradient-to-b from-amber-500 to-yellow-500 text-white rounded-t-lg py-6">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
-              <Hexagon className="w-8 h-8 text-amber-600" />
+              <img src={beeIcon} alt="KBee" className="w-10 h-10" />
             </div>
           </div>
           <CardTitle className="text-white">KBee Manager</CardTitle>

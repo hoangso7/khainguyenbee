@@ -10,6 +10,7 @@ import { AlertDialog } from '../components/ui/alert-dialog';
 import { Plus, Search, QrCode, FileDown, ShoppingCart, Settings, LogOut, Eye, Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDate } from '../utils/dateUtils';
+import beeIcon from '../assets/bee-icon.png';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -158,7 +159,8 @@ const Dashboard = () => {
       <header className="bg-gradient-to-r from-amber-500 to-yellow-500 border-b border-amber-400 sticky top-0 z-10 shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="flex items-center gap-2">
+              <img src={beeIcon} alt="KBee" className="w-7 h-7" />
               <h1 className="text-white font-bold text-2xl">KBee Manager</h1>
               <p className="text-sm text-amber-50">{user?.business_name}</p>
             </div>

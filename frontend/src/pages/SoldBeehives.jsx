@@ -8,6 +8,7 @@ import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { ArrowLeft, Search, Eye } from 'lucide-react';
+import beeIcon from '../assets/bee-icon.png';
 
 const SoldBeehives = () => {
   const navigate = useNavigate();
@@ -101,10 +102,16 @@ const SoldBeehives = () => {
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white">
       <header className="bg-gradient-to-r from-amber-500 to-yellow-500 border-b border-amber-400 shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <Button variant="ghost" onClick={() => navigate('/')} className="text-white hover:bg-white/20">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Quay lại
-          </Button>
+          <div className="flex items-center justify-between">
+            <Button variant="ghost" onClick={() => navigate('/')} className="text-white hover:bg-white/20">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Quay lại
+            </Button>
+            <div className="flex items-center gap-2">
+              <img src={beeIcon} alt="KBee" className="w-6 h-6" />
+              <span className="text-white font-semibold">KBee Manager</span>
+            </div>
+          </div>
         </div>
       </header>
 

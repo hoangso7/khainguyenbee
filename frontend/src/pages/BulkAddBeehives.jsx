@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { toast } from 'sonner';
 import { ArrowLeft } from 'lucide-react';
+import beeIcon from '../assets/bee-icon.png';
 
 const BulkAddBeehives = () => {
   const navigate = useNavigate();
@@ -88,11 +89,15 @@ const BulkAddBeehives = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white">
       <header className="bg-gradient-to-r from-amber-500 to-yellow-500 border-b border-amber-400 shadow-md">
-        <div className="max-w-4xl mx-auto px-4 py-4">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Button variant="ghost" onClick={() => navigate('/')} className="text-white hover:bg-white/20">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Quay lại
           </Button>
+          <div className="flex items-center gap-2">
+            <img src={beeIcon} alt="KBee" className="w-7 h-7" />
+            <span className="text-white font-semibold">KBee Manager</span>
+          </div>
         </div>
       </header>
 

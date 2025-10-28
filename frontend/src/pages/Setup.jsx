@@ -7,6 +7,7 @@ import { Label } from '../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { toast } from 'sonner';
 import { Building2 } from 'lucide-react';
+import beeIcon from '../assets/bee-icon.png';
 
 const Setup = () => {
   const navigate = useNavigate();
@@ -97,7 +98,7 @@ const Setup = () => {
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 bg-amber-500 rounded-full flex items-center justify-center">
-              <Building2 className="w-8 h-8 text-white" />
+              <img src={beeIcon} alt="KBee" className="w-10 h-10" />
             </div>
           </div>
           <CardTitle>Thiết lập hệ thống</CardTitle>

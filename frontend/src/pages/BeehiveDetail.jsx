@@ -8,6 +8,7 @@ import { AlertDialog } from '../components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { ArrowLeft, Calendar, Edit } from 'lucide-react';
 import { formatDate } from '../utils/dateUtils';
+import beeIcon from '../assets/bee-icon.png';
 
 const BeehiveDetail = () => {
   const navigate = useNavigate();
@@ -173,6 +174,10 @@ const BeehiveDetail = () => {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Quay lại
             </Button>
+            <div className="flex items-center gap-2">
+              <img src={beeIcon} alt="KBee" className="w-7 h-7" />
+              <span className="text-white font-semibold">KBee Manager</span>
+            </div>
             {isAdmin && (
               <div className="flex gap-2">
                 <Button onClick={() => navigate(`/edit-beehive/${beehive.serial_number}`)} className="bg-white text-amber-700 hover:bg-amber-50">

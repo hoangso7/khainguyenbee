@@ -5,6 +5,7 @@ import { formatDate } from '../utils/dateUtils';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Hexagon, Calendar, MapPin, Phone } from 'lucide-react';
+import beeIcon from '../assets/bee-icon.png';
 
 const QRBeehiveDetail = () => {
   const { token } = useParams();
@@ -89,7 +90,7 @@ const QRBeehiveDetail = () => {
         <div className="text-center space-y-3">
           <div className="flex justify-center">
             <div className="w-20 h-20 bg-amber-500 rounded-full flex items-center justify-center">
-              <Hexagon className="w-10 h-10 text-white" />
+              <img src={beeIcon} alt="KBee" className="w-12 h-12" />
             </div>
           </div>
           <h1 className="text-amber-600">Thông tin Tổ Ong</h1>
