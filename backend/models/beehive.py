@@ -19,7 +19,8 @@ class Beehive(db.Model):
     qr_token = db.Column(db.String(12), unique=True, nullable=False, index=True)  # Random 12-char token for QR
     import_date = db.Column(db.Date, nullable=False, index=True)
     split_date = db.Column(db.Date, nullable=True, index=True)
-    health_status = db.Column(db.String(20), nullable=False, default='Tốt', index=True)  # Tốt, Bình thường, Yếu
+    health_status = db.Column(db.String(20), nullable=False, default='Tốt', index=True)  # Tốt, Yếu
+    species = db.Column(db.String(20), nullable=False, default='Furva Vàng', index=True)
     notes = db.Column(db.Text, nullable=True)
     is_sold = db.Column(db.Boolean, default=False, index=True)
     sold_date = db.Column(db.Date, nullable=True, index=True)
@@ -66,6 +67,7 @@ class Beehive(db.Model):
             'import_date': self.import_date.isoformat() if self.import_date else None,
             'split_date': self.split_date.isoformat() if self.split_date else None,
             'health_status': self.health_status,
+            'species': self.species,
             'notes': self.notes,
             'is_sold': self.is_sold,
             'sold_date': self.sold_date.isoformat() if self.sold_date else None,

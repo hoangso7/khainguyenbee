@@ -5,7 +5,6 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recha
 const HealthChart = ({ data }) => {
   const colors = {
     'Tốt': '#228B22',
-    'Bình thường': '#FF8C00',
     'Yếu': '#DC143C',
     'Unknown': '#6c757d'
   };

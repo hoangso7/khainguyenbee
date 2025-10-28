@@ -25,7 +25,8 @@ const EditBeehive = () => {
   const [formData, setFormData] = useState({
     import_date: '',
     split_date: '',
-    health_status: 'Bình thường',
+    health_status: 'Tốt',
+    species: 'Furva Vàng',
     notes: '',
     is_sold: false,
     sold_date: '',
@@ -45,6 +46,7 @@ const EditBeehive = () => {
         import_date: data.import_date,
         split_date: data.split_date || '',
         health_status: data.health_status,
+        species: data.species || 'Furva Vàng',
         notes: data.notes || '',
         is_sold: data.is_sold,
         sold_date: data.sold_date || '',
@@ -87,6 +89,7 @@ const EditBeehive = () => {
         import_date: formData.import_date,
         split_date: formData.split_date || undefined,
         health_status: formData.health_status,
+        species: formData.species,
         notes: formData.notes || undefined,
         is_sold: formData.is_sold,
         sold_date: formData.sold_date || undefined,
@@ -230,8 +233,29 @@ const EditBeehive = () => {
                     align="start"
                   >
                     <SelectItem value="Tốt" className="hover:bg-gray-100 cursor-pointer">Tốt</SelectItem>
-                    <SelectItem value="Bình thường" className="hover:bg-gray-100 cursor-pointer">Bình thường</SelectItem>
                     <SelectItem value="Yếu" className="hover:bg-gray-100 cursor-pointer">Yếu</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2 mb-6">
+                <Label htmlFor="species">Chủng loại <span className="text-red-500">*</span></Label>
+                <Select
+                  value={formData.species}
+                  onValueChange={(value) => setFormData({ ...formData, species: value })}
+                  disabled={formData.is_sold}
+                >
+                  <SelectTrigger id="species">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent 
+                    className="z-[9999] bg-white border border-gray-200 shadow-lg rounded-md" 
+                    position="popper"
+                    sideOffset={4}
+                    align="start"
+                  >
+                    <SelectItem value="Furva Vàng" className="hover:bg-gray-100 cursor-pointer">Furva Vàng</SelectItem>
+                    <SelectItem value="Furva Đen" className="hover:bg-gray-100 cursor-pointer">Furva Đen</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -184,7 +184,7 @@ const ExportPDF = () => {
                         <div className="flex items-center justify-between">
                           <div>
                             <p>{beehive.serial_number}</p>
-                            <p className="text-sm text-gray-500">{beehive.health_status}</p>
+                            <p className="text-sm text-gray-500">{beehive.health_status} • {beehive.species || 'Furva Vàng'}</p>
                           </div>
                           <p className="text-sm text-gray-500">{formatDate(beehive.import_date)}</p>
                         </div>

@@ -82,8 +82,6 @@ const BeehiveDetail = () => {
     switch (status) {
       case 'Tốt':
         return 'default';
-      case 'Bình thường':
-        return 'secondary';
       case 'Yếu':
         return 'destructive';
       default:
@@ -95,12 +93,10 @@ const BeehiveDetail = () => {
     switch (status) {
       case 'Tốt':
         return '/static/icons/health/good.png';
-      case 'Bình thường':
-        return '/static/icons/health/normal.png';
       case 'Yếu':
         return '/static/icons/health/weak.png';
       default:
-        return '/static/icons/health/normal.png';
+        return '/static/icons/health/good.png';
     }
   };
 
@@ -108,8 +104,6 @@ const BeehiveDetail = () => {
     switch (status) {
       case 'Tốt':
         return 'text-green-600 bg-green-50 border-green-200';
-      case 'Bình thường':
-        return 'text-yellow-600 bg-yellow-50 border-yellow-200';
       case 'Yếu':
         return 'text-red-600 bg-red-50 border-red-200';
       default:
@@ -201,6 +195,7 @@ const BeehiveDetail = () => {
               <div className="flex items-center gap-2">
                 <div className={`flex items-center gap-2 px-4 py-2 rounded-full border ${getHealthColor(beehive.health_status)}`}>
                   <span className="font-semibold text-base">Sức khoẻ: {beehive.health_status}</span>
+                  <Badge variant="outline" className="ml-2">{beehive.species}</Badge>
                 </div>
                 <Badge variant="secondary" className="text-sm">
                   {(() => {

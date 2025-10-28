@@ -18,7 +18,8 @@ const AddBeehive = () => {
   const [formData, setFormData] = useState({
     import_date: new Date().toISOString().split('T')[0],
     split_date: '',
-    health_status: 'Bình thường',
+    health_status: 'Tốt',
+    species: 'Furva Vàng',
     notes: '',
   });
 
@@ -94,8 +95,23 @@ const AddBeehive = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Tốt">Tốt</SelectItem>
-                    <SelectItem value="Bình thường">Bình thường</SelectItem>
                     <SelectItem value="Yếu">Yếu</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="species">Chủng loại <span className="text-red-500">*</span></Label>
+                <Select
+                  value={formData.species}
+                  onValueChange={(value) => setFormData({ ...formData, species: value })}
+                >
+                  <SelectTrigger id="species">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Furva Vàng">Furva Vàng</SelectItem>
+                    <SelectItem value="Furva Đen">Furva Đen</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

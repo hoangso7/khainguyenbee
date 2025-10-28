@@ -45,7 +45,7 @@ def get_beehives():
         pagination_params = QueryValidator.validate_pagination_params(query_params)
         
         # Validate sort parameters
-        allowed_sort_fields = ['serial_number', 'created_at', 'import_date', 'split_date', 'health_status']
+        allowed_sort_fields = ['serial_number', 'created_at', 'import_date', 'split_date', 'health_status', 'species']
         sort_params = QueryValidator.validate_sort_params(query_params, allowed_sort_fields)
         
         # Build query for active beehives
@@ -94,6 +94,8 @@ def get_beehives():
             query = query.order_by(Beehive.split_date.desc() if sort_order == 'desc' else Beehive.split_date.asc())
         elif sort_field == 'health_status':
             query = query.order_by(Beehive.health_status.desc() if sort_order == 'desc' else Beehive.health_status.asc())
+        elif sort_field == 'species':
+            query = query.order_by(Beehive.species.desc() if sort_order == 'desc' else Beehive.species.asc())
         
         # Pagination
         pagination = query.paginate(
@@ -102,12 +104,12 @@ def get_beehives():
             error_out=False
         )
         
-        # Calculate health statistics
+        # Calculate health statistics (two buckets)
         all_active_beehives = Beehive.query.filter_by(user_id=current_user_id, is_sold=False).all()
-        health_stats = {}
-        for beehive in all_active_beehives:
-            health = beehive.health_status or 'Unknown'
-            health_stats[health] = health_stats.get(health, 0) + 1
+        health_stats = {
+            'Tốt': len([b for b in all_active_beehives if b.health_status == 'Tốt']),
+            'Yếu': len([b for b in all_active_beehives if b.health_status == 'Yếu']),
+        }
         
         return jsonify({
             'beehives': [beehive.to_dict() for beehive in pagination.items],
@@ -151,7 +153,7 @@ def get_sold_beehives():
         pagination_params = QueryValidator.validate_pagination_params(query_params)
         
         # Validate sort parameters
-        allowed_sort_fields = ['serial_number', 'created_at', 'import_date', 'sold_date', 'health_status']
+        allowed_sort_fields = ['serial_number', 'created_at', 'import_date', 'sold_date', 'health_status', 'species']
         sort_params = QueryValidator.validate_sort_params(query_params, allowed_sort_fields)
         
         # Build query for sold beehives
@@ -199,6 +201,8 @@ def get_sold_beehives():
             query = query.order_by(Beehive.sold_date.desc() if sort_order == 'desc' else Beehive.sold_date.asc())
         elif sort_field == 'health_status':
             query = query.order_by(Beehive.health_status.desc() if sort_order == 'desc' else Beehive.health_status.asc())
+        elif sort_field == 'species':
+            query = query.order_by(Beehive.species.desc() if sort_order == 'desc' else Beehive.species.asc())
         
         # Pagination
         pagination = query.paginate(
@@ -277,6 +281,7 @@ def create_beehive():
             import_date=validated_data['import_date'],
             split_date=validated_data.get('split_date'),
             health_status=validated_data['health_status'],
+            species=validated_data['species'],
             notes=validated_data.get('notes', ''),
             is_sold=False
         )
@@ -349,6 +354,8 @@ def update_beehive(serial_number):
             beehive.split_date = validated_data['split_date']
         if 'health_status' in validated_data:
             beehive.health_status = validated_data['health_status']
+        if 'species' in validated_data:
+            beehive.species = validated_data['species']
         if 'notes' in validated_data:
             beehive.notes = validated_data['notes']
         if 'is_sold' in validated_data:

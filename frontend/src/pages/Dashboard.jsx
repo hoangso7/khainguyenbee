@@ -11,11 +11,15 @@ import { Plus, Search, QrCode, FileDown, ShoppingCart, Settings, LogOut, Eye, Ed
 import { toast } from 'sonner';
 import { formatDate } from '../utils/dateUtils';
 import beeIcon from '../assets/bee-icon.png';
+import HealthChart from '../components/Dashboard/HealthChart.jsx';
+import SpeciesChart from '../components/Dashboard/SpeciesChart.jsx';
+import CombinedChart from '../components/Dashboard/CombinedChart.jsx';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [beehives, setBeehives] = useState([]);
-  const [stats, setStats] = useState({ total: 0, good: 0, normal: 0, weak: 0 });
+  const [stats, setStats] = useState({ total: 0, active: 0, sold: 0, good: 0, weak: 0 });
+  const [speciesStats, setSpeciesStats] = useState({ 'Furva Vàng': 0, 'Furva Đen': 0 });
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -47,16 +51,24 @@ const Dashboard = () => {
         apiService.getStats(),
         apiService.getCurrentUser()
       ]);
-      // Compute health breakdown from active beehives and use backend total
-      const goodCount = allBeehives.filter(b => b.health_status === 'Tốt').length;
-      const normalCount = allBeehives.filter(b => b.health_status === 'Bình thường').length;
-      const weakCount = allBeehives.filter(b => b.health_status === 'Yếu').length;
+      // Compute breakdowns
+      const activeBeehives = allBeehives.filter(b => !b.is_sold);
+      const soldBeehives = allBeehives.filter(b => b.is_sold);
+      const goodCount = activeBeehives.filter(b => b.health_status === 'Tốt').length;
+      const weakCount = activeBeehives.filter(b => b.health_status === 'Yếu').length;
+      const speciesCounts = activeBeehives.reduce((acc, b) => {
+        const key = b.species || 'Furva Vàng';
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      }, { 'Furva Vàng': 0, 'Furva Đen': 0 });
       setStats({
         total: statsResponse.total || 0,
+        active: statsResponse.active || activeBeehives.length,
+        sold: statsResponse.sold || soldBeehives.length,
         good: goodCount,
-        normal: normalCount,
         weak: weakCount,
       });
+      setSpeciesStats(speciesCounts);
       setUser(userResponse);
     } catch (error) {
       toast.error('Không thể tải dữ liệu');
@@ -131,8 +143,6 @@ const Dashboard = () => {
     switch (status) {
       case 'Tốt':
         return 'default';
-      case 'Bình thường':
-        return 'secondary';
       case 'Yếu':
         return 'destructive';
       default:
@@ -144,8 +154,6 @@ const Dashboard = () => {
     switch (status) {
       case 'Tốt':
         return 'bg-green-100 text-green-700 border-green-300';
-      case 'Bình thường':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
       case 'Yếu':
         return 'bg-red-100 text-red-700 border-red-300';
       default:
@@ -180,31 +188,28 @@ const Dashboard = () => {
 
       <div className="max-w-7xl mx-auto p-4 space-y-6">
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Tổng số tổ</CardDescription>
-              <CardTitle>{loading ? '...' : stats.total}</CardTitle>
+              <CardDescription>Tổng số tổ đang quản lý</CardDescription>
+              <CardTitle>{loading ? '...' : stats.active}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Tổ khỏe</CardDescription>
-              <CardTitle className="text-green-600">{loading ? '...' : stats.good}</CardTitle>
+              <CardDescription>Tổng số tổ đã bán</CardDescription>
+              <CardTitle className="text-amber-600">{loading ? '...' : stats.sold}</CardTitle>
             </CardHeader>
           </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Tổ bình thường</CardDescription>
-              <CardTitle className="text-blue-600">{loading ? '...' : stats.normal}</CardTitle>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Tổ yếu</CardDescription>
-              <CardTitle className="text-red-600">{loading ? '...' : stats.weak}</CardTitle>
-            </CardHeader>
-          </Card>
+        </div>
+
+        {/* Combined Chart */}
+        <CombinedChart healthData={{ 'Tốt': stats.good, 'Yếu': stats.weak }} speciesData={speciesStats} />
+
+        {/* Individual Charts */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <HealthChart data={{ 'Tốt': stats.good, 'Yếu': stats.weak }} />
+          <SpeciesChart data={speciesStats} />
         </div>
 
         {/* Actions */}

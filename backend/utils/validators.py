@@ -221,9 +221,16 @@ class BeehiveValidator:
             if validated_data['split_date'] < validated_data['import_date']:
                 raise ValidationError("Ngày tách đàn phải sau ngày nhập", field='split_date')
         
-        # Health status validation
-        health_choices = ['Tốt', 'Bình thường', 'Yếu']
+        # Health status validation (only two values)
+        health_choices = ['Tốt', 'Yếu']
         validated_data['health_status'] = Validator.validate_choice(data, 'health_status', health_choices)
+
+        # Species validation (default to Furva Vàng)
+        species_choices = ['Furva Vàng', 'Furva Đen']
+        if 'species' in data and data['species']:
+            validated_data['species'] = Validator.validate_choice(data, 'species', species_choices)
+        else:
+            validated_data['species'] = 'Furva Vàng'
         
         # Notes validation
         if 'notes' in data:
@@ -249,8 +256,13 @@ class BeehiveValidator:
                 validated_data['split_date'] = None
         
         if 'health_status' in data:
-            health_choices = ['Tốt', 'Bình thường', 'Yếu']
+            health_choices = ['Tốt', 'Yếu']
             validated_data['health_status'] = Validator.validate_choice(data, 'health_status', health_choices)
+
+        # Species (optional on update)
+        if 'species' in data:
+            species_choices = ['Furva Vàng', 'Furva Đen']
+            validated_data['species'] = Validator.validate_choice(data, 'species', species_choices)
         
         if 'notes' in data:
             if data['notes']:

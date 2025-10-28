@@ -76,8 +76,6 @@ const SoldBeehives = () => {
     switch (status) {
       case 'Tốt':
         return 'default';
-      case 'Bình thường':
-        return 'secondary';
       case 'Yếu':
         return 'destructive';
       default:
@@ -89,8 +87,6 @@ const SoldBeehives = () => {
     switch (status) {
       case 'Tốt':
         return 'bg-green-100 text-green-700 border-green-300';
-      case 'Bình thường':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
       case 'Yếu':
         return 'bg-red-100 text-red-700 border-red-300';
       default:
@@ -145,6 +141,7 @@ const SoldBeehives = () => {
                     <TableHead className="font-semibold">Ngày nhập</TableHead>
                     <TableHead className="font-semibold">Ngày bán</TableHead>
                     <TableHead className="font-semibold">Tình trạng</TableHead>
+                    <TableHead className="font-semibold">Chủng loại</TableHead>
                     <TableHead className="font-semibold">Ghi chú</TableHead>
                     <TableHead className="text-right font-semibold">Thao tác</TableHead>
                   </TableRow>
@@ -152,7 +149,7 @@ const SoldBeehives = () => {
                 <TableBody>
                   {filteredBeehives.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center text-gray-500">
+                      <TableCell colSpan={7} className="text-center text-gray-500">
                         Không có dữ liệu
                       </TableCell>
                     </TableRow>
@@ -167,6 +164,7 @@ const SoldBeehives = () => {
                             {beehive.health_status}
                           </Badge>
                         </TableCell>
+                        <TableCell>{beehive.species || 'Furva Vàng'}</TableCell>
                         <TableCell className="max-w-xs truncate">{beehive.notes || '-'}</TableCell>
                         <TableCell className="text-right">
                           <Button
@@ -210,9 +208,14 @@ const SoldBeehives = () => {
                           <CardTitle className="text-base">{beehive.serial_number}</CardTitle>
                           <p className="text-sm text-gray-500">Ngày bán: {beehive.sold_date ? formatDate(beehive.sold_date) : '-'}</p>
                         </div>
-                        <Badge variant="outline" className={getHealthBadgeClass(beehive.health_status)}>
-                          {beehive.health_status}
-                        </Badge>
+                        <div className="flex flex-col gap-1">
+                          <Badge variant="outline" className={getHealthBadgeClass(beehive.health_status)}>
+                            {beehive.health_status}
+                          </Badge>
+                          <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-300">
+                            {beehive.species || 'Furva Vàng'}
+                          </Badge>
+                        </div>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-2">

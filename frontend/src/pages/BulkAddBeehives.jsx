@@ -15,15 +15,23 @@ const BulkAddBeehives = () => {
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    quantity: 1,
+    quantity: '1',
     import_date: new Date().toISOString().split('T')[0],
     health_status: 'Bình thường',
+    species: 'Furva Vàng',
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (formData.quantity < 1 || formData.quantity > 100) {
+    // Validate quantity explicitly to allow empty value
+    if (formData.quantity === '' || formData.quantity === null || formData.quantity === undefined) {
+      toast.error('Vui lòng nhập số lượng tổ ong');
+      return;
+    }
+
+    const quantityNumber = parseInt(formData.quantity, 10);
+    if (Number.isNaN(quantityNumber) || quantityNumber < 1 || quantityNumber > 100) {
       toast.error('Số lượng phải từ 1 đến 100');
       return;
     }
@@ -32,10 +40,11 @@ const BulkAddBeehives = () => {
 
     try {
       const beehives = [];
-      for (let i = 0; i < formData.quantity; i++) {
+      for (let i = 0; i < quantityNumber; i++) {
         beehives.push({
           import_date: formData.import_date,
           health_status: formData.health_status,
+          species: formData.species,
         });
       }
 
@@ -52,7 +61,7 @@ const BulkAddBeehives = () => {
       }
 
       if (results.length > 0) {
-        toast.success(`Đã thêm ${results.length}/${formData.quantity} tổ ong`);
+        toast.success(`Đã thêm ${results.length}/${quantityNumber} tổ ong`);
         
         // Automatically download PDF with QR codes
         try {
@@ -119,8 +128,7 @@ const BulkAddBeehives = () => {
                   min="1"
                   max="100"
                   value={formData.quantity}
-                  onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 1 })}
-                  required
+                  onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
                 />
                 <p className="text-sm text-gray-500">Tối đa 100 tổ ong mỗi lần</p>
               </div>
@@ -147,15 +155,30 @@ const BulkAddBeehives = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Tốt">Tốt</SelectItem>
-                    <SelectItem value="Bình thường">Bình thường</SelectItem>
                     <SelectItem value="Yếu">Yếu</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="species">Chủng loại <span className="text-red-500">*</span></Label>
+                <Select
+                  value={formData.species}
+                  onValueChange={(value) => setFormData({ ...formData, species: value })}
+                >
+                  <SelectTrigger id="species">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Furva Vàng">Furva Vàng</SelectItem>
+                    <SelectItem value="Furva Đen">Furva Đen</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
                 <p className="text-sm text-blue-800 font-medium">
-                  Hệ thống sẽ tự động tạo mã tổ ong và mã QR cho {formData.quantity} tổ ong.
+                  Hệ thống sẽ tự động tạo mã tổ ong và mã QR cho {formData.quantity || 0} tổ ong.
                 </p>
                 <p className="text-sm text-blue-800">
                   ⬇️ Sau khi thêm thành công, file PDF chứa mã QR của các tổ ong sẽ được tự động tải xuống.
@@ -165,7 +188,7 @@ const BulkAddBeehives = () => {
 
               <div className="flex gap-3 pt-4">
                 <Button type="submit" disabled={loading} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white">
-                  {loading ? 'Đang thêm...' : `Thêm ${formData.quantity} tổ ong`}
+                  {loading ? 'Đang thêm...' : `Thêm ${formData.quantity || 0} tổ ong`}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => navigate('/')} className="border-amber-500 text-amber-700 hover:bg-amber-50">
                   Hủy
