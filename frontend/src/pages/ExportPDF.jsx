@@ -12,6 +12,7 @@ import beeIcon from '../assets/bee-icon.png';
 const ExportPDF = () => {
   const navigate = useNavigate();
   const [beehives, setBeehives] = useState([]);
+  const [filterDate, setFilterDate] = useState('');
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [generating, setGenerating] = useState(false);
 
@@ -53,10 +54,10 @@ const ExportPDF = () => {
   };
 
   const toggleSelectAll = () => {
-    if (selectedIds.size === beehives.length) {
+    if (selectedIds.size === filteredBeehives.length) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(beehives.map(b => b.serial_number)));
+      setSelectedIds(new Set(filteredBeehives.map(b => b.serial_number)));
     }
   };
 
@@ -92,6 +93,12 @@ const ExportPDF = () => {
     }
   };
 
+  // Derived: filtered list by import_date (YYYY-MM-DD)
+  const filteredBeehives = beehives.filter((b) => {
+    if (!filterDate) return true;
+    return (b.import_date || '').startsWith(filterDate);
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white">
       <header className="bg-gradient-to-r from-amber-500 to-yellow-500 border-b border-amber-400 shadow-md">
@@ -116,6 +123,27 @@ const ExportPDF = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Filters */}
+            <div className="flex items-center gap-3">
+              <div className="space-y-1">
+                <label htmlFor="filter_date" className="text-sm text-gray-600">Lọc theo ngày nhập</label>
+                <input
+                  id="filter_date"
+                  type="date"
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                  className="border rounded-md px-3 py-2 text-sm"
+                />
+              </div>
+              {filterDate && (
+                <Button variant="outline" onClick={() => setFilterDate('')} className="mt-6 h-9">
+                  Xóa lọc
+                </Button>
+              )}
+              <div className="ml-auto text-sm text-gray-600 mt-6">
+                Tổng: {filteredBeehives.length}
+              </div>
+            </div>
             {beehives.length === 0 ? (
               <p className="text-center text-gray-500 py-8">
                 Không có tổ ong nào để xuất
@@ -125,12 +153,12 @@ const ExportPDF = () => {
                 <div className="flex items-center justify-between pb-3 border-b">
                   <div className="flex items-center gap-2">
                     <Checkbox
-                      checked={selectedIds.size === beehives.length}
+                      checked={filteredBeehives.length > 0 && selectedIds.size === filteredBeehives.length}
                       onCheckedChange={toggleSelectAll}
                       id="select-all"
                     />
                     <label htmlFor="select-all" className="text-sm cursor-pointer">
-                      Chọn tất cả ({beehives.length})
+                      Chọn tất cả ({filteredBeehives.length})
                     </label>
                   </div>
                   <p className="text-sm text-gray-500">
@@ -139,7 +167,7 @@ const ExportPDF = () => {
                 </div>
 
                 <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {beehives.map((beehive) => (
+                  {filteredBeehives.map((beehive) => (
                     <div
                       key={beehive.serial_number}
                       className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50"
