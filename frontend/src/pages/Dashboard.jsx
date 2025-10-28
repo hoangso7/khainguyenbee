@@ -7,7 +7,7 @@ import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { AlertDialog } from '../components/ui/alert-dialog';
-import { Plus, Search, QrCode, FileDown, ShoppingCart, Settings, LogOut, Eye, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, QrCode, FileDown, ShoppingCart, Settings, LogOut, Eye, Edit, Trash2, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDate } from '../utils/dateUtils';
 import beeIcon from '../assets/bee-icon.png';
@@ -23,6 +23,7 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [healthFilter, setHealthFilter] = useState(''); // '' = all, 'Tốt' or 'Yếu'
   const [speciesFilter, setSpeciesFilter] = useState(''); // '' = all, 'Furva Vàng' or 'Furva Đen'
+  const [showFilters, setShowFilters] = useState(false);
   
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [beehiveToDelete, setBeehiveToDelete] = useState(null);
@@ -243,8 +244,8 @@ const Dashboard = () => {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-              <div className="relative md:col-span-2">
+            <div className="flex gap-3 items-center">
+              <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   placeholder="Tìm theo mã tổ, ngày nhập, ghi chú"
@@ -253,31 +254,65 @@ const Dashboard = () => {
                   className="pl-10"
                 />
               </div>
-              <div>
-                <label className="text-sm text-gray-600">Lọc theo sức khoẻ</label>
-                <select
-                  value={healthFilter}
-                  onChange={(e) => setHealthFilter(e.target.value)}
-                  className="w-full mt-1 border rounded-md px-3 py-2 bg-white"
-                >
-                  <option value="">Tất cả</option>
-                  <option value="Tốt">Tốt</option>
-                  <option value="Yếu">Yếu</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-sm text-gray-600">Lọc theo chủng loại</label>
-                <select
-                  value={speciesFilter}
-                  onChange={(e) => setSpeciesFilter(e.target.value)}
-                  className="w-full mt-1 border rounded-md px-3 py-2 bg-white"
-                >
-                  <option value="">Tất cả</option>
-                  <option value="Furva Vàng">Furva Vàng</option>
-                  <option value="Furva Đen">Furva Đen</option>
-                </select>
-              </div>
+              <Button
+                variant="outline"
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-2 ${showFilters ? 'bg-amber-50 border-amber-300' : ''}`}
+              >
+                <Filter className="w-4 h-4" />
+                Lọc
+                {(healthFilter || speciesFilter) && (
+                  <Badge variant="secondary" className="ml-1 text-xs">
+                    {(healthFilter ? 1 : 0) + (speciesFilter ? 1 : 0)}
+                  </Badge>
+                )}
+              </Button>
             </div>
+
+            {/* Filter Options - Collapsible */}
+            {showFilters && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg border">
+                <div>
+                  <label className="text-sm text-gray-600 font-medium">Lọc theo sức khoẻ</label>
+                  <select
+                    value={healthFilter}
+                    onChange={(e) => setHealthFilter(e.target.value)}
+                    className="w-full mt-1 border rounded-md px-3 py-2 bg-white"
+                  >
+                    <option value="">Tất cả</option>
+                    <option value="Tốt">Tốt</option>
+                    <option value="Yếu">Yếu</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600 font-medium">Lọc theo chủng loại</label>
+                  <select
+                    value={speciesFilter}
+                    onChange={(e) => setSpeciesFilter(e.target.value)}
+                    className="w-full mt-1 border rounded-md px-3 py-2 bg-white"
+                  >
+                    <option value="">Tất cả</option>
+                    <option value="Furva Vàng">Furva Vàng</option>
+                    <option value="Furva Đen">Furva Đen</option>
+                  </select>
+                </div>
+                {(healthFilter || speciesFilter) && (
+                  <div className="md:col-span-2 flex justify-end">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setHealthFilter('');
+                        setSpeciesFilter('');
+                      }}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      Xóa bộ lọc
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Desktop Table */}
             <div className="hidden md:block overflow-x-auto">
