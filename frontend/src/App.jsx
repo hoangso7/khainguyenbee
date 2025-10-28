@@ -8,7 +8,6 @@ import AddBeehive from './pages/AddBeehive';
 import BulkAddBeehives from './pages/BulkAddBeehives';
 import EditBeehive from './pages/EditBeehive';
 import BeehiveDetail from './pages/BeehiveDetail';
-import QRBeehiveDetail from './pages/QRBeehiveDetail';
 import ExportPDF from './pages/ExportPDF';
 import SoldBeehives from './pages/SoldBeehives';
 import ProfileSettings from './pages/ProfileSettings';
@@ -29,7 +28,6 @@ function App() {
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/setup" element={<Setup />} />
-        <Route path="/qr/:token" element={<QRBeehiveDetail />} />
         <Route path="/beehive/:qrToken" element={<BeehiveDetail />} />
 
         {/* Protected Routes */}
