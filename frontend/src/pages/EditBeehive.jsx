@@ -15,6 +15,7 @@ const EditBeehive = () => {
   const navigate = useNavigate();
   const { serialNumber } = useParams();
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [beehive, setBeehive] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -26,15 +27,10 @@ const EditBeehive = () => {
     sold_date: '',
   });
 
-  useEffect(() => {
-    if (serialNumber) {
-      loadBeehive();
-    }
-  }, [serialNumber, loadBeehive]);
-
   const loadBeehive = useCallback(async () => {
     console.log('🔍 EditBeehive: Starting to load beehive with serialNumber:', serialNumber);
     try {
+      setInitialLoading(true);
       const data = await apiService.getBeehive(serialNumber);
       console.log('✅ EditBeehive: API response received:', data);
       
@@ -61,8 +57,17 @@ const EditBeehive = () => {
       console.error('❌ EditBeehive: Error loading beehive:', error);
       toast.error('Không tìm thấy tổ ong');
       // Don't navigate away, let the component show error state
+    } finally {
+      setInitialLoading(false);
     }
-  }, [serialNumber, navigate]);
+  }, [serialNumber]);
+
+  useEffect(() => {
+    if (serialNumber) {
+      loadBeehive();
+    }
+  }, [serialNumber, loadBeehive]);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -97,6 +102,21 @@ const EditBeehive = () => {
       setLoading(false);
     }
   };
+
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white flex items-center justify-center p-4">
+        <Card className="max-w-md w-full">
+          <CardHeader>
+            <CardTitle className="text-center">Đang tải thông tin tổ ong...</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center text-gray-600">
+            <p>Vui lòng chờ trong giây lát.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!beehive) {
     return (
@@ -161,7 +181,7 @@ const EditBeehive = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 mb-6">
                 <Label htmlFor="health_status">Tình trạng sức khỏe <span className="text-red-500">*</span></Label>
                 <Select
                   value={formData.health_status}
@@ -170,10 +190,15 @@ const EditBeehive = () => {
                   <SelectTrigger id="health_status">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Tốt">Tốt</SelectItem>
-                    <SelectItem value="Bình thường">Bình thường</SelectItem>
-                    <SelectItem value="Yếu">Yếu</SelectItem>
+                  <SelectContent 
+                    className="z-[9999] bg-white border border-gray-200 shadow-lg rounded-md" 
+                    position="popper"
+                    sideOffset={4}
+                    align="start"
+                  >
+                    <SelectItem value="Tốt" className="hover:bg-gray-100 cursor-pointer">Tốt</SelectItem>
+                    <SelectItem value="Bình thường" className="hover:bg-gray-100 cursor-pointer">Bình thường</SelectItem>
+                    <SelectItem value="Yếu" className="hover:bg-gray-100 cursor-pointer">Yếu</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -189,30 +214,23 @@ const EditBeehive = () => {
                 />
               </div>
 
-              <div className="border rounded-lg p-4 space-y-4">
+              <div className="border rounded-lg p-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label htmlFor="is_sold">Đã bán</Label>
-                    <p className="text-sm text-gray-500">Đánh dấu tổ ong này đã được bán</p>
+                    <Label htmlFor="is_sold">Trạng thái bán</Label>
+                    <p className="text-sm text-gray-500">
+                      {formData.is_sold 
+                        ? `Đã bán - Ngày bán: ${formData.sold_date ? new Date(formData.sold_date).toLocaleDateString('vi-VN') : 'Chưa có ngày'}`
+                        : 'Chưa bán'
+                      }
+                    </p>
                   </div>
                   <Switch
                     id="is_sold"
                     checked={formData.is_sold}
-                    onCheckedChange={(checked) => setFormData({ ...formData, is_sold: checked })}
+                    disabled={true}
                   />
                 </div>
-
-                {formData.is_sold && (
-                  <div className="space-y-2">
-                    <Label htmlFor="sold_date">Ngày bán</Label>
-                    <Input
-                      id="sold_date"
-                      type="date"
-                      value={formData.sold_date}
-                      onChange={(e) => setFormData({ ...formData, sold_date: e.target.value })}
-                    />
-                  </div>
-                )}
               </div>
 
               <div className="flex gap-3 pt-4">

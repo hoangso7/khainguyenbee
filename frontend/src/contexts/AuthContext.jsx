@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, createContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { checkAuth } from '../store/slices/authSlice';
-import { AuthContext } from './AuthContext';
+
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const dispatch = useDispatch();
@@ -10,12 +11,12 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('auth_token');
       if (token) {
         try {
           await dispatch(checkAuth()).unwrap();
         } catch {
-          localStorage.removeItem('token');
+          localStorage.removeItem('auth_token');
         }
       }
       setInitialLoading(false);

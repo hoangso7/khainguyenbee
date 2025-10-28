@@ -1,26 +1,26 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../../services/api';
+import apiService from '../../lib/api.js';
 
 export const login = createAsyncThunk(
   'auth/login',
   async (credentials) => {
-    const response = await api.post('/auth/login', credentials);
-    return response.data;
+    const response = await apiService.login(credentials.username, credentials.password);
+    return response;
   }
 );
 
 export const logout = createAsyncThunk(
   'auth/logout',
   async () => {
-    await api.post('/auth/logout');
+    await apiService.logout();
   }
 );
 
 export const checkAuth = createAsyncThunk(
   'auth/checkAuth',
   async () => {
-    const response = await api.get('/auth/me');
-    return response.data;
+    const response = await apiService.getCurrentUser();
+    return response;
   }
 );
 

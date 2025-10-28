@@ -41,11 +41,16 @@ const SoldBeehives = () => {
     }
   };
 
-  const filteredBeehives = beehives.filter(b =>
-    b.serial_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    b.qr_token.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (b.notes && b.notes.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredBeehives = beehives.filter(b => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      b.serial_number.toLowerCase().includes(searchLower) ||
+      b.qr_token.toLowerCase().includes(searchLower) ||
+      (b.notes && b.notes.toLowerCase().includes(searchLower)) ||
+      (b.sold_date && b.sold_date.includes(searchLower)) ||
+      (b.sold_date && new Date(b.sold_date).toLocaleDateString('vi-VN').includes(searchLower))
+    );
+  });
 
   const getHealthBadgeVariant = (status) => {
     switch (status) {
@@ -85,7 +90,7 @@ const SoldBeehives = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
-                placeholder="Tìm kiếm..."
+                placeholder="Tìm kiếm theo mã tổ, QR token, ghi chú hoặc ngày bán..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"

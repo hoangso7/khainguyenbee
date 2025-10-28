@@ -6,6 +6,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
+import { AlertDialog } from '../components/ui/alert-dialog';
 import { Plus, Search, QrCode, FileDown, ShoppingCart, Settings, LogOut, Eye, Edit, Trash2, Filter, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDate } from '../utils/dateUtils';
@@ -23,51 +24,48 @@ const Dashboard = () => {
     split_date: '',
     notes: ''
   });
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [beehiveToDelete, setBeehiveToDelete] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(async () => {
     try {
-      // Prepare search parameters
-      const searchParams = {};
-      
-      // If searchTerm is provided, use it for general search
-      if (searchTerm.trim()) {
-        // Try to parse as date first
-        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-        if (dateRegex.test(searchTerm.trim())) {
-          // If it's a date format, search in import_date
-          searchParams.import_date = searchTerm.trim();
-        } else {
-          // Otherwise search in serial number and notes
-          searchParams.serialNumber = searchTerm.trim();
-          searchParams.notes = searchTerm.trim();
-        }
+      setLoading(true);
+      // Load all active beehives (paginate) similar to Sold page for consistent search
+      let allBeehives = [];
+      let page = 1;
+      const perPage = 100;
+      let hasMore = true;
+
+      while (hasMore) {
+        const response = await apiService.getBeehives(page, perPage, {});
+        const pageBeehives = (response.beehives || []).filter(b => !b.is_sold);
+        allBeehives = [...allBeehives, ...pageBeehives];
+        hasMore = (response.beehives || []).length === perPage;
+        page += 1;
       }
-      
-      // Add specific filters (these override searchTerm if both are provided)
-      Object.keys(filters).forEach(key => {
-        if (filters[key]) {
-          searchParams[key] = filters[key];
-        }
-      });
-      
-      const [beehivesResponse, statsResponse, userResponse] = await Promise.all([
-        apiService.getBeehives(1, 10, searchParams),
+
+      setBeehives(allBeehives);
+      const [statsResponse, userResponse] = await Promise.all([
         apiService.getStats(),
         apiService.getCurrentUser()
       ]);
-      
-      setBeehives(beehivesResponse.beehives || []);
-      // Map backend stats to frontend format
+      // Compute health breakdown from active beehives and use backend total
+      const goodCount = allBeehives.filter(b => b.health_status === 'Tốt').length;
+      const normalCount = allBeehives.filter(b => b.health_status === 'Bình thường').length;
+      const weakCount = allBeehives.filter(b => b.health_status === 'Yếu').length;
       setStats({
         total: statsResponse.total || 0,
-        good: statsResponse.healthy || 0,
-        normal: statsResponse.active - statsResponse.healthy || 0,
-        weak: 0, // Backend doesn't track weak separately
+        good: goodCount,
+        normal: normalCount,
+        weak: weakCount,
       });
       setUser(userResponse);
     } catch (error) {
       toast.error('Không thể tải dữ liệu');
       console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
     }
   }, [searchTerm, filters]);
 
@@ -96,15 +94,18 @@ const Dashboard = () => {
     return searchTerm.trim() || Object.values(filters).some(value => value.trim());
   };
 
-  const handleDelete = async (serialNumber) => {
-    if (confirm('Bạn có chắc muốn xóa tổ ong này?')) {
-      try {
-        await apiService.deleteBeehive(serialNumber);
-        toast.success('Đã xóa tổ ong');
-        loadData();
-      } catch {
-        toast.error('Không thể xóa tổ ong');
-      }
+  const handleDelete = (serialNumber) => {
+    setBeehiveToDelete(serialNumber);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await apiService.deleteBeehive(beehiveToDelete);
+      toast.success('Đã xóa tổ ong');
+      loadData();
+    } catch {
+      toast.error('Không thể xóa tổ ong');
     }
   };
 
@@ -163,25 +164,25 @@ const Dashboard = () => {
           <Card>
             <CardHeader className="pb-2">
               <CardDescription>Tổng số tổ</CardDescription>
-              <CardTitle>{stats.total}</CardTitle>
+              <CardTitle>{loading ? '...' : stats.total}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardDescription>Tổ khỏe</CardDescription>
-              <CardTitle className="text-green-600">{stats.healthy}</CardTitle>
+              <CardTitle className="text-green-600">{loading ? '...' : stats.good}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardDescription>Tổ bình thường</CardDescription>
-              <CardTitle className="text-blue-600">{stats.normal}</CardTitle>
+              <CardTitle className="text-blue-600">{loading ? '...' : stats.normal}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardDescription>Tổ yếu</CardDescription>
-              <CardTitle className="text-red-600">{stats.weak}</CardTitle>
+              <CardTitle className="text-red-600">{loading ? '...' : stats.weak}</CardTitle>
             </CardHeader>
           </Card>
         </div>
@@ -237,7 +238,7 @@ const Dashboard = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
-                placeholder="Tìm kiếm nhanh: mã tổ, ngày (YYYY-MM-DD), hoặc ghi chú..."
+                placeholder="Tìm theo mã tổ, QR token, ngày nhập (YYYY-MM-DD) hoặc ghi chú..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -304,14 +305,34 @@ const Dashboard = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {beehives.length === 0 ? (
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-gray-500">
+                        Đang tải dữ liệu...
+                      </TableCell>
+                    </TableRow>
+                  ) : beehives.length === 0 ? (
                 <TableRow>
                       <TableCell colSpan={6} className="text-center text-gray-500">
                         Không có dữ liệu
                   </TableCell>
                     </TableRow>
                   ) : (
-                    beehives.map((beehive) => (
+                    // Client-side search to match Sold page behavior
+                    beehives
+                      .filter((b) => {
+                        const term = searchTerm.trim().toLowerCase();
+                        if (!term) return true;
+                        const importDateLocal = b.import_date ? new Date(b.import_date).toLocaleDateString('vi-VN') : '';
+                        return (
+                          (b.serial_number || '').toLowerCase().includes(term) ||
+                          (b.qr_token || '').toLowerCase().includes(term) ||
+                          (b.notes || '').toLowerCase().includes(term) ||
+                          (b.import_date || '').includes(term) ||
+                          importDateLocal.includes(term)
+                        );
+                      })
+                      .map((beehive) => (
                       <TableRow key={beehive.serial_number}>
                         <TableCell>{beehive.serial_number}</TableCell>
                         <TableCell>{formatDate(beehive.import_date)}</TableCell>
@@ -348,7 +369,7 @@ const Dashboard = () => {
                           </div>
                   </TableCell>
                 </TableRow>
-                    ))
+                      ))
                   )}
               </TableBody>
             </Table>
@@ -356,10 +377,25 @@ const Dashboard = () => {
 
             {/* Mobile Cards */}
             <div className="md:hidden space-y-3">
-              {beehives.length === 0 ? (
+              {loading ? (
+                <p className="text-center text-gray-500 py-8">Đang tải dữ liệu...</p>
+              ) : beehives.length === 0 ? (
                 <p className="text-center text-gray-500 py-8">Không có dữ liệu</p>
               ) : (
-                beehives.map((beehive) => (
+                beehives
+                  .filter((b) => {
+                    const term = searchTerm.trim().toLowerCase();
+                    if (!term) return true;
+                    const importDateLocal = b.import_date ? new Date(b.import_date).toLocaleDateString('vi-VN') : '';
+                    return (
+                      (b.serial_number || '').toLowerCase().includes(term) ||
+                      (b.qr_token || '').toLowerCase().includes(term) ||
+                      (b.notes || '').toLowerCase().includes(term) ||
+                      (b.import_date || '').includes(term) ||
+                      importDateLocal.includes(term)
+                    );
+                  })
+                  .map((beehive) => (
                   <Card key={beehive.serial_number}>
                     <CardHeader className="pb-3">
                       <div className="flex justify-between items-start">
@@ -408,12 +444,24 @@ const Dashboard = () => {
                       </div>
                     </CardContent>
                   </Card>
-                ))
+                  ))
           )}
             </div>
         </CardContent>
       </Card>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        title="Xác nhận xóa tổ ong"
+        description={`Bạn có chắc chắn muốn xóa tổ ong ${beehiveToDelete}? Hành động này không thể hoàn tác.`}
+        confirmText="Xóa"
+        cancelText="Hủy"
+        onConfirm={confirmDelete}
+        variant="destructive"
+      />
     </div>
   );
 };

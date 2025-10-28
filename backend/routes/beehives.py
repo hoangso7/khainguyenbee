@@ -9,14 +9,14 @@ import logging
 import io
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image as RLImage, KeepTogether
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image as RLImage
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 
 from ..models import Beehive, User, db
 from ..utils.validators import BeehiveValidator, QueryValidator
-from ..utils.errors import NotFoundError, DatabaseError, ValidationError, handle_database_error, validation_error_handler
 from ..utils.qr_generator import QRCodeGenerator
+from ..utils.errors import NotFoundError, DatabaseError, ValidationError, handle_database_error, validation_error_handler
 
 logger = logging.getLogger(__name__)
 
@@ -329,8 +329,12 @@ def update_beehive(serial_number):
         if not data:
             raise ValidationError('No data provided')
         
+        logger.info(f"Update beehive data received: {data}")
+        
         # Validate input
         validated_data = BeehiveValidator.validate_beehive_update_data(data)
+        
+        logger.info(f"Validated data: {validated_data}")
         
         # Update fields
         if 'import_date' in validated_data:
@@ -341,8 +345,16 @@ def update_beehive(serial_number):
             beehive.health_status = validated_data['health_status']
         if 'notes' in validated_data:
             beehive.notes = validated_data['notes']
+        if 'is_sold' in validated_data:
+            beehive.is_sold = validated_data['is_sold']
+            logger.info(f'Setting is_sold to {validated_data["is_sold"]}')
+        if 'sold_date' in validated_data:
+            beehive.sold_date = validated_data['sold_date']
+            logger.info(f'Setting sold_date to {validated_data["sold_date"]}')
         
+        logger.info(f'Before commit - is_sold: {beehive.is_sold}, sold_date: {beehive.sold_date}')
         db.session.commit()
+        logger.info(f'After commit - is_sold: {beehive.is_sold}, sold_date: {beehive.sold_date}')
         
         logger.info(f'Beehive {serial_number} updated successfully by user {current_user_id}')
         
@@ -613,14 +625,21 @@ def export_bulk_qr_pdf():
                     qr_buffer = QRCodeGenerator.generate_qr_image(beehive.qr_token)
                     qr_img = RLImage(qr_buffer, width=qr_size, height=qr_size)
                     
-                    # Create cell with QR code centered and serial number below
-                    cell_elements = [
-                        qr_img,
-                        Spacer(1, 0.05*cm),
-                        Paragraph(f'<para align="center"><font size="8"><b>{beehive.serial_number}</b></font></para>', styles['Normal'])
-                    ]
+                    # Create a simple table for each QR code cell
+                    qr_table = Table([
+                        [qr_img],
+                        [Paragraph(f'<para align="center"><font size="8"><b>{beehive.serial_number}</b></font></para>', styles['Normal'])]
+                    ], colWidths=[cell_width], rowHeights=[qr_size, 0.5*cm])
+                    qr_table.setStyle(TableStyle([
+                        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                        ('LEFTPADDING', (0, 0), (-1, -1), 2),
+                        ('RIGHTPADDING', (0, 0), (-1, -1), 2),
+                        ('TOPPADDING', (0, 0), (-1, -1), 2),
+                        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+                    ]))
                     
-                    qr_cells.append(KeepTogether(cell_elements))
+                    qr_cells.append(qr_table)
                 except Exception as e:
                     logger.error(f'Error generating QR for {beehive.serial_number}: {str(e)}')
                     # Fallback: just show serial number
@@ -661,7 +680,12 @@ def export_bulk_qr_pdf():
         
         logger.info(f'Bulk QR PDF exported for {len(beehives)} beehives by user {current_user_id}')
         
-        return send_file(buffer, as_attachment=True, download_name=filename, mimetype='application/pdf')
+        return send_file(
+            buffer,
+            as_attachment=True,
+            download_name=filename,
+            mimetype='application/pdf'
+        )
         
     except ValidationError:
         raise

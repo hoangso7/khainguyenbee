@@ -68,63 +68,24 @@ const ExportPDF = () => {
     setGenerating(true);
 
     try {
-      const selectedBeehives = beehives.filter(b => selectedIds.has(b.serial_number));
+      const selectedSerialNumbers = Array.from(selectedIds);
       
-      // Create a simple HTML content for PDF
-      const htmlContent = `
-        <html>
-          <head>
-            <title>Danh sách tổ ong</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 20px; }
-              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-              th { background-color: #f2f2f2; }
-              .header { text-align: center; margin-bottom: 30px; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <h1>Danh sách tổ ong</h1>
-              <p>Ngày xuất: ${new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
-            </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Mã tổ</th>
-                  <th>Ngày nhập</th>
-                  <th>Tình trạng</th>
-                  <th>Ghi chú</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${selectedBeehives.map(beehive => `
-                  <tr>
-                    <td>${beehive.serial_number}</td>
-                    <td>${formatDate(beehive.import_date)}</td>
-                    <td>${beehive.health_status}</td>
-                    <td>${beehive.notes || '-'}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </body>
-        </html>
-      `;
-
-      // Create a blob and download
-      const blob = new Blob([htmlContent], { type: 'text/html' });
+      // Call backend API to generate PDF
+      const blob = await apiService.exportBulkQRPDF(selectedSerialNumbers);
+      
+      // Create download link
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `Danh_sach_to_ong_${new Date().toISOString().split('T')[0]}.html`;
+      const timestamp = new Date().toISOString().split('T')[0];
+      link.download = `Danh_sach_to_ong_${timestamp}.pdf`;
       link.click();
       URL.revokeObjectURL(url);
 
       toast.success(`Đã tải danh sách ${selectedIds.size} tổ ong`);
     } catch (error) {
       console.error('Error generating PDF:', error);
-      toast.error('Có lỗi khi tạo file');
+      toast.error('Có lỗi khi tạo file PDF');
     } finally {
       setGenerating(false);
     }

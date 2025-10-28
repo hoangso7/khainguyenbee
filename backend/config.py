@@ -53,8 +53,8 @@ class Config:
     CORS_ORIGINS = list(set(filter(None, CORS_ORIGINS)))
     
     # Security Configuration
-    RATE_LIMIT_ENABLED = os.getenv('RATE_LIMIT_ENABLED', 'True').lower() == 'true'
-    RATE_LIMIT_DEFAULT = os.getenv('RATE_LIMIT_DEFAULT', '100 per hour')
+    RATE_LIMIT_ENABLED = False
+    RATE_LIMIT_DEFAULT = os.getenv('RATE_LIMIT_DEFAULT', '1000 per hour')
     
     # Logging Configuration
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')

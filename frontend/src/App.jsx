@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from './components/ui/sonner';
-import apiService from './lib/api.js';
 import Login from './pages/Login';
 import Setup from './pages/Setup';
 import Dashboard from './pages/Dashboard';
@@ -16,7 +15,7 @@ import ProfileSettings from './pages/ProfileSettings';
 import './index.css';
 
 function ProtectedRoute({ children }) {
-  const token = apiService.getToken();
+  const token = localStorage.getItem('auth_token');
   if (!token) {
     return <Navigate to="/login" replace />;
   }
@@ -95,7 +94,7 @@ function App() {
         <Route
           path="*"
           element={
-            apiService.getToken() ? (
+            localStorage.getItem('auth_token') ? (
               <Navigate to="/" replace />
             ) : (
               <Navigate to="/login" replace />

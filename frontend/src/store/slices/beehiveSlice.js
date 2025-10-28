@@ -1,59 +1,59 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../../services/api';
+import apiService from '../../lib/api.js';
 
 // Async thunks for API calls
 export const fetchBeehives = createAsyncThunk(
   'beehives/fetchBeehives',
   async (params = {}) => {
-    const response = await api.get('/beehives', { params });
-    return response.data;
+    const response = await apiService.getBeehives(params.page || 1, params.perPage || 20, params);
+    return response;
   }
 );
 
 export const fetchSoldBeehives = createAsyncThunk(
   'beehives/fetchSoldBeehives',
   async (params = {}) => {
-    const response = await api.get('/sold-beehives', { params });
-    return response.data;
+    const response = await apiService.getSoldBeehives(params.page || 1, params.perPage || 20);
+    return response;
   }
 );
 
 export const fetchBeehiveStats = createAsyncThunk(
   'beehives/fetchStats',
   async () => {
-    const response = await api.get('/stats');
-    return response.data;
+    const response = await apiService.getStats();
+    return response;
   }
 );
 
 export const fetchBeehive = createAsyncThunk(
   'beehives/fetchBeehive',
   async (serialNumber) => {
-    const response = await api.get(`/beehives/${serialNumber}`);
-    return response.data;
+    const response = await apiService.getBeehive(serialNumber);
+    return response;
   }
 );
 
 export const createBeehive = createAsyncThunk(
   'beehives/createBeehive',
   async (beehiveData) => {
-    const response = await api.post('/beehives', beehiveData);
-    return response.data;
+    const response = await apiService.createBeehive(beehiveData);
+    return response;
   }
 );
 
 export const updateBeehive = createAsyncThunk(
   'beehives/updateBeehive',
   async ({ serialNumber, data }) => {
-    const response = await api.put(`/beehives/${serialNumber}`, data);
-    return response.data;
+    const response = await apiService.updateBeehive(serialNumber, data);
+    return response;
   }
 );
 
 export const deleteBeehive = createAsyncThunk(
   'beehives/deleteBeehive',
   async (serialNumber) => {
-    await api.delete(`/beehives/${serialNumber}`);
+    await apiService.deleteBeehive(serialNumber);
     return serialNumber;
   }
 );
@@ -61,16 +61,16 @@ export const deleteBeehive = createAsyncThunk(
 export const sellBeehive = createAsyncThunk(
   'beehives/sellBeehive',
   async (serialNumber) => {
-    const response = await api.post(`/beehives/${serialNumber}/sell`);
-    return response.data;
+    const response = await apiService.sellBeehive(serialNumber);
+    return response;
   }
 );
 
 export const unsellBeehive = createAsyncThunk(
   'beehives/unsellBeehive',
   async (serialNumber) => {
-    const response = await api.post(`/beehives/${serialNumber}/unsell`);
-    return response.data;
+    const response = await apiService.unsellBeehive(serialNumber);
+    return response;
   }
 );
 

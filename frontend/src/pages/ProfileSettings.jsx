@@ -14,6 +14,7 @@ const ProfileSettings = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  // We will use placeholders to show existing values; controlled values stay empty until user types
 
   const [formData, setFormData] = useState({
     business_name: '',
@@ -34,24 +35,55 @@ const ProfileSettings = () => {
     loadUser();
   }, []);
 
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const getExistingValue = (field) => {
+    switch (field) {
+      case 'email':
+        return user?.email || '';
+      case 'business_name':
+        return user?.business_name || user?.farmName || '';
+      case 'contact_info':
+        return user?.contact_info || user?.farmPhone || '';
+      case 'farm_name':
+        return user?.farmName || '';
+      case 'farm_address':
+        return user?.farmAddress || '';
+      case 'farm_phone':
+        return user?.farmPhone || '';
+      case 'qr_custom_message':
+        return user?.qrDisplaySettings?.customMessage || '';
+      case 'qr_footer_text':
+        return user?.qrDisplaySettings?.footerText || '';
+      default:
+        return '';
+    }
+  };
+
   const loadUser = async () => {
     try {
       const userData = await apiService.getCurrentUser();
       setUser(userData);
-      setFormData({
-        business_name: userData.business_name || '',
-        contact_info: userData.contact_info || '',
-        email: userData.email || '',
-        farm_name: userData.farmName || '',
-        farm_address: userData.farmAddress || '',
-        farm_phone: userData.farmPhone || '',
+      // Do NOT prefill text fields so existing values appear dimmed until typing
+      setFormData(prev => ({
+        ...prev,
+        business_name: '',
+        contact_info: '',
+        email: '',
+        farm_name: '',
+        farm_address: '',
+        farm_phone: '',
+        // Keep switches in sync with server
         qr_show_farm_info: userData.qrDisplaySettings?.showFarmInfo ?? true,
         qr_show_owner_contact: userData.qrDisplaySettings?.showOwnerContact ?? true,
         qr_show_beehive_history: userData.qrDisplaySettings?.showBeehiveHistory ?? true,
         qr_show_health_status: userData.qrDisplaySettings?.showHealthStatus ?? true,
-        qr_custom_message: userData.qrDisplaySettings?.customMessage || '',
+        // Leave custom texts empty to allow dimmed display of existing values
+        qr_custom_message: '',
         qr_footer_text: userData.qrDisplaySettings?.footerText || 'Cảm ơn bạn đã tin tưởng sản phẩm của chúng tôi',
-      });
+      }));
     } catch {
       toast.error('Không thể tải thông tin người dùng');
     }
@@ -62,21 +94,49 @@ const ProfileSettings = () => {
     setLoading(true);
 
     try {
-      const updateData = {
-        business_name: formData.business_name,
-        contact_info: formData.contact_info,
-        email: formData.email,
-        farmName: formData.farm_name,
-        farmAddress: formData.farm_address,
-        farmPhone: formData.farm_phone,
-        qrDisplaySettings: {
-          showFarmInfo: formData.qr_show_farm_info,
-          showOwnerContact: formData.qr_show_owner_contact,
-          showBeehiveHistory: formData.qr_show_beehive_history,
-          showHealthStatus: formData.qr_show_health_status,
-          customMessage: formData.qr_custom_message,
-          footerText: formData.qr_footer_text,
-        }
+      // Chỉ gửi những field có giá trị, giữ nguyên data trong DB cho field trống
+      const updateData = {};
+      
+      // Chỉ gửi email nếu có giá trị
+      if (formData.email.trim()) {
+        updateData.email = formData.email;
+      }
+      
+      // Chỉ gửi business_name nếu có giá trị
+      if (formData.business_name.trim()) {
+        updateData.business_name = formData.business_name;
+      }
+      
+      // Chỉ gửi contact_info nếu có giá trị
+      if (formData.contact_info.trim()) {
+        updateData.contact_info = formData.contact_info;
+      }
+      
+      // Chỉ gửi farm_name nếu có giá trị
+      if (formData.farm_name.trim()) {
+        updateData.farmName = formData.farm_name;
+      }
+      
+      // Chỉ gửi farm_address nếu có giá trị
+      if (formData.farm_address.trim()) {
+        updateData.farmAddress = formData.farm_address;
+      }
+      
+      // Chỉ gửi farm_phone nếu có giá trị
+      if (formData.farm_phone.trim()) {
+        updateData.farmPhone = formData.farm_phone;
+      }
+      
+      // Luôn gửi qrDisplaySettings vì đây là các switch có giá trị boolean
+      updateData.qrDisplaySettings = {
+        showFarmInfo: formData.qr_show_farm_info,
+        showOwnerContact: formData.qr_show_owner_contact,
+        showBeehiveHistory: formData.qr_show_beehive_history,
+        showHealthStatus: formData.qr_show_health_status,
+        // Chỉ gửi customMessage nếu có giá trị
+        customMessage: formData.qr_custom_message.trim() ? formData.qr_custom_message : undefined,
+        // Luôn gửi footerText vì có giá trị mặc định
+        footerText: formData.qr_footer_text,
       };
       
       await apiService.updateProfile(updateData);
@@ -107,7 +167,7 @@ const ProfileSettings = () => {
             <CardDescription>Cập nhật thông tin cá nhân và doanh nghiệp</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
               <div className="space-y-2">
                 <Label htmlFor="username">Tên đăng nhập</Label>
                 <Input
@@ -126,8 +186,8 @@ const ProfileSettings = () => {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  required
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  placeholder={getExistingValue('email')}
                 />
               </div>
 
@@ -137,8 +197,8 @@ const ProfileSettings = () => {
                   id="business_name"
                   type="text"
                   value={formData.business_name}
-                  onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-                  required
+                  onChange={(e) => handleInputChange('business_name', e.target.value)}
+                  placeholder={getExistingValue('business_name')}
                 />
               </div>
 
@@ -148,8 +208,8 @@ const ProfileSettings = () => {
                   id="contact_info"
                   type="tel"
                   value={formData.contact_info}
-                  onChange={(e) => setFormData({ ...formData, contact_info: e.target.value })}
-                  required
+                  onChange={(e) => handleInputChange('contact_info', e.target.value)}
+                  placeholder={getExistingValue('contact_info')}
                 />
               </div>
 
@@ -159,7 +219,8 @@ const ProfileSettings = () => {
                   id="farm_name"
                   type="text"
                   value={formData.farm_name}
-                  onChange={(e) => setFormData({ ...formData, farm_name: e.target.value })}
+                  onChange={(e) => handleInputChange('farm_name', e.target.value)}
+                  placeholder={getExistingValue('farm_name')}
                 />
               </div>
 
@@ -168,7 +229,8 @@ const ProfileSettings = () => {
                 <Textarea
                   id="farm_address"
                   value={formData.farm_address}
-                  onChange={(e) => setFormData({ ...formData, farm_address: e.target.value })}
+                  onChange={(e) => handleInputChange('farm_address', e.target.value)}
+                  placeholder={getExistingValue('farm_address')}
                   rows={3}
                 />
               </div>
@@ -179,7 +241,8 @@ const ProfileSettings = () => {
                   id="farm_phone"
                   type="tel"
                   value={formData.farm_phone}
-                  onChange={(e) => setFormData({ ...formData, farm_phone: e.target.value })}
+                  onChange={(e) => handleInputChange('farm_phone', e.target.value)}
+                  placeholder={getExistingValue('farm_phone')}
                 />
               </div>
 
@@ -258,8 +321,8 @@ const ProfileSettings = () => {
                 <Textarea
                   id="qr_custom_message"
                   value={formData.qr_custom_message}
-                  onChange={(e) => setFormData({ ...formData, qr_custom_message: e.target.value })}
-                  placeholder="Nhập tin nhắn tùy chỉnh sẽ hiển thị trên trang QR..."
+                  onChange={(e) => handleInputChange('qr_custom_message', e.target.value)}
+                  placeholder={getExistingValue('qr_custom_message')}
                   rows={3}
                 />
               </div>
@@ -270,8 +333,8 @@ const ProfileSettings = () => {
                   id="qr_footer_text"
                   type="text"
                   value={formData.qr_footer_text}
-                  onChange={(e) => setFormData({ ...formData, qr_footer_text: e.target.value })}
-                  placeholder="Văn bản hiển thị ở cuối trang QR"
+                  onChange={(e) => handleInputChange('qr_footer_text', e.target.value)}
+                  placeholder={getExistingValue('qr_footer_text')}
                 />
               </div>
             </div>
@@ -287,13 +350,9 @@ const ProfileSettings = () => {
               <span className="text-gray-600">Phiên bản</span>
               <span>v1.0.0</span>
             </div>
-            <div className="flex justify-between py-2 border-b">
-              <span className="text-gray-600">Ngày tạo tài khoản</span>
-              <span>{new Date(user?.created_at || '').toLocaleDateString('vi-VN')}</span>
-            </div>
             <div className="flex justify-between py-2">
-              <span className="text-gray-600">ID người dùng</span>
-              <span className="font-mono text-sm">{user?.id}</span>
+              <span className="text-gray-600">Domain</span>
+              <span>{window.location.hostname}</span>
             </div>
           </CardContent>
         </Card>

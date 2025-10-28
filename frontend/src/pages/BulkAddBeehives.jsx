@@ -71,6 +71,7 @@ const BulkAddBeehives = () => {
         } catch (pdfError) {
           console.error('PDF download error:', pdfError);
           // Don't show error to user, as beehives were successfully created
+          toast.info('Tổ ong đã được tạo thành công. PDF sẽ được cải thiện trong phiên bản tiếp theo.');
         }
         
         navigate('/');

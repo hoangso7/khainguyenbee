@@ -12,12 +12,6 @@ const QRBeehiveDetail = () => {
   const [owner, setOwner] = useState(null);
   const [businessInfo, setBusinessInfo] = useState(null);
 
-  useEffect(() => {
-    if (token) {
-      loadBeehive();
-    }
-  }, [token, loadBeehive]);
-
   const loadBeehive = useCallback(async () => {
     console.log('🔍 QRBeehiveDetail: Starting to load beehive with token:', token);
     try {
@@ -53,6 +47,12 @@ const QRBeehiveDetail = () => {
       setBeehive(null);
     }
   }, [token]);
+
+  useEffect(() => {
+    if (token) {
+      loadBeehive();
+    }
+  }, [token, loadBeehive]);
 
   const getHealthBadgeVariant = (status) => {
     switch (status) {

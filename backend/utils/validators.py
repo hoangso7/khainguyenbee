@@ -258,6 +258,17 @@ class BeehiveValidator:
             else:
                 validated_data['notes'] = ''
         
+        # Validate is_sold
+        if 'is_sold' in data:
+            validated_data['is_sold'] = Validator.validate_boolean(data, 'is_sold')
+        
+        # Validate sold_date
+        if 'sold_date' in data:
+            if data['sold_date']:
+                validated_data['sold_date'] = Validator.validate_date(data, 'sold_date', allow_future=False)
+            else:
+                validated_data['sold_date'] = None
+        
         return validated_data
 
 class QueryValidator:
