@@ -130,6 +130,39 @@ def create_app(config_name=None):
             'version': '2.0.0',
             'environment': app_config.FLASK_ENV
         })
+    
+    # Public beehive route (without /api prefix)
+    @app.route('/beehive/<qr_token>', methods=['GET'])
+    def get_beehive_by_token_public(qr_token):
+        """Public endpoint to get beehive by QR token"""
+        from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
+        from backend.models import Beehive
+        from backend.utils.errors import NotFoundError
+        
+        try:
+            beehive = Beehive.query.filter_by(qr_token=qr_token).first()
+            if not beehive:
+                raise NotFoundError('Beehive not found')
+            
+            # Check if user is authenticated admin
+            is_admin = False
+            try:
+                verify_jwt_in_request()
+                current_user_id = get_jwt_identity()
+                if current_user_id and beehive.user_id == current_user_id:
+                    is_admin = True
+            except:
+                # User not authenticated, that's okay for public view
+                pass
+            
+            return jsonify({
+                'beehive': beehive.to_dict(),
+                'is_admin': is_admin
+            })
+            
+        except Exception as e:
+            app.logger.error(f'Error getting beehive by token: {str(e)}')
+            raise NotFoundError('Beehive not found')
         
     # Database initialization endpoint
     @app.route('/api/init-db', methods=['POST'])

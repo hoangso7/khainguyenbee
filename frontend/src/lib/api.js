@@ -143,7 +143,7 @@ class ApiService {
   }
 
   async getBeehiveByToken(token) {
-    return await this.request(`/beehive/${token}`);
+    return await this.request(`/api/beehive/${token}`);
   }
 
   async createBeehive(data) {
