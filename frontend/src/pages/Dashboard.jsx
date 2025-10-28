@@ -240,7 +240,7 @@ const Dashboard = () => {
         <Card>
           <CardHeader>
             <div className="flex justify-between items-center">
-              <CardTitle>Danh sách tổ ong</CardTitle>
+              <CardTitle className="font-bold">Danh sách tổ ong</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -319,13 +319,13 @@ const Dashboard = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="font-semibold">Mã tổ</TableHead>
-                    <TableHead className="font-semibold">Ngày nhập</TableHead>
-                    <TableHead className="font-semibold">Ngày tách</TableHead>
-                    <TableHead className="font-semibold">Tình trạng</TableHead>
-                    <TableHead className="font-semibold">Chủng loại</TableHead>
-                    <TableHead className="font-semibold">Ghi chú</TableHead>
-                    <TableHead className="text-right font-semibold">Thao tác</TableHead>
+                    <TableHead className="font-bold">Mã tổ</TableHead>
+                    <TableHead className="font-bold">Ngày nhập</TableHead>
+                    <TableHead className="font-bold">Ngày tách</TableHead>
+                    <TableHead className="font-bold">Tình trạng</TableHead>
+                    <TableHead className="font-bold">Chủng loại</TableHead>
+                    <TableHead className="font-bold">Ghi chú</TableHead>
+                    <TableHead className="text-right font-bold">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

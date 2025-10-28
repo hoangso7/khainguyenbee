@@ -14,7 +14,7 @@ const HealthChart = ({ data }) => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Thống kê sức khỏe tổ ong</CardTitle>
+          <CardTitle className="font-bold">Thống kê sức khỏe tổ ong</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center gap-4 py-6">
@@ -68,7 +68,7 @@ const HealthChart = ({ data }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Thống kê sức khỏe tổ ong</CardTitle>
+        <CardTitle className="font-bold">Thống kê sức khỏe tổ ong</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">

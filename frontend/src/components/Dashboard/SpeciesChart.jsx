@@ -13,7 +13,7 @@ const SpeciesChart = ({ data }) => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Thống kê chủng loại tổ ong</CardTitle>
+          <CardTitle className="font-bold">Thống kê chủng loại tổ ong</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center gap-4 py-6">
@@ -64,7 +64,7 @@ const SpeciesChart = ({ data }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Thống kê chủng loại tổ ong</CardTitle>
+        <CardTitle className="font-bold">Thống kê chủng loại tổ ong</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">

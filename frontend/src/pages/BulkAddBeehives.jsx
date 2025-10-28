@@ -153,7 +153,7 @@ const BulkAddBeehives = () => {
                   <SelectTrigger id="health_status" className="bg-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border border-gray-200 shadow-lg">
                     <SelectItem value="Tốt">Tốt</SelectItem>
                     <SelectItem value="Yếu">Yếu</SelectItem>
                   </SelectContent>
@@ -169,7 +169,7 @@ const BulkAddBeehives = () => {
                   <SelectTrigger id="species" className="bg-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border border-gray-200 shadow-lg">
                     <SelectItem value="Furva Vàng">Furva Vàng</SelectItem>
                     <SelectItem value="Furva Đen">Furva Đen</SelectItem>
                   </SelectContent>
