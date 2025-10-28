@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import apiService from '../lib/api.js';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import DateInput from '../components/common/DateInput';
 import { Label } from '../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
@@ -135,11 +136,10 @@ const BulkAddBeehives = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="import_date">Ngày nhập <span className="text-red-500">*</span></Label>
-                <Input
-                  id="import_date"
-                  type="date"
+                <DateInput
                   value={formData.import_date}
                   onChange={(e) => setFormData({ ...formData, import_date: e.target.value })}
+                  label={null}
                   required
                 />
               </div>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import apiService from '../lib/api.js';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import DateInput from '../components/common/DateInput';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
@@ -64,22 +65,20 @@ const AddBeehive = () => {
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="import_date">Ngày nhập <span className="text-red-500">*</span></Label>
-                  <Input
-                    id="import_date"
-                    type="date"
+                  <DateInput
                     value={formData.import_date}
                     onChange={(e) => setFormData({ ...formData, import_date: e.target.value })}
+                    label={null}
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="split_date">Ngày tách đàn</Label>
-                  <Input
-                    id="split_date"
-                    type="date"
+                  <DateInput
                     value={formData.split_date}
                     onChange={(e) => setFormData({ ...formData, split_date: e.target.value })}
+                    label={null}
                   />
                 </div>
               </div>

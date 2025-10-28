@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import apiService from '../lib/api.js';
 import { formatDate } from '../utils/dateUtils';
 import { Button } from '../components/ui/button';
+import DateInput from '../components/common/DateInput';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Checkbox } from '../components/ui/checkbox';
 import { toast } from 'sonner';
@@ -126,13 +127,12 @@ const ExportPDF = () => {
             {/* Filters */}
             <div className="flex items-center gap-3">
               <div className="space-y-1">
-                <label htmlFor="filter_date" className="text-sm text-gray-600">Lọc theo ngày nhập</label>
-                <input
-                  id="filter_date"
-                  type="date"
+                <label htmlFor="filter_date" className="text-sm text-gray-600">Lọc theo ngày nhập  </label>
+                <DateInput
                   value={filterDate}
                   onChange={(e) => setFilterDate(e.target.value)}
-                  className="border rounded-md px-3 py-2 text-sm"
+                  label={null}
+                  className="w-[180px]"
                 />
               </div>
               {filterDate && (
