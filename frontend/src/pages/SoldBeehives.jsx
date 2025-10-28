@@ -84,6 +84,19 @@ const SoldBeehives = () => {
     }
   };
 
+  const getHealthBadgeClass = (status) => {
+    switch (status) {
+      case 'Tốt':
+        return 'bg-green-100 text-green-700 border-green-300';
+      case 'Bình thường':
+        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+      case 'Yếu':
+        return 'bg-red-100 text-red-700 border-red-300';
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-300';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white">
       <header className="bg-gradient-to-r from-amber-500 to-yellow-500 border-b border-amber-400 shadow-md">
@@ -121,12 +134,12 @@ const SoldBeehives = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Mã tổ</TableHead>
-                    <TableHead>Ngày nhập</TableHead>
-                    <TableHead>Ngày bán</TableHead>
-                    <TableHead>Tình trạng</TableHead>
-                    <TableHead>Ghi chú</TableHead>
-                    <TableHead className="text-right">Thao tác</TableHead>
+                    <TableHead className="font-semibold">Mã tổ</TableHead>
+                    <TableHead className="font-semibold">Ngày nhập</TableHead>
+                    <TableHead className="font-semibold">Ngày bán</TableHead>
+                    <TableHead className="font-semibold">Tình trạng</TableHead>
+                    <TableHead className="font-semibold">Ghi chú</TableHead>
+                    <TableHead className="text-right font-semibold">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -143,7 +156,7 @@ const SoldBeehives = () => {
                         <TableCell>{formatDate(beehive.import_date)}</TableCell>
                         <TableCell>{beehive.sold_date ? formatDate(beehive.sold_date) : '-'}</TableCell>
                         <TableCell>
-                          <Badge variant={getHealthBadgeVariant(beehive.health_status)}>
+                          <Badge variant="outline" className={getHealthBadgeClass(beehive.health_status)}>
                             {beehive.health_status}
                           </Badge>
                         </TableCell>
@@ -190,7 +203,7 @@ const SoldBeehives = () => {
                           <CardTitle className="text-base">{beehive.serial_number}</CardTitle>
                           <p className="text-sm text-gray-500">Ngày bán: {beehive.sold_date ? formatDate(beehive.sold_date) : '-'}</p>
                         </div>
-                        <Badge variant={getHealthBadgeVariant(beehive.health_status)}>
+                        <Badge variant="outline" className={getHealthBadgeClass(beehive.health_status)}>
                           {beehive.health_status}
                         </Badge>
                       </div>
