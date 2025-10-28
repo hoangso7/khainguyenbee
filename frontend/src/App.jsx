@@ -31,6 +31,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/setup" element={<Setup />} />
         <Route path="/qr/:token" element={<QRBeehiveDetail />} />
+        <Route path="/beehive/:qrToken" element={<BeehiveDetail />} />
 
         {/* Protected Routes */}
         <Route
@@ -62,14 +63,6 @@ function App() {
           element={
             <ProtectedRoute>
               <EditBeehive />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/beehive/:serialNumber"
-          element={
-            <ProtectedRoute>
-              <BeehiveDetail />
             </ProtectedRoute>
           }
         />

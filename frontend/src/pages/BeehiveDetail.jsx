@@ -11,27 +11,29 @@ import { formatDate } from '../utils/dateUtils';
 
 const BeehiveDetail = () => {
   const navigate = useNavigate();
-  const { serialNumber } = useParams();
+  const { qrToken } = useParams();
   const [beehive, setBeehive] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [qrUrl, setQrUrl] = useState('');
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    if (serialNumber) {
+    if (qrToken) {
       loadBeehive();
     }
-  }, [serialNumber, loadBeehive]);
+  }, [qrToken, loadBeehive]);
 
   const loadBeehive = useCallback(async () => {
     try {
-      const data = await apiService.getBeehive(serialNumber);
-      setBeehive(data);
-      generateQR(data.qr_token);
+      const data = await apiService.getBeehiveByToken(qrToken);
+      setBeehive(data.beehive);
+      setIsAdmin(data.is_admin || false);
+      generateQR(data.beehive.qr_token);
         } catch {
           toast.error('Không tìm thấy tổ ong');
           navigate('/');
         }
-  }, [serialNumber, navigate]);
+  }, [qrToken, navigate]);
 
   const generateQR = async (token) => {
     const publicUrl = `${window.location.origin}/qr/${token}`;
@@ -85,10 +87,12 @@ const BeehiveDetail = () => {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Quay lại
             </Button>
-            <Button onClick={() => navigate(`/edit-beehive/${serialNumber}`)} className="bg-white text-amber-700 hover:bg-amber-50">
-              <Edit className="w-4 h-4 mr-2" />
-              Chỉnh sửa
-            </Button>
+            {isAdmin && (
+              <Button onClick={() => navigate(`/edit-beehive/${beehive.serial_number}`)} className="bg-white text-amber-700 hover:bg-amber-50">
+                <Edit className="w-4 h-4 mr-2" />
+                Chỉnh sửa
+              </Button>
+            )}
           </div>
         </div>
       </header>

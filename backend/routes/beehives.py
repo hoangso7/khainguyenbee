@@ -438,7 +438,7 @@ def unsell_beehive(serial_number):
 
 @beehives_bp.route('/beehive/<qr_token>', methods=['GET'])
 def get_beehive_by_token(qr_token):
-    """Get beehive by QR token (public endpoint)"""
+    """Get beehive by QR token (public endpoint with admin privileges)"""
     try:
         beehive = Beehive.query.filter_by(qr_token=qr_token).first()
         if not beehive:
@@ -446,7 +446,18 @@ def get_beehive_by_token(qr_token):
         
         owner = User.query.get(beehive.user_id)
         
-        return jsonify({
+        # Check if user is authenticated and is the owner
+        is_admin = False
+        try:
+            from flask_jwt_extended import verify_jwt_in_request
+            verify_jwt_in_request()
+            current_user_id = get_jwt_identity()
+            is_admin = (current_user_id == beehive.user_id)
+        except:
+            # User not authenticated, that's okay for public view
+            pass
+        
+        response_data = {
             'beehive': beehive.to_dict(),
             'owner': {
                 'id': owner.id,
@@ -463,8 +474,11 @@ def get_beehive_by_token(qr_token):
                 'qr_show_health_status': owner.qr_show_health_status,
                 'qr_custom_message': owner.qr_custom_message,
                 'qr_footer_text': owner.qr_footer_text,
-            } if owner else None
-        }), 200
+            } if owner else None,
+            'is_admin': is_admin  # Add admin flag for frontend
+        }
+        
+        return jsonify(response_data), 200
         
     except NotFoundError:
         raise

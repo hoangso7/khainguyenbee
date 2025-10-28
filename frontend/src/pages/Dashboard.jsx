@@ -327,7 +327,7 @@ const Dashboard = () => {
                     <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => navigate(`/beehive/${beehive.serial_number}`)}
+                              onClick={() => navigate(`/beehive/${beehive.qr_token}`)}
                             >
                               <Eye className="w-4 h-4" />
                     </Button>
@@ -384,7 +384,7 @@ const Dashboard = () => {
                           size="sm"
                           variant="outline"
                           className="flex-1"
-                          onClick={() => navigate(`/beehive/${beehive.serial_number}`)}
+                          onClick={() => navigate(`/beehive/${beehive.qr_token}`)}
                         >
                           <Eye className="w-4 h-4 mr-1" />
                           Xem

@@ -92,29 +92,35 @@ const QRBeehiveDetail = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Chi tiết tổ ong</CardTitle>
-              <Badge variant={getHealthBadgeVariant(beehive.health_status)}>
-                {beehive.health_status}
-              </Badge>
+              {businessInfo?.qr_show_health_status !== false && (
+                <Badge variant={getHealthBadgeVariant(beehive.health_status)}>
+                  {beehive.health_status}
+                </Badge>
+              )}
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-3">
-              <div className="flex items-start gap-3">
-                <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
-                <div>
-                  <p className="text-sm text-gray-500">Ngày nhập</p>
-                  <p>{formatDate(beehive.import_date)}</p>
-                </div>
-              </div>
-
-              {beehive.split_date && (
-                <div className="flex items-start gap-3">
-                  <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-gray-500">Ngày tách đàn</p>
-                    <p>{formatDate(beehive.split_date)}</p>
+              {businessInfo?.qr_show_beehive_history !== false && (
+                <>
+                  <div className="flex items-start gap-3">
+                    <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <div>
+                      <p className="text-sm text-gray-500">Ngày nhập</p>
+                      <p>{formatDate(beehive.import_date)}</p>
+                    </div>
                   </div>
-                </div>
+
+                  {beehive.split_date && (
+                    <div className="flex items-start gap-3">
+                      <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-gray-500">Ngày tách đàn</p>
+                        <p>{formatDate(beehive.split_date)}</p>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
 
               {beehive.notes && (
@@ -136,51 +142,70 @@ const QRBeehiveDetail = () => {
           </CardContent>
         </Card>
 
+        {/* Custom Message */}
+        {businessInfo?.qr_custom_message && (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-blue-800 text-center">{businessInfo.qr_custom_message}</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Owner Info */}
-        {(owner || businessInfo) && (
+        {(businessInfo?.qr_show_farm_info !== false || businessInfo?.qr_show_owner_contact !== false) && (
           <Card>
             <CardHeader>
               <CardTitle>Thông tin chủ sở hữu</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {businessInfo?.farm_name && (
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-gray-500">Tên trang trại</p>
-                    <p>{businessInfo.farm_name}</p>
-                  </div>
-                </div>
+              {businessInfo?.qr_show_farm_info !== false && (
+                <>
+                  {businessInfo?.farm_name && (
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-gray-500">Tên trang trại</p>
+                        <p>{businessInfo.farm_name}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {businessInfo?.farm_address && (
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-gray-500">Địa chỉ trang trại</p>
+                        <p>{businessInfo.farm_address}</p>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
 
-              {businessInfo?.farm_phone && (
-                <div className="flex items-start gap-3">
-                  <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-gray-500">Liên hệ</p>
-                    <p>{businessInfo.farm_phone}</p>
-                  </div>
-                </div>
-              )}
+              {businessInfo?.qr_show_owner_contact !== false && (
+                <>
+                  {businessInfo?.farm_phone && (
+                    <div className="flex items-start gap-3">
+                      <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-gray-500">Liên hệ</p>
+                        <p>{businessInfo.farm_phone}</p>
+                      </div>
+                    </div>
+                  )}
 
-              {owner?.business_name && (
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-gray-500">Tên doanh nghiệp</p>
-                    <p>{owner.business_name}</p>
-                  </div>
-                </div>
-              )}
-
-              {owner?.contact_info && (
-                <div className="flex items-start gap-3">
-                  <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-gray-500">Liên hệ</p>
-                    <p>{owner.contact_info}</p>
-                  </div>
-                </div>
+                  {owner?.email && (
+                    <div className="flex items-start gap-3">
+                      <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-gray-500">Email</p>
+                        <p>{owner.email}</p>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </CardContent>
           </Card>
@@ -189,7 +214,7 @@ const QRBeehiveDetail = () => {
         {/* Footer */}
         <div className="text-center pt-4">
           <p className="text-sm text-gray-500">
-            Được quản lý bởi <span className="font-medium text-amber-600">KBee Manager</span>
+            {businessInfo?.qr_footer_text || 'Được quản lý bởi KBee Manager'}
           </p>
         </div>
       </div>
