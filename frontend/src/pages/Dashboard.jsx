@@ -7,7 +7,7 @@ import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { AlertDialog } from '../components/ui/alert-dialog';
-import { Plus, Search, QrCode, FileDown, ShoppingCart, Settings, LogOut, Eye, Edit, Trash2, Filter, X } from 'lucide-react';
+import { Plus, Search, QrCode, FileDown, ShoppingCart, Settings, LogOut, Eye, Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDate } from '../utils/dateUtils';
 
@@ -17,13 +17,7 @@ const Dashboard = () => {
   const [stats, setStats] = useState({ total: 0, good: 0, normal: 0, weak: 0 });
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState({
-    serialNumber: '',
-    import_date: '',
-    split_date: '',
-    notes: ''
-  });
+  
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [beehiveToDelete, setBeehiveToDelete] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -69,7 +63,7 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchTerm, filters]);
+  }, [searchTerm]);
 
   useEffect(() => {
     loadData();
@@ -100,31 +94,10 @@ const Dashboard = () => {
     setPage(p);
   };
 
-  // Reset page when filters change
+  // Reset page when search changes
   useEffect(() => {
     setPage(1);
-  }, [searchTerm, filters]);
-
-  const handleFilterChange = (key, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [key]: value
-    }));
-  };
-
-  const clearFilters = () => {
-    setFilters({
-      serialNumber: '',
-      import_date: '',
-      split_date: '',
-      notes: ''
-    });
-    setSearchTerm('');
-  };
-
-  const hasActiveFilters = () => {
-    return searchTerm.trim() || Object.values(filters).some(value => value.trim());
-  };
+  }, [searchTerm]);
 
   const handleDelete = (serialNumber) => {
     setBeehiveToDelete(serialNumber);
@@ -244,26 +217,7 @@ const Dashboard = () => {
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle>Danh sách tổ ong</CardTitle>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowFilters(!showFilters)}
-                >
-                  <Filter className="w-4 h-4 mr-2" />
-                  Bộ lọc
-                </Button>
-                {hasActiveFilters() && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={clearFilters}
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Xóa bộ lọc
-                  </Button>
-                )}
-              </div>
+              
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -277,51 +231,7 @@ const Dashboard = () => {
               />
             </div>
 
-            {/* Advanced Filters */}
-            {showFilters && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-1 block">
-                    Mã tổ
-                  </label>
-                  <Input
-                    placeholder="Nhập mã tổ..."
-                    value={filters.serialNumber}
-                    onChange={(e) => handleFilterChange('serialNumber', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-1 block">
-                    Ngày nhập
-                  </label>
-                  <Input
-                    type="date"
-                    value={filters.import_date}
-                    onChange={(e) => handleFilterChange('import_date', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-1 block">
-                    Ngày tách
-                  </label>
-                  <Input
-                    type="date"
-                    value={filters.split_date}
-                    onChange={(e) => handleFilterChange('split_date', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-1 block">
-                    Ghi chú
-                  </label>
-                  <Input
-                    placeholder="Tìm trong ghi chú..."
-                    value={filters.notes}
-                    onChange={(e) => handleFilterChange('notes', e.target.value)}
-                  />
-                </div>
-              </div>
-            )}
+            
 
             {/* Desktop Table */}
             <div className="hidden md:block overflow-x-auto">

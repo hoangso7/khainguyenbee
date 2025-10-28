@@ -117,6 +117,17 @@ const BeehiveDetail = () => {
 
   console.log('🔍 BeehiveDetail: Current state - beehive:', beehive, 'isAdmin:', isAdmin);
 
+  const calculateAgeDays = (beehiveData) => {
+    if (!beehiveData) return null;
+    const basis = beehiveData.split_date || beehiveData.import_date;
+    if (!basis) return null;
+    const start = new Date(basis);
+    const now = new Date();
+    const diffMs = now.getTime() - start.getTime();
+    const days = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+    return days;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white flex items-center justify-center p-4">
@@ -205,6 +216,16 @@ const BeehiveDetail = () => {
                   <p className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
                     {beehive.split_date ? formatDate(beehive.split_date) : 'Tổ chưa được tách'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Tuổi</p>
+                  <p className="flex items-center gap-2">
+                    {(() => {
+                      const ageDays = calculateAgeDays(beehive);
+                      if (ageDays === null) return '-';
+                      return `${ageDays} ngày`;
+                    })()}
                   </p>
                 </div>
               </div>
