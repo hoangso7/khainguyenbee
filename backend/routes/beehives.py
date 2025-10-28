@@ -336,6 +336,12 @@ def update_beehive(serial_number):
         
         logger.info(f"Validated data: {validated_data}")
         
+        # Business rule: If beehive is sold, block updates unless the request explicitly unsells it
+        if beehive.is_sold:
+            wants_unsell = ('is_sold' in validated_data and validated_data['is_sold'] is False)
+            if not wants_unsell:
+                raise ValidationError('Tổ ong đã được bán. Vui lòng hủy trạng thái đã bán trước khi chỉnh sửa.')
+
         # Update fields
         if 'import_date' in validated_data:
             beehive.import_date = validated_data['import_date']
@@ -349,8 +355,12 @@ def update_beehive(serial_number):
             beehive.is_sold = validated_data['is_sold']
             logger.info(f'Setting is_sold to {validated_data["is_sold"]}')
         if 'sold_date' in validated_data:
-            beehive.sold_date = validated_data['sold_date']
-            logger.info(f'Setting sold_date to {validated_data["sold_date"]}')
+            # Only allow changing sold_date when setting is_sold True, or clearing when unselling
+            if beehive.is_sold and validated_data.get('sold_date') is None:
+                beehive.sold_date = None
+            elif validated_data.get('sold_date') is not None:
+                beehive.sold_date = validated_data['sold_date']
+            logger.info(f'Setting sold_date to {validated_data.get("sold_date")}')
         
         logger.info(f'Before commit - is_sold: {beehive.is_sold}, sold_date: {beehive.sold_date}')
         db.session.commit()

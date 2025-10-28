@@ -10,6 +10,7 @@ import { Switch } from '../components/ui/switch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { toast } from 'sonner';
 import { ArrowLeft } from 'lucide-react';
+import { AlertDialog } from '../components/ui/alert-dialog';
 
 const EditBeehive = () => {
   const navigate = useNavigate();
@@ -17,6 +18,8 @@ const EditBeehive = () => {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [beehive, setBeehive] = useState(null);
+  const [showUnsellDialog, setShowUnsellDialog] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   const [formData, setFormData] = useState({
     import_date: '',
@@ -103,6 +106,28 @@ const EditBeehive = () => {
     }
   };
 
+  const handleToggleSold = (nextChecked) => {
+    // Only allow unsell via confirmation; selling is handled elsewhere
+    if (formData.is_sold && nextChecked === false) {
+      setShowUnsellDialog(true);
+    }
+  };
+
+  const confirmUnsell = async () => {
+    if (!serialNumber) return;
+    setUpdatingStatus(true);
+    try {
+      await apiService.updateBeehive(serialNumber, { is_sold: false, sold_date: undefined });
+      toast.success('Đã hủy trạng thái đã bán');
+      await loadBeehive();
+    } catch (error) {
+      toast.error(error.message || 'Không thể hủy trạng thái đã bán');
+    } finally {
+      setUpdatingStatus(false);
+      setShowUnsellDialog(false);
+    }
+  };
+
   if (initialLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white flex items-center justify-center p-4">
@@ -166,6 +191,7 @@ const EditBeehive = () => {
                     type="date"
                     value={formData.import_date}
                     onChange={(e) => setFormData({ ...formData, import_date: e.target.value })}
+                    disabled={formData.is_sold}
                     required
                   />
                 </div>
@@ -177,6 +203,7 @@ const EditBeehive = () => {
                     type="date"
                     value={formData.split_date}
                     onChange={(e) => setFormData({ ...formData, split_date: e.target.value })}
+                    disabled={formData.is_sold}
                   />
                 </div>
               </div>
@@ -186,6 +213,7 @@ const EditBeehive = () => {
                 <Select
                   value={formData.health_status}
                   onValueChange={(value) => setFormData({ ...formData, health_status: value })}
+                  disabled={formData.is_sold}
                 >
                   <SelectTrigger id="health_status">
                     <SelectValue />
@@ -211,6 +239,7 @@ const EditBeehive = () => {
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   placeholder="Nhập ghi chú về tổ ong"
                   rows={4}
+                  disabled={formData.is_sold}
                 />
               </div>
 
@@ -228,13 +257,14 @@ const EditBeehive = () => {
                   <Switch
                     id="is_sold"
                     checked={formData.is_sold}
-                    disabled={true}
+                    disabled={updatingStatus}
+                    onCheckedChange={handleToggleSold}
                   />
                 </div>
               </div>
 
               <div className="flex gap-3 pt-4">
-                <Button type="submit" disabled={loading} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white">
+                <Button type="submit" disabled={loading || formData.is_sold} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white">
                   {loading ? 'Đang cập nhật...' : 'Cập nhật'}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => navigate('/')} className="border-amber-500 text-amber-700 hover:bg-amber-50">
@@ -245,6 +275,18 @@ const EditBeehive = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Unsell Confirmation Dialog */}
+      <AlertDialog
+        open={showUnsellDialog}
+        onOpenChange={setShowUnsellDialog}
+        title="Xác nhận hủy trạng thái đã bán"
+        description={`Bạn có chắc chắn muốn hủy trạng thái đã bán của tổ ong ${serialNumber}?`}
+        confirmText={updatingStatus ? 'Đang thực hiện...' : 'Hủy trạng thái đã bán'}
+        cancelText="Hủy"
+        onConfirm={confirmUnsell}
+        variant="default"
+      />
     </div>
   );
 };

@@ -259,7 +259,7 @@ const BeehiveDetail = () => {
         {businessInfo && businessInfo.qr_show_farm_info && (
           <Card>
             <CardHeader>
-              <CardTitle>Thông tin trang trại</CardTitle>
+              <CardTitle className="font-bold">Thông tin trang trại</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {businessInfo.farm_name && (
@@ -288,7 +288,7 @@ const BeehiveDetail = () => {
         {businessInfo && businessInfo.qr_show_owner_contact && (
           <Card>
             <CardHeader>
-              <CardTitle>Thông tin liên hệ</CardTitle>
+              <CardTitle className="font-bold">Thông tin liên hệ</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {owner && owner.email && (
