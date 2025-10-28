@@ -195,11 +195,17 @@ const BeehiveDetail = () => {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Health Badge - Top Right */}
-            <div className="flex justify-end">
-              <div className={`flex items-center gap-2 px-4 py-2 rounded-full border ${getHealthColor(beehive.health_status)}`}>
-                <span className="font-semibold text-base">Sức khoẻ: {beehive.health_status}</span>
-              </div>
+            {/* Badges - Top Right */}
+            <div className="flex justify-end gap-2">
+              <Badge className={`px-4 py-2 rounded-full border font-semibold text-base ${getHealthColor(beehive.health_status)}`}>
+                Sức khoẻ: {beehive.health_status}
+              </Badge>
+              <Badge className="px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
+                Tuổi: {(() => {
+                  const days = calculateAgeDays(beehive);
+                  return days !== null ? `${days} ngày` : '—';
+                })()}
+              </Badge>
             </div>
             <div className="grid md:grid-cols-2 gap-4 relative">
               <div className="grid grid-cols-2 gap-4">
