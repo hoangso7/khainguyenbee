@@ -11,8 +11,6 @@ import { Plus, Search, QrCode, FileDown, ShoppingCart, Settings, LogOut, Eye, Ed
 import { toast } from 'sonner';
 import { formatDate } from '../utils/dateUtils';
 import beeIcon from '../assets/bee-icon.png';
-import HealthChart from '../components/Dashboard/HealthChart.jsx';
-import SpeciesChart from '../components/Dashboard/SpeciesChart.jsx';
 import StatsToggleChart from '../components/Dashboard/StatsToggleChart.jsx';
 
 const Dashboard = () => {
@@ -212,19 +210,10 @@ const Dashboard = () => {
         </div>
 
         {/* Charts */}
-        {/* Mobile: single card with toggle */}
-        <div className="block md:hidden">
-          <StatsToggleChart
-            healthData={{ 'Tốt': stats.good, 'Yếu': stats.weak }}
-            speciesData={speciesStats}
-          />
-        </div>
-
-        {/* Desktop: two separate cards */}
-        <div className="hidden md:grid grid-cols-2 gap-4">
-          <HealthChart data={{ 'Tốt': stats.good, 'Yếu': stats.weak }} />
-          <SpeciesChart data={speciesStats} />
-        </div>
+        <StatsToggleChart
+          healthData={{ 'Tốt': stats.good, 'Yếu': stats.weak }}
+          speciesData={speciesStats}
+        />
 
         {/* Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

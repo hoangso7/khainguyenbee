@@ -59,8 +59,8 @@ const StatsToggleChart = ({ healthData, speciesData }) => {
             <CardTitle className="font-bold">{title}</CardTitle>
             <Button
               size="sm"
-              variant="outline"
               onClick={() => setMode(isHealth ? 'species' : 'health')}
+              className="bg-amber-500 hover:bg-amber-600 text-white font-semibold shadow-md hover:shadow-lg transition-all"
             >
               {buttonText}
             </Button>
@@ -83,9 +83,8 @@ const StatsToggleChart = ({ healthData, speciesData }) => {
           <CardTitle className="font-bold">{title}</CardTitle>
           <Button
             size="sm"
-            variant="outline"
             onClick={() => setMode(isHealth ? 'species' : 'health')}
-            className="shrink-0"
+            className="shrink-0 bg-amber-500 hover:bg-amber-600 text-white font-semibold shadow-md hover:shadow-lg transition-all"
           >
             {buttonText}
           </Button>
