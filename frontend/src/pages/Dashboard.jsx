@@ -213,7 +213,7 @@ const Dashboard = () => {
 
         {/* Charts */}
         {/* Mobile: single card with toggle */}
-        <div className="md:hidden">
+        <div className="block md:hidden">
           <StatsToggleChart
             healthData={{ 'Tốt': stats.good, 'Yếu': stats.weak }}
             speciesData={speciesStats}
