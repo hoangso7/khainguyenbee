@@ -12,6 +12,8 @@ import { toast } from 'sonner';
 import { formatDate } from '../utils/dateUtils';
 import beeIcon from '../assets/bee-icon.png';
 import StatsToggleChart from '../components/Dashboard/StatsToggleChart.jsx';
+import HealthChart from '../components/Dashboard/HealthChart.jsx';
+import SpeciesChart from '../components/Dashboard/SpeciesChart.jsx';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -210,10 +212,19 @@ const Dashboard = () => {
         </div>
 
         {/* Charts */}
-        <StatsToggleChart
-          healthData={{ 'Tốt': stats.good, 'Yếu': stats.weak }}
-          speciesData={speciesStats}
-        />
+        {/* Mobile: single card with toggle */}
+        <div className="block md:hidden">
+          <StatsToggleChart
+            healthData={{ 'Tốt': stats.good, 'Yếu': stats.weak }}
+            speciesData={speciesStats}
+          />
+        </div>
+
+        {/* Desktop: two separate cards */}
+        <div className="hidden md:grid grid-cols-2 gap-4">
+          <HealthChart data={{ 'Tốt': stats.good, 'Yếu': stats.weak }} />
+          <SpeciesChart data={speciesStats} />
+        </div>
 
         {/* Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
